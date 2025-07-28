@@ -1,0 +1,34 @@
+{
+  "name": "orb",
+  "version": "0.22.4",
+  "description": "General purpose moderation, leveling and fun bot.",
+  "main": "orb.ts",
+  "author": "none",
+  "type": "module",
+  "dependencies": {
+    "@napi-rs/canvas": "^0.1.40",
+    "@sefinek/random-animals": "^1.0.5",
+    "discord.js": "^14.20.0",
+    "dotenv": "^17.2.0",
+    "nanoid": "^5.0.1",
+    "node-cron": "^3.0.2",
+    "pg": "^8.11.0",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.12.0-beta.1",
+    "somerandomapi.js": "^1.6.0",
+    "symbology": "^4.0.1"
+  },
+  "scripts": {
+    "start": "tsx orb.ts",
+    "build": "tsc",
+    "deployToServer": "tsx ./helpers/deploy_beta.ts",
+    "deployToBot": "tsx ./helpers/deploy_global.ts"
+  },
+  "license": "AGPL-3.0-only",
+  "devDependencies": {
+    "@types/node": "^24.0.15",
+    "@types/node-cron": "^3.0.11",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  }
+}
