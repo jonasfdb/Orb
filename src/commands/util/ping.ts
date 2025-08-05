@@ -40,13 +40,13 @@ export default {
       .addFields(
         {
           name: "Ping values",
-          value:  `\n\u{251C} **${received - sent.createdAt.getTime()} ms** Discord > Bot` +
-                  `\n\u{251C} **${websocket_ping} ms** Bot > Discord API` +
-                  `\n\u{2514} **${Math.ceil(client.ws.ping) + (received - sent.createdAt.getTime()) + 1} ms total** `,
+          value: `\n\u{251C} **${received - sent.createdAt.getTime()} ms** Discord > Bot` +
+            `\n\u{251C} **${websocket_ping} ms** Bot > Discord API` +
+            `\n\u{2514} **${Math.ceil(client.ws.ping) + (received - sent.createdAt.getTime()) + 1} ms total** `,
           inline: false,
         }
-    )
-    .setTimestamp();
+      )
+      .setTimestamp();
 
     await interaction.editReply({ embeds: [ping_embed] });
   }

@@ -9,10 +9,10 @@ import { find_server_user } from "../../util/database/dbutils";
 import { validateCommandInteractionInGuild } from "../../util/validate";
 
 interface UserCooldowns {
-  daily:    { uses_left: number, last_use_timestamp: number },
+  daily: { uses_left: number, last_use_timestamp: number },
   coinflip: { uses_left: number, last_use_timestamp: number },
-  slots:    { uses_left: number, last_use_timestamp: number },
-  highlow:  { uses_left: number, last_use_timestamp: number }
+  slots: { uses_left: number, last_use_timestamp: number },
+  highlow: { uses_left: number, last_use_timestamp: number }
 }
 
 export default {

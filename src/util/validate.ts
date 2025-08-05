@@ -5,7 +5,7 @@
 import Discord from "discord.js";
 
 export function validateClientReady(client: Discord.Client): asserts client is Discord.Client<true> {
-  if(!client.isReady()) {
+  if (!client.isReady()) {
     throw new Error(`Client not ready!`);
   }
 }
@@ -92,8 +92,8 @@ export function validateGuildMember(member: unknown): asserts member is Discord.
 
 export function validateGuildTextChannel(channel: unknown): asserts channel is Discord.GuildTextBasedChannel {
   if (!channel || !(channel instanceof Discord.TextChannel || channel instanceof Discord.NewsChannel || channel instanceof Discord.ThreadChannel)) {
-      throw new Error('Expected GuildTextBasedChannel, got something else.')
-    }
+    throw new Error('Expected GuildTextBasedChannel, got something else.')
+  }
 }
 
 export function validateGuildVoiceChannel(channel: unknown): asserts channel is Discord.VoiceBasedChannel {

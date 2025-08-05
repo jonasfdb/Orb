@@ -32,11 +32,11 @@ const announcement_embed = new Discord.EmbedBuilder()
   .setTitle(`\u{1F4EF} - Announcement!`)
   .setDescription(`test`)
   .addFields(
-    { name: `test`, value: `test`},
+    { name: `test`, value: `test` },
   )
 
 initDatabase();
-const server_array = await ServerSettings.findAll({ where: { broadcasts_allowed: true }});
+const server_array = await ServerSettings.findAll({ where: { broadcasts_allowed: true } });
 
 let iterator = 0;
 let failures = 0;
@@ -54,7 +54,7 @@ server_array.forEach(async (server: ServerSettings) => {
     if (channel_to_send) {
       validateGuildTextChannel(channel_to_send);
       validateClientReady(client);
-      if(channel_to_send.permissionsFor(client.user)?.has(Discord.PermissionFlagsBits.SendMessages)) {
+      if (channel_to_send.permissionsFor(client.user)?.has(Discord.PermissionFlagsBits.SendMessages)) {
         await channel_to_send.send({ embeds: [announcement_embed] });
       } else {
         failures++;
@@ -62,13 +62,13 @@ server_array.forEach(async (server: ServerSettings) => {
     } else {
       failures++;
     }
-  } catch (err) {
-    console.trace(err);
+  } catch (error) {
+    console.trace(error);
     failures++;
   }
 
   iterator++;
-  if(iterator >= array_length) {
+  if (iterator >= array_length) {
     client.destroy();
     console.warn(`Successfully distributed announcement to ${array_length - failures} servers.`);
     process.exit(`0`);

@@ -127,7 +127,8 @@ async function messageOnGuild(message: Discord.Message): Promise<void> {
     server_user_data.set({
       current_level: server_user_data.current_level + 1,
       current_xp: 1,
-      next_required_xp: 5 * ((server_user_data.current_level + 1) ** 2) + (50 * (server_user_data.current_level + 1)) + 100   //  mee6 formula = 5 * (currLvl ^ 2) + (50 * currLvl) + 100, add - currXP at end to check how much xp needed still
+      next_required_xp: 5 * ((server_user_data.current_level + 1) ** 2) + (50 * (server_user_data.current_level + 1)) + 100   
+      //  mee6 formula = 5 * (currLvl ^ 2) + (50 * currLvl) + 100, add - currXP at end to check how much xp needed still
     })
 
     //   TO GET TOTAL XP FROM LEVEL 0 TO DESIRED LEVEL, DO AN INTEGRAL

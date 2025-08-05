@@ -18,7 +18,6 @@ export default {
     ),
 
   async execute(client: Discord.Client<true>, interaction: Discord.ChatInputCommandInteraction) {
-    // await interaction.deferReply();
     validateCommandInteractionInGuild(interaction);
 
     let rank_target_member = interaction.options.getMember("user") ?? interaction.member;

@@ -36,14 +36,14 @@ export default {
 			}
 
 			const failure_embed = new EmbedBuilder()
-			.setTitle(`${emojis.failure_emoji} - Something went wrong!`)
-			.setColor(colors.color_error)
-			.setDescription('An unexpected error occurred while executing the command. You can report this error on the Orb Support Server with the error code below if the command keeps failing.')
-			.addFields({
-				name: 'Error code:',
-				value: error_code,
-				inline: false
-			});
+				.setTitle(`${emojis.failure_emoji} - Something went wrong!`)
+				.setColor(colors.color_error)
+				.setDescription('An unexpected error occurred while executing the command. You can report this error on the Orb Support Server with the error code below if the command keeps failing.')
+				.addFields({
+					name: 'Error code:',
+					value: error_code,
+					inline: false
+				});
 
 			const join_support_server_button: ButtonBuilder = new ButtonBuilder()
 				.setLabel('Join Orb Support Server')

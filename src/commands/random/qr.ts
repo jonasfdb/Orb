@@ -24,7 +24,7 @@ export default {
       .setDescription('How many days the invite link is valid for.')
       .setMinValue(1)
       .setMaxValue(365)
-  ),
+    ),
 
   async execute(client: Discord.Client<true>, interaction: Discord.ChatInputCommandInteraction) {
     validateCommandInteractionInGuild(interaction);
@@ -63,8 +63,8 @@ export default {
       interaction.reply({ embeds: [qr_embed], files: [qr_image] });
 
       fs.unlinkSync(`./src/util/qr_storage/qr_${qr_uuid}.png`);
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
     }
   }
 }
