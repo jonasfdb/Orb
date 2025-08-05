@@ -7,3 +7,4 @@ import { ServerLevelupRewards } from "../src/util/database/models/ServerLevelupR
 import { ServerOtpToken } from "../src/util/database/models/ServerOtpToken";
 import { ServerSettings } from "../src/util/database/models/ServerSettings";
 import { ServerUser } from "../src/util/database/models/ServerUser";
+
