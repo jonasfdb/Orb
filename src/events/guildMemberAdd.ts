@@ -21,7 +21,7 @@ export default {
 
       let captcha_has_failed_before = false
 
-      async function captchaPrompter() {   // this was previously "interaction" but in the guildMemberAdd event the member instance can be accessed without passing it as argument
+      async function captchaPrompter() {
         const captcha_ready: Discord.ButtonBuilder = new Discord.ButtonBuilder()
           .setCustomId('captcha_ready')
           .setLabel('Solve captcha')
@@ -43,7 +43,6 @@ export default {
         if (!captcha_has_failed_before) {
           captcha_embed = new Discord.EmbedBuilder()
             .setColor(colors.color_default)
-            // .setAuthor({ name: `${wallet_nickname}`, iconURL: wallet_target_member_avatar })     ### Server on which to verify
             .setTitle('\u{1FAAA} - Verification required!')
             .setDescription('This server requires you to verify that you are a human by solving the following captcha.')
             .setImage(captcha_attachment_filename)
@@ -54,7 +53,6 @@ export default {
         } else {
           captcha_embed = new Discord.EmbedBuilder()
             .setColor(colors.color_error)
-            // .setAuthor({ name: `${wallet_nickname}`, iconURL: wallet_target_member_avatar })     ### Server on which to verify
             .setTitle('\u{1FAAA} - Verification required')
             .setDescription('You have failed the captcha. Please try verifying yourself again.')
             .setImage(captcha_attachment_filename)

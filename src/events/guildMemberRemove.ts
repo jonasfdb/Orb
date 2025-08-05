@@ -31,6 +31,7 @@ export default {
     if (leave_message_channel && leave_message_channel.isTextBased()) {
       await leave_message_channel.send({ embeds: [guild_member_leave_embed] });
     }
+
     // if no leave message, do nothing
 
     console.log(`Member ${left_user.id} on server ${member.guild.id} left`);

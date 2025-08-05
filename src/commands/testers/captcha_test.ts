@@ -41,7 +41,6 @@ export default {
       if (!captcha_has_failed_before) {
         captcha_embed = new Discord.EmbedBuilder()
           .setColor(colors.color_default)
-          // .setAuthor({ name: `${wallet_nickname}`, iconURL: wallet_target_member_avatar })     ### Server on which to verify
           .setTitle('\u{1FAAA} - Verification required!')
           .setDescription('This server requires you to verify that you are a human by solving the following captcha.')
           .setImage(captcha_attachment_filename)
@@ -52,7 +51,6 @@ export default {
       } else {
         captcha_embed = new Discord.EmbedBuilder()
           .setColor(colors.color_error)
-          // .setAuthor({ name: `${wallet_nickname}`, iconURL: wallet_target_member_avatar })     ### Server on which to verify
           .setTitle('\u{1FAAA} - Verification required')
           .setDescription('You have failed the captcha. Please try verifying yourself again.')
           .setImage(captcha_attachment_filename)
@@ -126,8 +124,6 @@ export default {
                     .setDescription('Thank you for making sure you are a human! You should now be able to access the server.\n\nIf you are unable to access the server in more than five minutes, contact the moderation team.')
 
                   // give someone the role here and shit
-
-                  // await interaction.member.roles.remove(await find_server_settings(interaction.guild.id).captcha_unverified_role_id);
 
                   await captcha_input_response.deleteReply();
                   await captcha_embed_message.edit({ embeds: [captcha_passed_embed], components: [], files: [] });

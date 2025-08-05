@@ -35,9 +35,9 @@ export default {
       const leaderboard_user = await client.users.fetch(raw_leaderboard_array[e].user_id.toString());
 
       switch (e) {
+        // \u{1F948} is the 1st place medal, \u{1F3C6} is the trophy
         case 0:
-          // name_string = `**<@${lbUser.id}>** \u{1F389}`;
-          name_string = `\u{1F389} \u{2500} **<@${leaderboard_user.id}>**`;   // \u{1F948} is the 1st place medal, \u{1F3C6} is the trophy
+          name_string = `\u{1F389} \u{2500} **<@${leaderboard_user.id}>**`;   
           break;
         case 1:
           name_string = `\u{1F948} \u{2500} **<@${leaderboard_user.id}>**`;
@@ -46,12 +46,10 @@ export default {
           name_string = `\u{1F949} \u{2500} **<@${leaderboard_user.id}>**`;
           break;
         default:
-          // name_string = `**<@${lbUser.id}>**`;
           name_string = `**#${e + 1}** \u{2500} **<@${leaderboard_user.id}>**`;
           break;
       }
 
-      // leaderboardStringTOP.push(`${name_string}\n\u{200B}\u{2514} **#${e + 1}** | Level **${rawLeaderboardTOP[e].current_level}** | XP: **${rawLeaderboardTOP[e].total_xp}**`);
       leaderboard_string_array.push(`${name_string}\n\u{200B}\u{2514} Level **${raw_leaderboard_array[e].current_level}** | XP: **${raw_leaderboard_array[e].total_xp}**`);
     }
 

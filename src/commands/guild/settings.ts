@@ -6,7 +6,7 @@ import Discord, { PermissionFlagsBits } from "discord.js";
 import { find_server, find_server_settings } from "../../util/database/dbutils";
 import { colors } from "../../util/colors"
 import { emojis } from "../../util/emojis"
-import { generate_orb_id, generate_token } from "../../util/generators"
+import { generate_token } from "../../util/generators"
 import { ServerSettings } from "../../util/database/models/ServerSettings";
 import { validateCommandInteractionInGuild, validateGuildChannel, validateNumber, validateRole, validateString } from "../../util/validate";
 import { getGuildIcon } from "../../util/helpers";
@@ -188,8 +188,6 @@ export default {
 
     switch (interaction.options.getSubcommandGroup() || interaction.options.getSubcommand()) {
       case `current`:
-        // await interaction.deferReply();
-
         const server_settings = await find_server_settings(interaction.guild.id);
 
         let welcome_message_enabled = server_settings.welcome_messages_enabled ? 'enabled' : 'disabled';
@@ -337,7 +335,6 @@ export default {
               console.trace(error)
             }
 
-            // Captcha could in theory get custom methods like a password or anyathing that users have to enter to jion
             break;
 
           case `disable`:
@@ -417,7 +414,7 @@ export default {
               token: reward_token,
               role_id: reward_role.id
             });
-            rewardsArray.sort((a: RoleReward, b: RoleReward) => a.min_level - b.min_level); // sort  by min level
+            rewardsArray.sort((a: RoleReward, b: RoleReward) => a.min_level - b.min_level);
 
             server.set({ role_rewards_level_string: JSON.stringify(rewardsArray) });
             await server.save();
