@@ -24,7 +24,7 @@ export default {
       .setDescription('How many days the invite link is valid for.')
       .setMinValue(1)
       .setMaxValue(365)
-  ),
+    ),
 
   async execute(client: Discord.Client<true>, interaction: Discord.ChatInputCommandInteraction) {
     validateCommandInteractionInGuild(interaction);

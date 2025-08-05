@@ -9,10 +9,10 @@ import { find_server_user } from "../../util/database/dbutils";
 import { validateCommandInteractionInGuild, validateInteractionCallbackResponse, validateNumber } from "../../util/validate";
 
 interface UserCooldowns {
-  daily:    { uses_left: number, last_use_timestamp: number },
+  daily: { uses_left: number, last_use_timestamp: number },
   coinflip: { uses_left: number, last_use_timestamp: number },
-  slots:    { uses_left: number, last_use_timestamp: number },
-  highlow:  { uses_left: number, last_use_timestamp: number }
+  slots: { uses_left: number, last_use_timestamp: number },
+  highlow: { uses_left: number, last_use_timestamp: number }
 }
 
 export default {
@@ -171,7 +171,7 @@ export default {
           else if (r < symbols[3].weight) { symbol = symbols[3] }
           else if (r < symbols[2].weight) { symbol = symbols[2] }
           else if (r < symbols[1].weight) { symbol = symbols[1] }
-          else                            { symbol = symbols[0] }
+          else { symbol = symbols[0] }
 
           // console.log(r);
           // console.log(symbol);

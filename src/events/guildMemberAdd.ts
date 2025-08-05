@@ -10,9 +10,9 @@ import { nanoid } from "nanoid";
 import { generate_captcha } from "../util/captcha_generator";
 
 export default {
-	name: Events.GuildMemberAdd,
-	async execute(member: GuildMember) {
-		let server = await find_server_settings(member.guild.id);
+  name: Events.GuildMemberAdd,
+  async execute(member: GuildMember) {
+    let server = await find_server_settings(member.guild.id);
     let joined_user = member.user;
     let joined_user_icon = joined_user.displayAvatarURL({ extension: 'webp' }).toString();
 
@@ -40,7 +40,7 @@ export default {
 
         let captcha_embed: Discord.EmbedBuilder;
 
-        if(!captcha_has_failed_before) {
+        if (!captcha_has_failed_before) {
           captcha_embed = new Discord.EmbedBuilder()
             .setColor(colors.color_default)
             // .setAuthor({ name: `${wallet_nickname}`, iconURL: wallet_target_member_avatar })     ### Server on which to verify
@@ -85,7 +85,7 @@ export default {
           }
         });
         captcha_button_collector.on('collect', async (captcha_modal_interaction) => {
-          switch(captcha_modal_interaction.customId) {
+          switch (captcha_modal_interaction.customId) {
             case 'captcha_ready':
               const captcha_uuid = nanoid().toString()
 
@@ -163,7 +163,7 @@ export default {
                         time: (1000 * 60 * 5)
                       });
 
-                      switch(captcha_failed_embed_interaction.customId) {
+                      switch (captcha_failed_embed_interaction.customId) {
                         case 'captcha_retry':
                           const grabbing_new_captcha_embed = new Discord.EmbedBuilder()
                             .setColor(colors.color_error)
@@ -218,14 +218,14 @@ export default {
       .setDescription(
         `${welcome_message}\n\nNew user ${joined_user.username}\n` +
         `\u{2514} User ID: ${joined_user.id}\n` +
-        `\u{2514} Account age: **${ Math.floor((Date.now() - joined_user.createdAt.getTime()) / 1000 / 60 / 60 / 24) } days**`)
+        `\u{2514} Account age: **${Math.floor((Date.now() - joined_user.createdAt.getTime()) / 1000 / 60 / 60 / 24)} days**`)
       .setFooter({ text: `Member count: ${member.guild.memberCount}` })
 
     const join_message_channel = member.guild.channels.cache.get(server.welcome_channel_id);
-    if(join_message_channel && join_message_channel.isTextBased()) {
+    if (join_message_channel && join_message_channel.isTextBased()) {
       await join_message_channel.send({ embeds: [guild_member_add_embed] });
     } // If no join message, just do nothing
 
     console.log(`Welcomed new member ${joined_user.id} on server ${member.guild.id}`);
-	},
+  },
 };

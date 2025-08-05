@@ -18,11 +18,11 @@ const commands_folders_path = path.join(__dirname, '../src/commands');
 const commands_folders = fs.readdirSync(commands_folders_path);
 let commands: any[] = [];
 
-for(const folder of commands_folders) {
+for (const folder of commands_folders) {
   const commands_path = path.join(commands_folders_path, folder);
   const commands_files = fs.readdirSync(commands_path).filter(file => file.endsWith('.ts'));
 
-  for(const file of commands_files) {
+  for (const file of commands_files) {
     const file_path = path.join(commands_path, file);
     const command = await import(pathToFileURL(file_path).href).then(module => module.default);
 

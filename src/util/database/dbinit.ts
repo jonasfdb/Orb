@@ -22,7 +22,6 @@ export async function initDatabase() {
   initServerBadgesModel(database);
   initServerUserModel(database);
   initUserModel(database);
-  // initServerLevelupRewardsModel(database);
 
   try {
     await database.authenticate();

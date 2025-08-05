@@ -60,14 +60,14 @@ client.commands = new Discord.Collection();
 
 console.log(`Retrieving commands...`);
 
-for(const folder of commands_folders) {
+for (const folder of commands_folders) {
   const commands_path = path.join(commands_folders_path, folder);
   const commands_files = fs.readdirSync(commands_path).filter(file => file.endsWith('.ts') || file.endsWith('.mjs'));
 
-  for(const file of commands_files) {
+  for (const file of commands_files) {
     const file_path = path.join(commands_path, file);
 
-    if (file_path.includes('_command_base.ts')){
+    if (file_path.includes('_command_base.ts')) {
       // do not import command base
       break;
     }
@@ -90,21 +90,21 @@ const events_path = path.join(__dirname, 'src', 'events');
 const events_files = fs.readdirSync(events_path).filter(file => file.endsWith('.ts') || file.endsWith('.mjs'));
 
 for (const file of events_files) {
-	const file_path = path.join(events_path, file);
+  const file_path = path.join(events_path, file);
 
   const event = await import(pathToFileURL(file_path).href)
     .then(module => module.default)
 
-  if (file_path.includes('_event_base.ts')){
+  if (file_path.includes('_event_base.ts')) {
     // do not import event base
     break;
   }
 
-	if (event.once) {
-		client.once(event.name, (...args) => event.execute(...args));     //    ... means spread
-	} else {
-		client.on(event.name, (...args) => event.execute(...args));
-	}
+  if (event.once) {
+    client.once(event.name, (...args) => event.execute(...args));     //    ... means spread
+  } else {
+    client.on(event.name, (...args) => event.execute(...args));
+  }
 
   console.log(`> Imported ${file_path}`);
 };

@@ -7,9 +7,9 @@ import { find_server_settings } from "../util/database/dbutils";
 import { colors } from "../util/colors";
 
 export default {
-	name: Events.GuildMemberRemove,
-	async execute(member: Discord.GuildMember) {
-		let server = await find_server_settings(member.guild.id);
+  name: Events.GuildMemberRemove,
+  async execute(member: Discord.GuildMember) {
+    let server = await find_server_settings(member.guild.id);
     let left_user = member.user;
     let left_user_icon = left_user.displayAvatarURL({ extension: 'webp' }).toString();
 
@@ -28,11 +28,11 @@ export default {
       .setFooter({ text: `Member count: ${member.guild.memberCount}` })
 
     const leave_message_channel = await member.guild.channels.cache.get(server.leave_channel_id);
-    if(leave_message_channel && leave_message_channel.isTextBased()) {
+    if (leave_message_channel && leave_message_channel.isTextBased()) {
       await leave_message_channel.send({ embeds: [guild_member_leave_embed] });
     }
     // if no leave message, do nothing
 
     console.log(`Member ${left_user.id} on server ${member.guild.id} left`);
-	},
+  },
 };

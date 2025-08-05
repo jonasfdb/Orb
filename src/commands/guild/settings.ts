@@ -234,7 +234,7 @@ export default {
             { name: 'Channels:', value: settings_channels_string_array.join('') },
             { name: 'Messages:', value: settings_messages_string_array.join('') },
           )
-          // .setDescription(current_settings_string_array.join(''))
+        // .setDescription(current_settings_string_array.join(''))
 
         interaction.reply({ embeds: [current_settings_list_embed] });
         break;
@@ -266,10 +266,10 @@ export default {
               .setTitle(`\u{1F6E1} - Captcha Protection Setup`)
               .addFields(
                 { name: `Orb will:`, value: ` \u{2514} Edit **${index} channels**\n \u{2514} Create a new "Not Verified" role` },
-                { name: 'How does it work?', value: 'Orb will assign every new member a "Not Verified" role that has no access to any channel, and will remove it once the member has verified.'},
-                { name: 'What about current members?', value: 'Verification only applies to newcomers.'}
+                { name: 'How does it work?', value: 'Orb will assign every new member a "Not Verified" role that has no access to any channel, and will remove it once the member has verified.' },
+                { name: 'What about current members?', value: 'Verification only applies to newcomers.' }
               )
-              .setFooter({ text: 'This embed will time out in five minutes.'})
+              .setFooter({ text: 'This embed will time out in five minutes.' })
             const captcha_start_button = new Discord.ButtonBuilder()
               .setCustomId('start_captcha_setup')
               .setLabel('Start')
@@ -289,7 +289,7 @@ export default {
               const captcha_begin_embed_response = await captcha_begin_embed_prompt.awaitMessageComponent({ filter: captcha_setup_collector_filter, time: (1000 * 60) });
               await captcha_begin_embed_response.deferUpdate();
 
-              switch(captcha_begin_embed_response.customId) {
+              switch (captcha_begin_embed_response.customId) {
                 case 'start_captcha_setup':
                   const captcha_working_embed = new Discord.EmbedBuilder()
                     .setColor(colors.color_default)
@@ -303,7 +303,7 @@ export default {
                   await ServerSettings.update({
                     captcha_verification_required: true,
                     captcha_unverified_role_id: not_verified_role.id,
-                  },{ where: { server_id: interaction.guild.id }}
+                  }, { where: { server_id: interaction.guild.id } }
                   );
 
                   let failure_count = 0;
@@ -343,7 +343,7 @@ export default {
           case `disable`:
             await ServerSettings.update({
               captcha_verification_required: false,
-            },{ where: { server_id: interaction.guild.id }}
+            }, { where: { server_id: interaction.guild.id } }
             );
 
 
@@ -351,7 +351,7 @@ export default {
               .setColor(colors.color_success)
               .setTitle(`${emojis.success_emoji} - Changes saved!`)
               .addFields(
-                { name: `\u{1F6E0} Changes:`, value: `\u{200B}\u{2514} Captcha protection is now **disabled** `}
+                { name: `\u{1F6E0} Changes:`, value: `\u{200B}\u{2514} Captcha protection is now **disabled** ` }
               )
 
             interaction.reply({ embeds: [captcha_disable_embed] })
@@ -522,10 +522,10 @@ export default {
             let welcome_channel = interaction.options.getChannel("channel");
             validateGuildChannel(welcome_channel);
 
-            if(welcome_channel.permissionsFor(client.user)?.has(Discord.PermissionFlagsBits.SendMessages)) {
+            if (welcome_channel.permissionsFor(client.user)?.has(Discord.PermissionFlagsBits.SendMessages)) {
               await ServerSettings.update(
                 { welcome_channel_id: welcome_channel.id },
-                { where: { server_id: interaction.guild.id }}
+                { where: { server_id: interaction.guild.id } }
               );
 
               const welcome_channel_success_embed = new Discord.EmbedBuilder()
@@ -559,7 +559,7 @@ export default {
               try {
                 const permission_change_interaction = await lacking_permissions_response.awaitMessageComponent({ filter: collector_filter, time: (1000 * 60 * 1) });
 
-                switch(permission_change_interaction.customId) {
+                switch (permission_change_interaction.customId) {
                   case 'confirm_perm_change':
 
                     try {
@@ -567,7 +567,7 @@ export default {
 
                       await ServerSettings.update(
                         { welcome_channel_id: welcome_channel.id },
-                        { where: { server_id: interaction.guild.id }}
+                        { where: { server_id: interaction.guild.id } }
                       );
 
                       const welcome_channel_perm_change_success_embed = new Discord.EmbedBuilder()
@@ -590,21 +590,21 @@ export default {
 
                     interaction.editReply({ embeds: [welcome_channel_cancel_perm_change_embed] })
                     break;
-                  }
-                } catch (error) {
-                  console.trace(error)
                 }
+              } catch (error) {
+                console.trace(error)
               }
+            }
             break;
 
           case `leave-channel`:
             let leave_channel = interaction.options.getChannel("channel");
             validateGuildChannel(leave_channel);
 
-            if(leave_channel.permissionsFor(client.user)?.has(Discord.PermissionFlagsBits.SendMessages)) {
+            if (leave_channel.permissionsFor(client.user)?.has(Discord.PermissionFlagsBits.SendMessages)) {
               await ServerSettings.update(
                 { leave_channel_id: leave_channel.id },
-                { where: { server_id: interaction.guild.id }}
+                { where: { server_id: interaction.guild.id } }
               );
 
               const leave_channel_success_embed = new Discord.EmbedBuilder()
@@ -638,7 +638,7 @@ export default {
               try {
                 const permission_change_interaction = await lacking_permissions_response.awaitMessageComponent({ filter: collector_filter, time: (1000 * 60 * 1) });
 
-                switch(permission_change_interaction.customId) {
+                switch (permission_change_interaction.customId) {
                   case 'confirm_perm_change':
 
                     try {
@@ -646,7 +646,7 @@ export default {
 
                       await ServerSettings.update(
                         { leave_channel_id: leave_channel.id },
-                        { where: { server_id: interaction.guild.id }}
+                        { where: { server_id: interaction.guild.id } }
                       );
 
                       const leave_channel_perm_change_success_embed = new Discord.EmbedBuilder()
@@ -669,11 +669,11 @@ export default {
 
                     interaction.editReply({ embeds: [leave_channel_cancel_perm_change_embed] })
                     break;
-                  }
-                } catch (error) {
-                  console.trace(error)
                 }
+              } catch (error) {
+                console.trace(error)
               }
+            }
             break;
         }
         break;
@@ -710,7 +710,7 @@ export default {
 
             await ServerSettings.update(
               { welcome_message: welcome_message },
-              { where: { server_id: interaction.guild.id }}
+              { where: { server_id: interaction.guild.id } }
             );
 
             const welcome_message_success_embed = new Discord.EmbedBuilder()
@@ -727,7 +727,7 @@ export default {
 
             await ServerSettings.update(
               { leave_message: leave_message },
-              { where: { server_id: interaction.guild.id }}
+              { where: { server_id: interaction.guild.id } }
             );
 
             const leave_message_success_embed = new Discord.EmbedBuilder()
@@ -742,7 +742,7 @@ export default {
             interaction.reply("Sorry, this function is unavailable at the moment!");
             break;
         }
-      break;
+        break;
 
       case `toggles`:
         switch (interaction.options.getSubcommand()) {
@@ -753,14 +753,14 @@ export default {
             let welcome_message_result = "";
             let leave_message_result = "";
 
-            switch(interaction.options.getString('option')) {
+            switch (interaction.options.getString('option')) {
               case `all`:
                 await ServerSettings.update(
                   {
                     welcome_messages_enabled: true,
                     leave_messages_enabled: true
                   },
-                  { where: { server_id: interaction.guild.id }}
+                  { where: { server_id: interaction.guild.id } }
                 );
 
                 welcome_message_result = 'enabled';
@@ -772,7 +772,7 @@ export default {
                     welcome_messages_enabled: true,
                     leave_messages_enabled: false
                   },
-                  { where: { server_id: interaction.guild.id }}
+                  { where: { server_id: interaction.guild.id } }
                 );
 
                 welcome_message_result = 'enabled';
@@ -784,7 +784,7 @@ export default {
                     welcome_messages_enabled: false,
                     leave_messages_enabled: true
                   },
-                  { where: { server_id: interaction.guild.id }}
+                  { where: { server_id: interaction.guild.id } }
                 );
 
                 welcome_message_result = 'disabled';
@@ -796,7 +796,7 @@ export default {
                     welcome_messages_enabled: false,
                     leave_messages_enabled: false
                   },
-                  { where: { server_id: interaction.guild.id }}
+                  { where: { server_id: interaction.guild.id } }
                 );
 
                 welcome_message_result = 'disabled';
@@ -808,7 +808,7 @@ export default {
               .setColor(colors.color_success)
               .setTitle(`${emojis.success_emoji} - Changes saved!`)
               .addFields(
-                { name: `\u{1F6E0} Changes:`, value: `\u{200B}\u{2514} Welcome messages are now **${welcome_message_result}**\n\u{200B}\u{2514} Leave messages are now **${leave_message_result}**`}
+                { name: `\u{1F6E0} Changes:`, value: `\u{200B}\u{2514} Welcome messages are now **${welcome_message_result}**\n\u{200B}\u{2514} Leave messages are now **${leave_message_result}**` }
               )
 
             interaction.reply({ embeds: [message_toggle_success_embed] })
