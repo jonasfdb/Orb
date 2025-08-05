@@ -13,14 +13,14 @@ export default {
     .setDescription("Command group for all server settings.")
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
 
-    async execute(client: Discord.Client<true>, interaction: Discord.ChatInputCommandInteraction) {
-      validateCommandInteractionInGuild(interaction);
+  async execute(client: Discord.Client<true>, interaction: Discord.ChatInputCommandInteraction) {
+    validateCommandInteractionInGuild(interaction);
 
-      const profile_embed = new Discord.EmbedBuilder()
-        .setColor(colors.color_info)
-        .setTitle(`${emojis.attention_emoji} - Moved!`)
-        .setDescription(`Server settings have been moved to the /settings command to free up /server for other things like events.`)
+    const profile_embed = new Discord.EmbedBuilder()
+      .setColor(colors.color_info)
+      .setTitle(`${emojis.attention_emoji} - Moved!`)
+      .setDescription(`Server settings have been moved to the /settings command to free up /server for other things like events.`)
 
-      await interaction.reply({ embeds: [profile_embed] });
+    await interaction.reply({ embeds: [profile_embed] });
   }
 }

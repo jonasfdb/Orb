@@ -38,158 +38,154 @@ export default {
 
       let captcha_embed;
 
-        if(!captcha_has_failed_before) {
-          captcha_embed = new Discord.EmbedBuilder()
-            .setColor(colors.color_default)
-            // .setAuthor({ name: `${wallet_nickname}`, iconURL: wallet_target_member_avatar })     ### Server on which to verify
-            .setTitle('\u{1FAAA} - Verification required!')
-            .setDescription('This server requires you to verify that you are a human by solving the following captcha.')
-            .setImage(captcha_attachment_filename)
-            .addFields(
-              { name: 'Instructions', value: '1. Press the "Solve Captcha" button when you are ready.\n2. Enter the six characters connected by the green line.', inline: false },
-            )
-            .setFooter({ text: 'You can submit custom backgrounds for captchas by supporting Orb on Patreon! Orb will pick one at random.\nThis captcha will time out in 10 minutes.' })
-        } else {
-          captcha_embed = new Discord.EmbedBuilder()
+      if (!captcha_has_failed_before) {
+        captcha_embed = new Discord.EmbedBuilder()
+          .setColor(colors.color_default)
+          .setTitle('\u{1FAAA} - Verification required!')
+          .setDescription('This server requires you to verify that you are a human by solving the following captcha.')
+          .setImage(captcha_attachment_filename)
+          .addFields(
+            { name: 'Instructions', value: '1. Press the "Solve Captcha" button when you are ready.\n2. Enter the six characters connected by the green line.', inline: false },
+          )
+          .setFooter({ text: 'You can submit custom backgrounds for captchas by supporting Orb on Patreon! Orb will pick one at random.\nThis captcha will time out in 10 minutes.' })
+      } else {
+        captcha_embed = new Discord.EmbedBuilder()
+          .setColor(colors.color_error)
+          .setTitle('\u{1FAAA} - Verification required')
+          .setDescription('You have failed the captcha. Please try verifying yourself again.')
+          .setImage(captcha_attachment_filename)
+          .addFields(
+            { name: 'Instructions', value: '1. Press the "Solve Captcha" button when you are ready.\n2. Enter the six characters connected by the green line.', inline: false },
+          )
+          .setFooter({ text: 'You can submit custom backgrounds for captchas by supporting Orb on Patreon! Orb will pick one at random.' })
+      }
+
+      const captcha_button_row = new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(captcha_ready, captcha_regenerate)
+
+      const captcha_embed_message = await interaction.editReply({ embeds: [captcha_embed], components: [captcha_button_row], files: [captcha_attachment] });
+
+      const collector_filter = (selection: Discord.MessageComponentInteraction) => selection.user.id === interaction.user.id;
+      const captcha_button_collector = captcha_embed_message.createMessageComponentCollector({ filter: collector_filter, componentType: Discord.ComponentType.Button, time: (1000 * 60 * 10) });
+
+      captcha_button_collector.on('end', async (collected, reason) => {
+        if (reason === "time") {
+          const captcha_timeout_embed = new Discord.EmbedBuilder()
             .setColor(colors.color_error)
-            // .setAuthor({ name: `${wallet_nickname}`, iconURL: wallet_target_member_avatar })     ### Server on which to verify
-            .setTitle('\u{1FAAA} - Verification required')
-            .setDescription('You have failed the captcha. Please try verifying yourself again.')
-            .setImage(captcha_attachment_filename)
-            .addFields(
-              { name: 'Instructions', value: '1. Press the "Solve Captcha" button when you are ready.\n2. Enter the six characters connected by the green line.', inline: false },
-            )
-            .setFooter({ text: 'You can submit custom backgrounds for captchas by supporting Orb on Patreon! Orb will pick one at random.' })
+            .setTitle(`${emojis.failure_emoji} - Captcha timeout`)
+            .setDescription('This captcha timed out. You can leave and rejoin the server to get a new captcha to solve.');
+
+          captcha_embed_message.edit({ embeds: [captcha_timeout_embed], components: [], files: [] });
         }
+      });
+      captcha_button_collector.on('collect', async (captcha_modal_interaction) => {
+        switch (captcha_modal_interaction.customId) {
+          case 'captcha_ready':
+            const captcha_uuid = nanoid().toString()
 
-        const captcha_button_row = new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(captcha_ready, captcha_regenerate)
+            const captcha_input_modal = new Discord.ModalBuilder()
+              .setCustomId(captcha_uuid)
+              .setTitle('Enter captcha...')
+            const captcha_input_field = new Discord.TextInputBuilder()
+              .setCustomId('captcha_input_field')
+              .setLabel('Enter the captcha. (Not case sensitive)')
+              .setStyle(Discord.TextInputStyle.Short)
+              .setMaxLength(6)
+              .setMinLength(6)
+              .setPlaceholder('ABCDEF')
+              .setRequired(true)
+            const captcha_input_row = new Discord.ActionRowBuilder<Discord.TextInputBuilder>().addComponents(captcha_input_field)
+            captcha_input_modal.addComponents(captcha_input_row);
 
-        const captcha_embed_message = await interaction.editReply({ embeds: [captcha_embed], components: [captcha_button_row], files: [captcha_attachment] });
+            await captcha_modal_interaction.showModal(captcha_input_modal);
 
-        const collector_filter = (selection: Discord.MessageComponentInteraction) => selection.user.id === interaction.user.id;
-        const captcha_button_collector = captcha_embed_message.createMessageComponentCollector({ filter: collector_filter, componentType: Discord.ComponentType.Button, time: (1000 * 60 * 10) });
+            console.log(captcha_uuid);
 
-        captcha_button_collector.on('end', async (collected, reason) => {
-          if (reason === "time") {
-            const captcha_timeout_embed = new Discord.EmbedBuilder()
-              .setColor(colors.color_error)
-              .setTitle(`${emojis.failure_emoji} - Captcha timeout`)
-              .setDescription('This captcha timed out. You can leave and rejoin the server to get a new captcha to solve.');
+            try {
+              const modal_filter = (modal: Discord.ModalSubmitInteraction) => modal.customId === captcha_uuid;
 
-            captcha_embed_message.edit({ embeds: [captcha_timeout_embed], components: [], files: [] });
-          }
-        });
-        captcha_button_collector.on('collect', async (captcha_modal_interaction) => {
-          switch(captcha_modal_interaction.customId) {
-            case 'captcha_ready':
-              const captcha_uuid = nanoid().toString()
+              const captcha_input_response = await captcha_modal_interaction.awaitModalSubmit({ filter: modal_filter, time: (1000 * 60 * 2) });
 
-              const captcha_input_modal = new Discord.ModalBuilder()
-                .setCustomId(captcha_uuid)
-                .setTitle('Enter captcha...')
-              const captcha_input_field = new Discord.TextInputBuilder()
-                .setCustomId('captcha_input_field')
-                .setLabel('Enter the captcha. (Not case sensitive)')
-                .setStyle(Discord.TextInputStyle.Short)
-                .setMaxLength(6)
-                .setMinLength(6)
-                .setPlaceholder('ABCDEF')
-                .setRequired(true)
-              const captcha_input_row = new Discord.ActionRowBuilder<Discord.TextInputBuilder>().addComponents(captcha_input_field)
-              captcha_input_modal.addComponents(captcha_input_row);
+              if (captcha_input_response.customId === captcha_uuid) {
+                const user_response = captcha_input_response.fields.getTextInputValue('captcha_input_field');
 
-              await captcha_modal_interaction.showModal(captcha_input_modal);
+                const verifying_captcha_embed = new Discord.EmbedBuilder()
+                  .setColor(colors.color_default)
+                  .setTitle(`${emojis.loading_animation_emoji} Verifying captcha...`)
 
-              console.log(captcha_uuid);
+                // await captcha_input_response.reply({ embeds: [verifying_captcha_embed] });
 
-              try {
-                const modal_filter = (modal: Discord.ModalSubmitInteraction) => modal.customId === captcha_uuid;
+                await captcha_input_response.deferUpdate();
+                await interaction.editReply({ embeds: [verifying_captcha_embed], components: [], files: [] });
 
-                const captcha_input_response = await captcha_modal_interaction.awaitModalSubmit({ filter: modal_filter, time: (1000 * 60 * 2) });
+                if (user_response.toUpperCase() === captcha_text) {
+                  const captcha_passed_embed = new Discord.EmbedBuilder()
+                    .setColor(colors.color_success)
+                    .setTitle(`${emojis.success_emoji} - Verified!`)
+                    .setDescription('Thank you for making sure you are a human! You should now be able to access the server.\n\nIf you are unable to access the server in more than five minutes, contact the moderation team.')
 
-                if (captcha_input_response.customId === captcha_uuid) {
-                  const user_response = captcha_input_response.fields.getTextInputValue('captcha_input_field');
+                  // give someone the role here and shit
 
-                  const verifying_captcha_embed = new Discord.EmbedBuilder()
-                    .setColor(colors.color_default)
-                    .setTitle(`${emojis.loading_animation_emoji} Verifying captcha...`)
+                  await captcha_input_response.deleteReply();
+                  await captcha_embed_message.edit({ embeds: [captcha_passed_embed], components: [], files: [] });
+                  captcha_button_collector.empty();
+                  captcha_button_collector.stop();
+                  return;
 
-                  // await captcha_input_response.reply({ embeds: [verifying_captcha_embed] });
+                } else {
+                  captcha_has_failed_before = true;
 
-                  await captcha_input_response.deferUpdate();
-                  await interaction.editReply({ embeds: [verifying_captcha_embed], components: [], files: [] });
+                  const captcha_retry = new Discord.ButtonBuilder()
+                    .setCustomId('captcha_retry')
+                    .setLabel('Get new captcha')
+                    .setStyle(Discord.ButtonStyle.Secondary)
+                  const captcha_retry_button_row = new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(captcha_retry)
+                  const captcha_failed_embed = new Discord.EmbedBuilder()
+                    .setColor(colors.color_error)
+                    .setTitle(`${emojis.failure_emoji} - Failed to verify`)
+                    .setDescription('You entered the wrong captcha. Please try again.\n\nIf this problem persists, contact the moderation team of the server.')
 
-                  if (user_response.toUpperCase() === captcha_text) {
-                    const captcha_passed_embed = new Discord.EmbedBuilder()
-                      .setColor(colors.color_success)
-                      .setTitle(`${emojis.success_emoji} - Verified!`)
-                      .setDescription('Thank you for making sure you are a human! You should now be able to access the server.\n\nIf you are unable to access the server in more than five minutes, contact the moderation team.')
+                  await captcha_input_response.deleteReply();
+                  const captcha_failed_embed_message = await captcha_embed_message.edit({ embeds: [captcha_failed_embed], components: [captcha_retry_button_row], files: [] });
 
-                    // give someone the role here and shit
+                  try {
+                    const captcha_failed_embed_interaction = await captcha_failed_embed_message.awaitMessageComponent({ filter: collector_filter, time: (1000 * 60 * 5) });
 
-                    // await interaction.member.roles.remove(await find_server_settings(interaction.guild.id).captcha_unverified_role_id);
+                    switch (captcha_failed_embed_interaction.customId) {
+                      case 'captcha_retry':
+                        const grabbing_new_captcha_embed = new Discord.EmbedBuilder()
+                          .setColor(colors.color_error)
+                          .setTitle(`${emojis.loading_animation_emoji} Grabbing new captcha...`)
 
-                    await captcha_input_response.deleteReply();
-                    await captcha_embed_message.edit({ embeds: [captcha_passed_embed], components: [], files: [] });
-                    captcha_button_collector.empty();
-                    captcha_button_collector.stop();
-                    return;
+                        await captcha_failed_embed_interaction.deferUpdate();
+                        await interaction.editReply({ embeds: [grabbing_new_captcha_embed] });
 
-                  } else {
-                    captcha_has_failed_before = true;
+                        captchaPrompter(interaction);
 
-                    const captcha_retry = new Discord.ButtonBuilder()
-                      .setCustomId('captcha_retry')
-                      .setLabel('Get new captcha')
-                      .setStyle(Discord.ButtonStyle.Secondary)
-                    const captcha_retry_button_row = new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(captcha_retry)
-                    const captcha_failed_embed = new Discord.EmbedBuilder()
-                      .setColor(colors.color_error)
-                      .setTitle(`${emojis.failure_emoji} - Failed to verify`)
-                      .setDescription('You entered the wrong captcha. Please try again.\n\nIf this problem persists, contact the moderation team of the server.')
+                        // await captcha_failed_embed_interaction.deleteReply();
+                        captcha_button_collector.empty();
+                        captcha_button_collector.stop();
+                        // captcha_embed_message.delete();
 
-                    await captcha_input_response.deleteReply();
-                    const captcha_failed_embed_message = await captcha_embed_message.edit({ embeds: [captcha_failed_embed], components: [captcha_retry_button_row], files: [] });
-
-                    try {
-                      const captcha_failed_embed_interaction = await captcha_failed_embed_message.awaitMessageComponent({ filter: collector_filter, time: (1000 * 60 * 5) });
-
-                      switch(captcha_failed_embed_interaction.customId) {
-                        case 'captcha_retry':
-                          const grabbing_new_captcha_embed = new Discord.EmbedBuilder()
-                            .setColor(colors.color_error)
-                            .setTitle(`${emojis.loading_animation_emoji} Grabbing new captcha...`)
-
-                          await captcha_failed_embed_interaction.deferUpdate();
-                          await interaction.editReply({ embeds: [grabbing_new_captcha_embed] });
-
-                          captchaPrompter(interaction);
-
-                          // await captcha_failed_embed_interaction.deleteReply();
-                          captcha_button_collector.empty();
-                          captcha_button_collector.stop();
-                          // captcha_embed_message.delete();
-
-                          break;
-                      }
-                    } catch (exception) {
-                      console.trace(exception)
+                        break;
                     }
+                  } catch (error) {
+                    console.trace(error)
                   }
                 }
-              } catch (exception) {
-                console.trace(exception)
               }
-              break;
+            } catch (error) {
+              console.trace(error)
+            }
+            break;
 
-            case `captcha_regen`:
-              captcha_modal_interaction.deferUpdate();
-              captcha_embed_message.delete();
+          case `captcha_regen`:
+            captcha_modal_interaction.deferUpdate();
+            captcha_embed_message.delete();
 
-              captchaPrompter(interaction);
-              break;
-          }
-        });
+            captchaPrompter(interaction);
+            break;
+        }
+      });
     }
 
     captchaPrompter(interaction);

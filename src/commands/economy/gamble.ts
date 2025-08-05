@@ -9,10 +9,10 @@ import { find_server_user } from "../../util/database/dbutils";
 import { validateCommandInteractionInGuild, validateInteractionCallbackResponse, validateNumber } from "../../util/validate";
 
 interface UserCooldowns {
-  daily:    { uses_left: number, last_use_timestamp: number },
+  daily: { uses_left: number, last_use_timestamp: number },
   coinflip: { uses_left: number, last_use_timestamp: number },
-  slots:    { uses_left: number, last_use_timestamp: number },
-  highlow:  { uses_left: number, last_use_timestamp: number }
+  slots: { uses_left: number, last_use_timestamp: number },
+  highlow: { uses_left: number, last_use_timestamp: number }
 }
 
 export default {
@@ -21,7 +21,7 @@ export default {
     .setDescription("Gambling place holder command.")
     .addSubcommand((subcommand) => subcommand
       .setName('slots')
-      .setDescription('Slutmachine placeholder')
+      .setDescription('Slotmachine placeholder')
       .addIntegerOption((option) => option
         .setName('bet')
         .setDescription('How much gems you wish to bet.')
@@ -70,15 +70,12 @@ export default {
 
     let coinflip_max_uses = 10;
     let coinflip_timeout_interval_ms = 1000 * 60 * 10;
-    let coinflip_refill_interval_ms = 1000 * 60 * 60;
 
     let slots_max_uses = 10;
     let slots_timeout_interval_ms = 1000 * 60 * 10;
-    let slots_refill_interval_ms = 1000 * 60 * 60 * 3;
 
     let highlow_max_uses = 5;
     let highlow_timeout_interval_ms = 1000 * 60 * 60 * 3;
-    let highlow_refill_interval_ms = 1000 * 60 * 60 * 3;
 
     let bet;
     let uses_left;
@@ -133,7 +130,6 @@ export default {
       case 'slots':
         bet = interaction.options.getInteger('bet');
         validateNumber(bet);
-        // await interaction.deferReply();
 
         if (bet > user.current_money) {
           await abort_game_no_funds('Slots');
@@ -171,10 +167,8 @@ export default {
           else if (r < symbols[3].weight) { symbol = symbols[3] }
           else if (r < symbols[2].weight) { symbol = symbols[2] }
           else if (r < symbols[1].weight) { symbol = symbols[1] }
-          else                            { symbol = symbols[0] }
+          else { symbol = symbols[0] }
 
-          // console.log(r);
-          // console.log(symbol);
           return symbol;
         }
 
