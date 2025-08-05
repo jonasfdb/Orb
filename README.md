@@ -16,7 +16,7 @@ If you want to submit code directly, please fork the repo, create a new branch (
 
 ### Prerequisites
 
-You should have a Discord bot token available through your [Discord Developer Portal](https://discord.com/developers), and have [Node.js](https://nodejs.org) >20 and [PostgreSQL](https://www.postgresql.org/) >17.5 installed. This version of Orb was built and is running on Node.js 20.18.0 and PostgreSQL 17.5, using discord.js 14.20.0.
+You should have a Discord bot token available through your [Discord Developer Portal](https://discord.com/developers), and have [Node.js](https://nodejs.org) >20 and [PostgreSQL](https://www.postgresql.org/) >17.5 installed. This version of Orb was built and is running on Node.js 22.18.0 and PostgreSQL 17.5, using discord.js 14.20.0.
 
 ### Installation and Setup
 
