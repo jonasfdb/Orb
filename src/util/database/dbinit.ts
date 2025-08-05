@@ -30,9 +30,9 @@ export async function initDatabase() {
       .then(() => {
         console.log(`> SUCCESS`);
       })
-      .catch((err) => console.trace(err));
-  } catch (err) {
-    console.trace("Failed to connect to main database:", err);
+      .catch((error) => console.trace(error));
+  } catch (error) {
+    console.trace("Failed to connect to main database:", error);
     process.exit(1);
   }
 }

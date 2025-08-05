@@ -16,5 +16,3 @@ export default {
     // what the command will do
   }
 }
-
-// do not deploy this EVER

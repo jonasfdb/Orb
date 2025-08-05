@@ -62,8 +62,8 @@ server_array.forEach(async (server: ServerSettings) => {
     } else {
       failures++;
     }
-  } catch (err) {
-    console.trace(err);
+  } catch (error) {
+    console.trace(error);
     failures++;
   }
 

@@ -149,9 +149,9 @@ cron.schedule('0 0 * * *', () => {
 
         if (days_time_difference >= retention_days) {
           const filePath = path.join(backup_dir, file);
-          fs.unlink(filePath, (err => {
-            if (err) {
-              console.trace(err)
+          fs.unlink(filePath, (error => {
+            if (error) {
+              console.trace(error)
             } else {
               console.warn(`Deleted old backup file: ${file}`);
             }

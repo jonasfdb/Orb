@@ -311,8 +311,8 @@ export default {
                     try {
                       validateGuildChannel(channel);
                       channel.permissionOverwrites.create(not_verified_role, { ViewChannel: false });
-                    } catch (exception) {
-                      console.trace(exception);
+                    } catch (error) {
+                      console.trace(error);
                       failure_count++;
                     }
                   });
@@ -333,8 +333,8 @@ export default {
                   await interaction.editReply({ embeds: [captcha_setup_canceled_embed], components: [] });
                   break;
               }
-            } catch (exception) {
-              console.trace(exception)
+            } catch (error) {
+              console.trace(error)
             }
 
             // Captcha could in theory get custom methods like a password or anyathing that users have to enter to jion
@@ -591,8 +591,8 @@ export default {
                     interaction.editReply({ embeds: [welcome_channel_cancel_perm_change_embed] })
                     break;
                   }
-                } catch (exception) {
-                  console.trace(exception)
+                } catch (error) {
+                  console.trace(error)
                 }
               }
             break;
@@ -670,8 +670,8 @@ export default {
                     interaction.editReply({ embeds: [leave_channel_cancel_perm_change_embed] })
                     break;
                   }
-                } catch (exception) {
-                  console.trace(exception)
+                } catch (error) {
+                  console.trace(error)
                 }
               }
             break;

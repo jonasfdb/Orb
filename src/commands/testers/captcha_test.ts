@@ -172,13 +172,13 @@ export default {
 
                           break;
                       }
-                    } catch (exception) {
-                      console.trace(exception)
+                    } catch (error) {
+                      console.trace(error)
                     }
                   }
                 }
-              } catch (exception) {
-                console.trace(exception)
+              } catch (error) {
+                console.trace(error)
               }
               break;
 
