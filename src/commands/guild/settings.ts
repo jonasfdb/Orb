@@ -7,7 +7,7 @@ import { find_server, find_server_settings } from "../../util/database/dbutils";
 import { colors } from "../../util/colors"
 import { emojis } from "../../util/emojis"
 import { generate_orb_id, generate_token } from "../../util/generators"
-import { ServerLevelupRewards } from "../../util/database/models/ServerLevelupRewards";
+// import { ServerLevelupRewards } from "../../util/database/models/ServerLevelupRewards";
 import { ServerSettings } from "../../util/database/models/ServerSettings";
 import { validateCommandInteractionInGuild, validateGuildChannel, validateNumber, validateRole, validateString } from "../../util/validate";
 import { getGuildIcon } from "../../util/helpers";
@@ -423,15 +423,6 @@ export default {
             server.set({ role_rewards_level_string: JSON.stringify(rewardsArray) });
             await server.save();
 
-            await ServerLevelupRewards.create({
-              orb_uuid: generate_orb_id(),
-              server_id: interaction.guild.id,
-              min_level,
-              max_level,
-              token: reward_token,
-              role_id: reward_role.id
-            });
-
             const new_role_reward_success_embed = new Discord.EmbedBuilder()
               .setColor(colors.color_success)
               .setTitle(`${emojis.success_emoji} - New role reward created!`)
@@ -479,16 +470,6 @@ export default {
             const [removedReward] = rewardsArray.splice(indexToRemove, 1);
             server.set({ role_rewards_level_string: JSON.stringify(rewardsArray) });
             await server.save();
-
-            const dbEntry = await ServerLevelupRewards.findOne({
-              where: {
-                server_id: interaction.guild.id,
-                token: removedReward.token
-              }
-            });
-            if (dbEntry) {
-              await dbEntry.destroy();
-            }
 
             const reward_deletion_success_embed = new Discord.EmbedBuilder()
               .setColor(colors.color_success)

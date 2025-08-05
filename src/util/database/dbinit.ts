@@ -9,7 +9,7 @@ import { initServerOtpTokenModel } from './models/ServerOtpToken';
 import { initServerBadgesModel } from './models/ServerBadges';
 import { initServerUserModel } from './models/ServerUser';
 import { initUserModel } from './models/GlobalUser';
-import { initServerLevelupRewardsModel } from './models/ServerLevelupRewards';
+// import { initServerLevelupRewardsModel } from './models/ServerLevelupRewards';
 
 const { database } = config;
 
@@ -22,7 +22,7 @@ export async function initDatabase() {
   initServerBadgesModel(database);
   initServerUserModel(database);
   initUserModel(database);
-  initServerLevelupRewardsModel(database);
+  // initServerLevelupRewardsModel(database);
 
   try {
     await database.authenticate();

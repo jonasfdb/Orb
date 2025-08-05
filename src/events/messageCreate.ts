@@ -113,7 +113,6 @@ async function messageOnGuild(message: Discord.Message): Promise<void> {
       } catch (error) {
         console.trace(error);
       }
-
     } else {
       const user_profile_picture = message.author.displayAvatarURL({ extension: 'webp' });
 
