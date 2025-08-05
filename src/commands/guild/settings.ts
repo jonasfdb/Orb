@@ -7,7 +7,6 @@ import { find_server, find_server_settings } from "../../util/database/dbutils";
 import { colors } from "../../util/colors"
 import { emojis } from "../../util/emojis"
 import { generate_orb_id, generate_token } from "../../util/generators"
-// import { ServerLevelupRewards } from "../../util/database/models/ServerLevelupRewards";
 import { ServerSettings } from "../../util/database/models/ServerSettings";
 import { validateCommandInteractionInGuild, validateGuildChannel, validateNumber, validateRole, validateString } from "../../util/validate";
 import { getGuildIcon } from "../../util/helpers";
