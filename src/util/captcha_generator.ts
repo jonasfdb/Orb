@@ -2,7 +2,6 @@
 // Copyright (C) 2025 Jonas Frank de Buhr (jonasfdb)
 // Licensed under the AGPL-3.0 license as laid out in LICENSE
 
-import SRA from "somerandomapi.js"
 import { generate_captcha_string, generate_random_string } from "./generators";
 import canvas from "@napi-rs/canvas";
 import Discord from "discord.js";
@@ -10,9 +9,23 @@ import Discord from "discord.js";
 export async function generate_captcha() {
   const captcha_image_canvas = canvas.createCanvas(400, 250);
   const captcha_image_context = captcha_image_canvas.getContext('2d');
-  const bg_image = await SRA.animal.image({ animal: "cat" });
-  // const bg = await canvas.loadImage(bg_image.data.message);
-  const bg = await canvas.loadImage(bg_image.imgUrl);
+  let bg_image;
+  try {
+    let animal_picker = () => {
+      let animals = ['cat', 'fox', 'dog', 'panda', 'red_panda', 'racoon'];
+      let animal = animals[Math.floor(Math.random() * animals.length)];
+      return animal;
+    }
+    let response = await fetch(`https://api.some-random-api.com/animal/${animal_picker()}`);
+    if(!response || !response.ok) {
+      throw new Error(`Unable to perform fetch request.`)
+    }
+
+    bg_image = await response.json();
+  } catch (error: any) {
+    throw new Error(error);
+  }
+  const bg = await canvas.loadImage(bg_image.image);
   const solution = Array.from(generate_captcha_string(6).toUpperCase());
   const decoy = Array.from(generate_random_string(30).toUpperCase());
 
