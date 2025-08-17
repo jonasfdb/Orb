@@ -3,7 +3,6 @@
 // Licensed under the AGPL-3.0 license as laid out in LICENSE
 
 import Discord from "discord.js";
-import SRA from "somerandomapi.js"
 import { colors } from "../../util/colors";
 import { validateCommandInteractionInGuild } from "../../util/validate";
 
@@ -15,12 +14,23 @@ export default {
   async execute(client: Discord.Client<true>, interaction: Discord.ChatInputCommandInteraction) {
     validateCommandInteractionInGuild(interaction);
 
-    const random_cat = await SRA.animal.image({ animal: "cat" });
+    let random_cat; 
+
+    try {
+      let response = await fetch('https://api.some-random-api.com/animal/cat');
+      if(!response || !response.ok) {
+        throw new Error(`Unable to perform fetch request.`)
+      }
+
+      random_cat = await response.json();
+    } catch (error: any) {
+      throw new Error(error);
+    }
 
     const cat_embed = new Discord.EmbedBuilder()
       .setColor(colors.color_default)
       .setTitle("Here is a random cat for you!")
-      .setImage(random_cat.imgUrl)
+      .setImage(random_cat.image)
 
     interaction.reply({ embeds: [cat_embed] });
   }
