@@ -9,7 +9,6 @@ import { initServerOtpTokenModel } from './models/ServerOtpToken';
 import { initServerBadgesModel } from './models/ServerBadges';
 import { initServerUserModel } from './models/ServerUser';
 import { initUserModel } from './models/GlobalUser';
-// import { initServerLevelupRewardsModel } from './models/ServerLevelupRewards';
 
 const { database } = config;
 

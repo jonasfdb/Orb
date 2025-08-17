@@ -3,12 +3,6 @@
 // Licensed under the AGPL-3.0 license as laid out in LICENSE
 
 export const emojis = {
-  // success_emoji: `<:orb_success:1222285613001211996>`,
-  // failure_emoji: `<:orb_failure:1222285611181019206>`,
-  // attention_emoji: `<:orb_attention:1222286809682284615>`,
-  // success_emoji: `<:orb_success_b:1222296745401385122>`,
-  // failure_emoji: `<:orb_failure_b:1222296624873865438>`,
-  // attention_emoji: `<:orb_attention_b:1222296623397343332>`,
   success_emoji: `<:success_icon_flat:1222305979518156830>`,
   failure_emoji: `<:failure_icon_flat:1222305977546706955>`,
   attention_emoji: `<:attention_icon_flat:1222305975822717120>`,

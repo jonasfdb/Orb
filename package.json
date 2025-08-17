@@ -1,6 +1,6 @@
 {
   "name": "orb",
-  "version": "0.23.0",
+  "version": "0.24.0",
   "description": "General purpose moderation, leveling and fun bot.",
   "main": "orb.ts",
   "author": "none",
