@@ -1,0 +1,17 @@
+import Discord from 'discord.js';
+import { colors } from './colors';
+import { emojis } from './emojis';
+
+export async function out_of_order (interaction: Discord.ChatInputCommandInteraction, reason: string) {
+  const ooo_embed = new Discord.EmbedBuilder()
+    .setColor(colors.color_warning)
+    .setTitle(`${emojis.attention_emoji} - Out of order!`)
+    .setDescription(
+      `This feature is currently under maintenance, being reworked, or is otherwise not usable. `  +
+      `Check the support server or the website for additional information.` +
+      `\n\nReason: **${reason}**`
+    )
+
+  await interaction.reply({ embeds: [ooo_embed] });
+  return;
+}

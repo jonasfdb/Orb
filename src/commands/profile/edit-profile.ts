@@ -6,6 +6,7 @@ import Discord from "discord.js";
 import { emojis } from "../../util/emojis";
 import { colors } from "../../util/colors";
 import { validateCommandInteractionInGuild } from "../../util/validate";
+import { out_of_order } from "../../util/out_of_order";
 
 export default {
   data: new Discord.SlashCommandBuilder()
@@ -81,16 +82,7 @@ export default {
   async execute(client: Discord.Client<true>, interaction: Discord.ChatInputCommandInteraction) {
     validateCommandInteractionInGuild(interaction);
 
-    const profile_embed = new Discord.EmbedBuilder()
-      .setColor(colors.color_info)
-      .setTitle(`${emojis.attention_emoji} - Coming soon!`)
-      .setDescription(
-        `Profiles are currently being reworked.` +
-        `A lot of the ideas I originally had, like pronoun fields and server-specific bios, are now natively part of Discord.` +
-        `I do still have ideas though, and I will continue to add them here!\n\n` +
-        `If you had a profile before by the way, don't worry about it. All data has been safely deleted, and anything you enter through the edit commands won't be stored.`
-      )
-
-    await interaction.reply({ embeds: [profile_embed] });
+    out_of_order(interaction, 'Profiles are being reworked at the moment.');
+    return;
   }
 }

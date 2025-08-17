@@ -40,7 +40,6 @@ export default {
         symbology: SymbologyType.QRCODE,
         showHumanReadableText: false,
         scale: 5,
-        // outputOptions: OutputOption.BARCODE_DOTTY_MODE,
         fileName: `./src/util/qr_storage/qr_${qr_uuid}.png`,
       }, `${invite_link}`)
 
