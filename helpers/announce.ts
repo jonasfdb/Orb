@@ -5,7 +5,7 @@
 import Discord from "discord.js";
 import { ServerSettings } from "../src/util/database/models/ServerSettings";
 import { validateClientReady, validateGuildTextChannel } from "../src/util/validate";
-import { colors } from "../src/util/colors";
+import { colors } from "../util/json/colors";
 import { config } from "../config/config";
 import { initDatabase } from "../src/util/database/dbinit";
 const { token, database } = config;

@@ -4,8 +4,8 @@
 
 import Discord, { Events, ButtonStyle, TextInputStyle, GuildMember, RoleResolvable, ButtonBuilder, ModalActionRowComponentBuilder } from "discord.js";
 import { find_server_settings } from "../util/database/dbutils";
-import { colors } from "../util/colors";
-import { emojis } from "../util/emojis";
+import { colors } from "../../util/json/colors";
+import { emojis } from "../../util/json/emojis";
 import { nanoid } from "nanoid";
 import { generate_captcha } from "../util/captcha_generator";
 

@@ -4,8 +4,8 @@
 
 import { Events, EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle, Interaction } from "discord.js";
 import { generate_error_id } from "../util/generators";
-import { emojis } from "../util/emojis";
-import { colors } from "../util/colors";
+import { emojis } from "../../util/json/emojis";
+import { colors } from "../../util/json/colors";
 
 export default {
 	name: Events.InteractionCreate,

@@ -13,6 +13,6 @@
     "allowJs": true,
     // "noEmit": true
   },
-  "include": ["src", "helpers", "config.ts", "orb.ts"],
+  "include": ["src", "helpers", "config.ts", "orb.ts", "util/json/emojis.ts", "util/json/colors.ts"],
   "exclude": ["node_modules", "dist", "qr_storage"]
 }

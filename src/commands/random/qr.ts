@@ -6,7 +6,7 @@
 // This package is used here in compliance with the AGPL-3.0 license as per Section 13 of the AGPL-3.0 license.
 
 import Discord from "discord.js";
-import { colors } from "../../util/colors";
+import { colors } from "../../../util/json/colors";
 import { nanoid } from "nanoid";
 import canvas from "@napi-rs/canvas";
 import fs from "fs"

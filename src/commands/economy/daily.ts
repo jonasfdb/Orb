@@ -3,8 +3,8 @@
 // Licensed under the AGPL-3.0 license as laid out in LICENSE
 
 import Discord from "discord.js";
-import { emojis } from "../../util/emojis";
-import { colors } from "../../util/colors";
+import { emojis } from "../../../util/json/emojis";
+import { colors } from "../../../util/json/colors";
 import { find_server_user } from "../../util/database/dbutils";
 import { validateCommandInteractionInGuild } from "../../util/validate";
 

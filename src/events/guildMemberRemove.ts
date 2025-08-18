@@ -4,7 +4,7 @@
 
 import Discord, { Events } from "discord.js";
 import { find_server_settings } from "../util/database/dbutils";
-import { colors } from "../util/colors";
+import { colors } from "../../util/json/colors";
 
 export default {
   name: Events.GuildMemberRemove,
