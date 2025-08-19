@@ -6,7 +6,7 @@ import Discord from "discord.js";
 import { colors } from "../../../util/json/colors";
 import { emojis } from "../../../util/json/emojis";
 import { nanoid } from "nanoid";
-import { generate_captcha } from "../../util/captcha_generator";
+import { generate_captcha } from "../../util/generateCaptcha";
 import { validateCommandInteractionInGuild } from "../../util/validate";
 
 export default {

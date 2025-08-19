@@ -7,7 +7,7 @@ import { find_server_settings } from "../util/database/dbutils";
 import { colors } from "../../util/json/colors";
 import { emojis } from "../../util/json/emojis";
 import { nanoid } from "nanoid";
-import { generate_captcha } from "../util/captcha_generator";
+import { generate_captcha } from "../util/generateCaptcha";
 
 export default {
   name: Events.GuildMemberAdd,
