@@ -189,7 +189,7 @@ export default {
             desc = `Three ${sym.emoji} = **${sym.multiplier}×** → you win **${payout}** ${emojis.currency_emoji}!`;
           }
         } else {
-          title = '😢 No match...';
+          title = 'No match...';
           desc = `Better luck next time. You lost **${bet}** ${emojis.currency_emoji}.`;
           payout = -bet;
         }
@@ -363,7 +363,7 @@ export default {
             }
           }
         } catch (error) {
-          console.error(error)
+          throw error;
         }
         break;
     }

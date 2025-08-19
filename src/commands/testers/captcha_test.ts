@@ -169,12 +169,12 @@ export default {
                         break;
                     }
                   } catch (error) {
-                    console.trace(error)
+                    throw error;
                   }
                 }
               }
             } catch (error) {
-              console.trace(error)
+              throw error;
             }
             break;
 
