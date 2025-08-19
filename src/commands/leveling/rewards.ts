@@ -4,7 +4,7 @@
 
 import Discord from "discord.js";
 import { find_server } from "../../util/database/dbutils";
-import { colors } from "../../util/colors";
+import { colors } from "../../../util/json/colors";
 import { validateCommandInteractionInGuild } from "../../util/validate";
 
 export default {

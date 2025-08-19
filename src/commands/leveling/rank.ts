@@ -6,7 +6,7 @@ import Discord from "discord.js";
 import { find_server_user } from "../../util/database/dbutils";
 import { ServerUser } from "../../util/database/models/ServerUser";
 import { validateCommandInteractionInGuild, validateGuildMember } from "../../util/validate";
-import { colors } from "../../util/colors";
+import { colors } from "../../../util/json/colors";
 
 export default {
   data: new Discord.SlashCommandBuilder()

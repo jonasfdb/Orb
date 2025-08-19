@@ -4,8 +4,8 @@
 
 import Discord, { PermissionFlagsBits } from "discord.js";
 import { validateCommandInteractionInGuild } from "../../util/validate";
-import { colors } from "../../util/colors";
-import { emojis } from "../../util/emojis";
+import { colors } from "../../../util/json/colors";
+import { emojis } from "../../../util/json/emojis";
 
 export default {
   data: new Discord.SlashCommandBuilder()

@@ -4,8 +4,8 @@
 
 import Discord, { PermissionFlagsBits } from "discord.js";
 import { find_server, find_server_settings } from "../../util/database/dbutils";
-import { colors } from "../../util/colors"
-import { emojis } from "../../util/emojis"
+import { colors } from "../../../util/json/colors"
+import { emojis } from "../../../util/json/emojis"
 import { generate_token } from "../../util/generators"
 import { ServerSettings } from "../../util/database/models/ServerSettings";
 import { validateCommandInteractionInGuild, validateGuildChannel, validateNumber, validateRole, validateString } from "../../util/validate";

@@ -1,6 +1,6 @@
 import Discord from 'discord.js';
-import { colors } from './colors';
-import { emojis } from './emojis';
+import { colors } from '../../util/json/colors';
+import { emojis } from '../../util/json/emojis';
 
 export async function out_of_order (interaction: Discord.ChatInputCommandInteraction, reason: string) {
   const ooo_embed = new Discord.EmbedBuilder()
