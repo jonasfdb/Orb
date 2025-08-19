@@ -23,7 +23,7 @@ export async function find_user(user_id: string): Promise<GlobalUser> {
       console.warn(`New user ${user.user_id} added to database with default color ${user.profile_color}`);
     } catch (error) {
       console.trace(error);
-      throw new Error(`GlobalUser for ${user_id} could not be found or created.`);
+      throw error;
     }
   }
 
@@ -42,7 +42,7 @@ export async function find_server(server_id: string): Promise<Server> {
       console.warn(`New server ${server.server_id} added to database`);
     } catch (error) {
       console.trace(error);
-      throw new Error(`Server for ${server_id} could not be found or created.`);
+      throw error;
     }
   }
 
@@ -74,7 +74,7 @@ export async function find_server_user(user_id: string, server_id: string): Prom
       console.warn(`New user ${user_id} added to database with ${server_user.user_id}, on server ${server_user.server_id}`);
     } catch (error) {
       console.trace(error);
-      throw new Error(`ServerUser for ${user_id} on ${server_id} could not be found or created.`);
+      throw error;
     }
   }
 
@@ -95,7 +95,7 @@ export async function find_server_settings(server_id: string): Promise<ServerSet
       console.warn(`New server settings for ${server.server_id} added to database`);
     } catch (error) {
       console.trace(error);
-      throw new Error(`ServerSettings for ${server_id} could not be found or created.`);
+      throw error;
     }
   }
 

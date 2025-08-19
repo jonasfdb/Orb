@@ -63,7 +63,7 @@ export default {
 
       fs.unlinkSync(`./src/util/qr_storage/qr_${qr_uuid}.png`);
     } catch (error) {
-      console.error(error);
+      throw error;
     }
   }
 }

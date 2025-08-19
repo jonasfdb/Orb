@@ -332,7 +332,7 @@ export default {
                   break;
               }
             } catch (error) {
-              console.trace(error)
+              throw error;
             }
 
             break;
@@ -575,7 +575,7 @@ export default {
                       permission_change_interaction.deferUpdate();
                       interaction.editReply({ embeds: [welcome_channel_perm_change_success_embed], components: [] })
                     } catch (error) {
-                      console.trace(error);
+                      throw error;
                     }
 
                     break;
@@ -589,7 +589,7 @@ export default {
                     break;
                 }
               } catch (error) {
-                console.trace(error)
+                throw error;
               }
             }
             break;
@@ -654,7 +654,7 @@ export default {
                       permission_change_interaction.deferUpdate();
                       interaction.editReply({ embeds: [leave_channel_perm_change_success_embed], components: [] })
                     } catch (error) {
-                      console.log(error);
+                      throw error;
                     }
 
                     break;
@@ -668,7 +668,7 @@ export default {
                     break;
                 }
               } catch (error) {
-                console.trace(error)
+                throw error;
               }
             }
             break;

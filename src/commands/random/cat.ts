@@ -23,8 +23,8 @@ export default {
       }
 
       random_cat = await response.json();
-    } catch (error: any) {
-      throw new Error(error);
+    } catch (error) {
+      throw error;
     }
 
     const cat_embed = new Discord.EmbedBuilder()

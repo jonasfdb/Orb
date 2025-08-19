@@ -6,7 +6,7 @@ import Discord from "discord.js";
 import { emojis } from "../../../util/json/emojis";
 import { colors } from "../../../util/json/colors";
 import { validateCommandInteractionInGuild } from "../../util/validate";
-import { out_of_order } from "../../util/out_of_order";
+import { out_of_order } from "../../util/outOfOrder";
 
 export default {
   data: new Discord.SlashCommandBuilder()

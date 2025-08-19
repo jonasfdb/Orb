@@ -24,7 +24,7 @@ export default {
 
 		try {
 			await command.execute(interaction.client, interaction);
-		} catch (error: any) {
+		} catch (error: unknown) {
 			const error_code = generate_error_id();
 
 			try {

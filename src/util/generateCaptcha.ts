@@ -22,8 +22,8 @@ export async function generate_captcha() {
     }
 
     bg_image = await response.json();
-  } catch (error: any) {
-    throw new Error(error);
+  } catch (error) {
+    throw error;
   }
   const bg = await canvas.loadImage(bg_image.image);
   const solution = Array.from(generate_captcha_string(6).toUpperCase());
