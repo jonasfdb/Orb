@@ -40,9 +40,7 @@ async function messageOnGuild(message: Discord.Message): Promise<void> {
 
     let rewardsArray;
     try {
-      rewardsArray = server.role_rewards_level_string
-        ? JSON.parse(server.role_rewards_level_string)
-        : [];
+      rewardsArray = server.role_rewards_level_string ? JSON.parse(server.role_rewards_level_string) : [];
     } catch {
       rewardsArray = [];
     }
