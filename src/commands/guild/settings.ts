@@ -10,8 +10,7 @@ import { generate_token } from "../../util/generators"
 import { ServerSettings } from "../../util/database/models/ServerSettings";
 import { validateCommandInteractionInGuild, validateGuildChannel, validateNumber, validateRole, validateString } from "../../util/validate";
 import { getGuildIcon } from "../../util/helpers";
-
-interface RoleReward { min_level: number, max_level: number, role_id: string, token: string };
+import { RoleReward } from "../../types/interfaces";
 
 export default {
   data: new Discord.SlashCommandBuilder()
