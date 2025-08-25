@@ -60,10 +60,11 @@ async function messageOnGuild(message: Discord.Message): Promise<void> {
 
     if (roleRewardsToGive.length > 0) {
       let rr_string = '';
-      roleRewardsToGive.forEach(async (reward) => {
-        await message.member.roles.add(reward);
+      roleRewardsToGive.forEach((reward) => {
+        message.member.roles.add(reward);
         rr_string = rr_string + `\u{2514} <@&${reward}>\n`;
       });
+
       levelup_embed.setFields({
         name: `Rewards:`,
         value: rr_string,
@@ -72,8 +73,8 @@ async function messageOnGuild(message: Discord.Message): Promise<void> {
     }
 
     if (roleRewardsToTake.length > 0) {
-      roleRewardsToTake.forEach(async (reward) => {
-        await message.member.roles.remove(reward);
+      roleRewardsToTake.forEach((reward) => {
+        message.member.roles.remove(reward);
       })
     }
 
