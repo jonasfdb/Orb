@@ -7,6 +7,7 @@ import { find_server_user, find_server, find_user } from "../util/database/dbuti
 import { ServerUser } from "../util/database/models/ServerUser.js";
 import { GlobalUser } from "../util/database/models/GlobalUser.js";
 import { validateMessageInDM, validateMessageInGuild } from "../util/validate";
+import { RoleReward } from "../types/interfaces";
 
 async function messageOnGuild(message: Discord.Message): Promise<void> {
   validateMessageInGuild(message);
@@ -31,96 +32,52 @@ async function messageOnGuild(message: Discord.Message): Promise<void> {
     )
   } catch (error) {
     console.error(`Failed to append ${random_xp} XP to ${message.author.id} on server ${message.guild.id}, XP did not change.`);
-    console.trace(error);
-    return;
+    throw error;
   }
 
-  if (server_user_data.current_xp + random_xp > server_user_data.next_required_xp) {
+  if ((server_user_data.current_xp + random_xp) > server_user_data.next_required_xp) {
     const next_level = server_user_data.current_level + 1;
 
-    let rewardsArray;
+    let rewardsArray: RoleReward[] = [];
+    let roleRewardsToGive: string[] = [];
+    let roleRewardsToTake: string[] = [];
+
+    let user_profile_picture = message.author.displayAvatarURL({ extension: 'webp' });
+    let levelup_embed = new Discord.EmbedBuilder()
+      .setColor(user.profile_color as ColorResolvable)
+      .setAuthor({ name: `${message.author.username} leveled up!`, iconURL: user_profile_picture })
+      .setTitle(`Level ${server_user_data.current_level}   \u{22D9}   **Level ${server_user_data.current_level + 1}**  \u{1F389}`)
+
     try {
       rewardsArray = server.role_rewards_level_string ? JSON.parse(server.role_rewards_level_string) : [];
+      rewardsArray.forEach(reward => {
+        if (reward.min_level === next_level) { roleRewardsToGive.push(reward.role_id) };        // reward to give
+        if (reward.max_level === next_level) { roleRewardsToTake.push(reward.role_id) };        // reward to remove
+      })
     } catch {
       rewardsArray = [];
     }
 
-    let role_reward_awarded = false;
-    let role_reward_removed = false;
-    let role_reward_given_id = '';
-    let role_reward_taken_id = '';
-
-    // find reward to give
-    for (let i = 0; i < rewardsArray.length; i++) {
-      const reward = rewardsArray[i];
-
-      if (reward.min_level === next_level) {
-        role_reward_given_id = reward.role_id;
-        role_reward_awarded = true;
-        break;
-      }
+    if (roleRewardsToGive.length > 0) {
+      let rr_string = '';
+      roleRewardsToGive.forEach(async (reward) => {
+        await message.member.roles.add(reward);
+        rr_string = rr_string + `\u{2514} <@&${reward}>\n`;
+      });
+      levelup_embed.setFields({
+        name: `Rewards:`,
+        value: rr_string,
+        inline: false
+      });
     }
 
-    // find reards to remove
-    for (let i = 0; i < rewardsArray.length; i++) {
-      const reward = rewardsArray[i];
-
-      if (reward.max_level === next_level) {
-        role_reward_taken_id = reward.role_id;
-        role_reward_removed = true;
-        break;
-      }
+    if (roleRewardsToTake.length > 0) {
+      roleRewardsToTake.forEach(async (reward) => {
+        await message.member.roles.remove(reward);
+      })
     }
 
-    if (role_reward_removed) {
-      const role_to_remove = await message.guild.roles.fetch(role_reward_taken_id);
-      if (role_to_remove) {
-        await message.member.roles.remove(role_to_remove);
-      }
-    }
-
-    if (role_reward_awarded) {
-      const role_to_give = await message.guild.roles.fetch(role_reward_given_id);
-      if (role_to_give) {
-        await message.member.roles.add(role_to_give);
-      }
-
-      const user_profile_picture = message.author.displayAvatarURL({ extension: 'webp' });
-
-      let levelup_embed = new Discord.EmbedBuilder()
-        .setColor(user.profile_color as ColorResolvable)
-        .setAuthor({ name: `${message.author.username} leveled up!`, iconURL: user_profile_picture })
-        .setTitle(`Level ${server_user_data.current_level}   \u{22D9}   **Level ${server_user_data.current_level + 1}**  \u{1F389}`)
-        .addFields({
-          name: `Rewards:`,
-          value: `\u{2514} <@&${role_reward_given_id}>`,
-          inline: false
-        })
-
-      let role_reward = await message.guild.roles.fetch(role_reward_given_id);
-      console.log(role_reward)
-
-      try {
-        await message.member.roles.add(role_reward as RoleResolvable);
-      } catch (error) {
-        console.trace(error)
-      }
-
-      try {
-        await message.reply({ embeds: [levelup_embed] });
-      } catch (error) {
-        console.trace(error);
-      }
-    } else {
-      const user_profile_picture = message.author.displayAvatarURL({ extension: 'webp' });
-
-      let levelup_embed = new Discord.EmbedBuilder()
-        .setColor(user.profile_color as ColorResolvable)
-        .setAuthor({ name: `${message.author.username} leveled up!`, iconURL: user_profile_picture })
-        .setTitle(`Level ${server_user_data.current_level}   \u{22D9}   **Level ${server_user_data.current_level + 1}**  \u{1F389}`)
-
-      await message.channel.send({ embeds: [levelup_embed] });
-    }
+    await message.channel.send({ embeds: [levelup_embed] });
 
     server_user_data.set({
       current_level: server_user_data.current_level + 1,
@@ -131,13 +88,7 @@ async function messageOnGuild(message: Discord.Message): Promise<void> {
 
     //   TO GET TOTAL XP FROM LEVEL 0 TO DESIRED LEVEL, DO AN INTEGRAL
 
-    let levelup_success = await server_user_data.save();
-
-    if (levelup_success.current_xp = 1) {
-      console.log(`Leveled up user ${server_user_data.user_id} on server ${server_user_data.server_id}`);
-    } else {
-      console.log(`Levelup of ${server_user_data.user_id} on server ${server_user_data.server_id} has failed.`);
-    }
+    await server_user_data.save();
   }
 }
 
