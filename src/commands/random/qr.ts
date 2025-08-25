@@ -61,7 +61,7 @@ export default {
 
       interaction.reply({ embeds: [qr_embed], files: [qr_image] });
 
-      fs.unlinkSync(`./src/util/qr_storage/qr_${qr_uuid}.png`);
+      fs.unlinkSync(`./util/img/qr_storage/qr_${qr_uuid}.png`);
     } catch (error) {
       throw error;
     }
