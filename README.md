@@ -1,12 +1,12 @@
 ## 📦 About This Repository
 
-Orb is an actively maintained and open source Discord bot with a lot of features. This is it's codebase. You are welcome to explore the code, contribute improvements, and suggest new features. Everything is welcome! But heads up, this is meant for people interested in contributing or experimenting. While Orb can be hosted on a local machine under the terms of the license, this is not officially supported at this point in time and this here will not provide help for issues on self-hosted instances. This repository also does not provide end-user support. For questions or support related to the hosted version of Orb, visit the homepage or [the support server on Discord](https://discord.gg/kUPz8dS7PM).
+Orb is an actively maintained and open source Discord bot with a lot of features. This is it's codebase. You are welcome to explore the code, contribute improvements, and suggest new features. Everything is welcome! But heads up, this is meant for people interested in contributing or experimenting. While Orb can be hosted on a local machine under the terms of the license, this is not officially supported at this point in time and this here will not provide help for issues on self-hosted instances. This repository also does not provide end-user support. For questions or support related to the hosted version of Orb, visit [Orb's homepage](https://orb.jonasfdb.dev) or [the support server on Discord](https://discord.gg/kUPz8dS7PM).
 
 ## 🤝 Contribute to Orb
 
 ### Got an idea?
 
-If you have an idea, a suggestion or a feature request, you can make your voice heard in two ways. Either you get in contact with me through [the support server on Discord](https://discord.gg/kUPz8dS7PM), or, preferably, you create an Issue or a Discussion on here. Both works fine!
+If you have an idea, a suggestion or a feature request, you can make your voice heard in two ways. Either you get in contact with me directly, or, preferably, you create an Issue or a Discussion on here. Both works fine!
 
 ### Contributing code
 
@@ -43,4 +43,5 @@ See [`LICENSE`](./LICENSE) for the full text of the license. For a summary of th
 ## 💭 Contact
 
 Orb is developed and maintained with love and care by me, jonasfdb <3
-To contact me, you can either directly contact me through Discord under the username "jonasfdb".
+
+I can best be reached through Discord under the username **jonasfdb** if it is urgent. Otherwise, keep contact to Issues, Discussions and pull requests here or send an e-mail to **me@jonasfdb.cc**.
