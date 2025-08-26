@@ -6,7 +6,7 @@ import { ServerSettings } from "./models/ServerSettings";
 import { ServerUser } from "./models/ServerUser";
 import { Server } from "./models/Server";
 import { GlobalUser } from "./models/GlobalUser";
-import { nanoid } from "nanoid";
+import { ulid } from "ulid";
 
 export async function find_user(user_id: string): Promise<GlobalUser> {
   let user = await GlobalUser.findOne({ where: { user_id: user_id } });
@@ -14,7 +14,7 @@ export async function find_user(user_id: string): Promise<GlobalUser> {
   if (!user) {
     try {
       user = await GlobalUser.create({
-        orb_uuid: nanoid(22),
+        orb_uuid: ulid(),
         user_id: user_id,
         user_bot_status: 0,
         profile_color: `5d20a1`,
@@ -36,7 +36,7 @@ export async function find_server(server_id: string): Promise<Server> {
   if (!server) {
     try {
       server = await Server.create({
-        orb_uuid: nanoid(22),
+        orb_uuid: ulid(),
         server_id: server_id,
       });
       console.warn(`New server ${server.server_id} added to database`);
@@ -55,7 +55,7 @@ export async function find_server_user(user_id: string, server_id: string): Prom
   if (!server_user) {
     try {
       server_user = await ServerUser.create({
-        orb_uuid: nanoid(22),
+        orb_uuid: ulid(),
         server_id: server_id,
         user_id: user_id,
         current_money: 1000,
@@ -89,7 +89,7 @@ export async function find_server_settings(server_id: string): Promise<ServerSet
   if (!server) {
     try {
       server = await ServerSettings.create({
-        orb_uuid: nanoid(22),
+        orb_uuid: ulid(),
         server_id: server_id,
       });
       console.warn(`New server settings for ${server.server_id} added to database`);

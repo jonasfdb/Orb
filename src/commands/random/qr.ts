@@ -7,7 +7,7 @@
 
 import Discord from "discord.js";
 import { colors } from "../../../util/json/colors";
-import { nanoid } from "nanoid";
+import { ulid } from "ulid";
 import canvas from "@napi-rs/canvas";
 import fs from "fs"
 import pkg from 'symbology';
@@ -29,7 +29,7 @@ export default {
   async execute(client: Discord.Client<true>, interaction: Discord.ChatInputCommandInteraction) {
     validateCommandInteractionInGuild(interaction);
 
-    const qr_uuid = nanoid(12);
+    const qr_uuid = ulid();
     const max_age = interaction.options.getInteger('days-valid') || 0;
     const invite_link = await interaction.channel.createInvite({
       maxAge: 60 * 60 * 24 * max_age
