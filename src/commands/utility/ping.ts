@@ -16,27 +16,27 @@ export default {
     validateCommandInteractionInGuild(interaction);
     const received = Date.now();
 
-    const pinging_embed = new Discord.EmbedBuilder()
+    const embPinging = new Discord.EmbedBuilder()
       .setColor(colors.color_default)
       .setTitle("Current pings:")
       .setAuthor({ iconURL: client.user.displayAvatarURL().toString(), name: 'Orb' })
       .setDescription(`${emojis.loading_animation_emoji} Pinging...`)
 
-    let sent = await interaction.reply({ embeds: [pinging_embed] });
+    let sent = await interaction.reply({ embeds: [embPinging] });
 
     let days = Math.floor(client.uptime / 86400000);
     let hours = Math.floor(client.uptime / 3600000) % 24;
     let minutes = Math.floor(client.uptime / 60000) % 60;
     let seconds = Math.floor(client.uptime / 1000) % 60;
-    const uptime_string = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    const uptimeString = `${days}d ${hours}h ${minutes}m ${seconds}s`;
 
     let websocket_ping = Math.floor(client.ws.ping) < 1 ? `?` : Math.ceil(client.ws.ping);
 
-    const ping_embed = new Discord.EmbedBuilder()
+    const embPing = new Discord.EmbedBuilder()
       .setColor(colors.color_default)
       .setTitle("\u{1F3D3} Pong!")
       .setAuthor({ iconURL: client.user.displayAvatarURL().toString(), name: 'Orb' })
-      .setDescription(`Client has been running for **${uptime_string}**.`)
+      .setDescription(`Client has been running for **${uptimeString}**.`)
       .addFields(
         {
           name: "Ping values",
@@ -48,6 +48,17 @@ export default {
       )
       .setTimestamp();
 
-    await interaction.editReply({ embeds: [ping_embed] });
+      const supportServerButton: Discord.ButtonBuilder = new Discord.ButtonBuilder()
+        .setLabel('Join Orb Support Server')
+        .setURL('https://discord.gg/UDpMWv5xfe')
+        .setStyle(Discord.ButtonStyle.Link)
+      const homepageButton: Discord.ButtonBuilder = new Discord.ButtonBuilder()
+        .setLabel('Join Orb Support Server')
+        .setURL('https://discord.gg/UDpMWv5xfe')
+        .setStyle(Discord.ButtonStyle.Link)
+
+      const buttonRow = new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(supportServerButton, homepageButton)
+
+    await interaction.editReply({ embeds: [embPing], components: [buttonRow] });
   }
 }

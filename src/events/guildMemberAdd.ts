@@ -6,8 +6,8 @@ import Discord, { Events, ButtonStyle, TextInputStyle, GuildMember, RoleResolvab
 import { find_server_settings } from "../util/database/dbutils";
 import { colors } from "../../util/json/colors";
 import { emojis } from "../../util/json/emojis";
-import { nanoid } from "nanoid";
 import { generate_captcha } from "../util/generateCaptcha";
+import { ulid } from "ulid";
 
 export default {
   name: Events.GuildMemberAdd,
@@ -85,7 +85,7 @@ export default {
         captcha_button_collector.on('collect', async (captcha_modal_interaction) => {
           switch (captcha_modal_interaction.customId) {
             case 'captcha_ready':
-              const captcha_uuid = nanoid().toString()
+              const captcha_uuid = ulid();
 
               const captcha_input_modal = new Discord.ModalBuilder()
                 .setCustomId(captcha_uuid)

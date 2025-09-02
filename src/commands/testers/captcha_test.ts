@@ -5,9 +5,9 @@
 import Discord from "discord.js";
 import { colors } from "../../../util/json/colors";
 import { emojis } from "../../../util/json/emojis";
-import { nanoid } from "nanoid";
 import { generate_captcha } from "../../util/generateCaptcha";
 import { validateCommandInteractionInGuild } from "../../util/validate";
+import { ulid } from "ulid";
 
 export default {
   data: new Discord.SlashCommandBuilder()
@@ -80,7 +80,7 @@ export default {
       captcha_button_collector.on('collect', async (captcha_modal_interaction) => {
         switch (captcha_modal_interaction.customId) {
           case 'captcha_ready':
-            const captcha_uuid = nanoid().toString()
+            const captcha_uuid = ulid();
 
             const captcha_input_modal = new Discord.ModalBuilder()
               .setCustomId(captcha_uuid)
