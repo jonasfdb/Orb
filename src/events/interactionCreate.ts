@@ -6,57 +6,59 @@ import { Events, EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle, Int
 import { generate_error_id } from "../util/generators";
 import { emojis } from "../../util/json/emojis";
 import { colors } from "../../util/json/colors";
+import { validateCommandInteractionInDM } from "../util/validate";
 
 export default {
 	name: Events.InteractionCreate,
 
 	async execute(interaction: Interaction) {
-		if (!interaction.isChatInputCommand()) return;
+    if (interaction.isChatInputCommand()) {
+      const command = interaction.client.commands.get(interaction.commandName);
 
-		console.log(`Running ${interaction.commandName} on server ${interaction.guildId}/#${interaction.channelId} by user ${interaction.user.id}`)
+      if (!command) {
+        console.trace(`No command matching ${interaction.commandName} was found.`);
+        return;
+      }
 
-		const command = interaction.client.commands.get(interaction.commandName);
+      try {
+        await command.execute(interaction.client, interaction);
+      } catch (error: unknown) {
+        const error_code = generate_error_id();
 
-		if (!command) {
-			console.trace(`No command matching ${interaction.commandName} was found.`);
-			return;
-		}
+        try {
+          console.warn(`New error added to error log at ID ${error_code}.`);
+          console.trace(error);
+        } catch (error) {
+          console.error(`Error on creating error entry. How?`);
+          console.trace(error);
+        }
 
-		try {
-			await command.execute(interaction.client, interaction);
-		} catch (error: unknown) {
-			const error_code = generate_error_id();
+        const failure_embed = new EmbedBuilder()
+          .setTitle(`${emojis.failure_emoji} - Something went wrong!`)
+          .setColor(colors.color_error)
+          .setDescription('An unexpected error occurred while executing the command. You can report this error on the Orb Support Server with the error code below if the command keeps failing.')
+          .addFields({
+            name: 'Error code:',
+            value: error_code,
+            inline: false
+          });
 
-			try {
-				console.warn(`New error added to error log at ID ${error_code}.`);
-				console.trace(error);
-			} catch (error) {
-				console.error(`Error on creating error entry. How?`);
-				console.trace(error);
-			}
+        const join_support_server_button: ButtonBuilder = new ButtonBuilder()
+          .setLabel('Join Orb Support Server')
+          .setURL('https://discord.gg/UDpMWv5xfe')
+          .setStyle(ButtonStyle.Link)
 
-			const failure_embed = new EmbedBuilder()
-				.setTitle(`${emojis.failure_emoji} - Something went wrong!`)
-				.setColor(colors.color_error)
-				.setDescription('An unexpected error occurred while executing the command. You can report this error on the Orb Support Server with the error code below if the command keeps failing.')
-				.addFields({
-					name: 'Error code:',
-					value: error_code,
-					inline: false
-				});
+        const join_row = new ActionRowBuilder<ButtonBuilder>().addComponents(join_support_server_button)
 
-			const join_support_server_button: ButtonBuilder = new ButtonBuilder()
-				.setLabel('Join Orb Support Server')
-				.setURL('https://discord.gg/UDpMWv5xfe')
-				.setStyle(ButtonStyle.Link)
-
-			const join_row = new ActionRowBuilder<ButtonBuilder>().addComponents(join_support_server_button)
-
-			if (interaction.replied || interaction.deferred) {
-				await interaction.followUp({ embeds: [failure_embed], components: [join_row], ephemeral: true });
-			} else {
-				await interaction.reply({ embeds: [failure_embed], components: [join_row], ephemeral: true });
-			}
-		}
+        if (interaction.replied || interaction.deferred) {
+          await interaction.followUp({ embeds: [failure_embed], components: [join_row], ephemeral: true });
+        } else {
+          await interaction.reply({ embeds: [failure_embed], components: [join_row], ephemeral: true });
+        }
+      }
+    } else if (interaction.isMessageComponent()) {
+      // handle message component
+      console.log("Message component")
+    }
 	},
 };
