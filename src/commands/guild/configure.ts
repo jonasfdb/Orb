@@ -9,8 +9,8 @@ export default {
   async execute(client: Discord.Client<true>, interaction: Discord.ChatInputCommandInteraction) {
     validateCommandInteractionInGuild(interaction);
     await interaction.deferReply();
-    // what the command will do
-    function showConfigEmbed () {
+
+    async function showConfigEmbed () {
       const embConfig = new Discord.EmbedBuilder()
         .setTitle('bing')
         .setDescription('bong')
@@ -35,7 +35,30 @@ export default {
 
       const selSettingsRow = new Discord.ActionRowBuilder<Discord.StringSelectMenuBuilder>().addComponents(selSettings);
 
-      interaction.editReply({ embeds: [embConfig], components: [selSettingsRow] });
+      let reply = await interaction.editReply({ embeds: [embConfig], components: [selSettingsRow] });
+
+      try {
+        const collectorFilter = (selection: Discord.MessageComponentInteraction) => selection.user.id === interaction.user.id;
+        const confirmation = await reply.awaitMessageComponent({ filter: collectorFilter, time: 60_000 });
+        await confirmation.deferUpdate();
+
+        switch (confirmation.customId) {
+          case '1':
+            interaction.editReply('1')
+            break;
+          case '2':
+            interaction.editReply('2')
+            break;
+          case '3':
+            interaction.editReply('3')
+            break;
+          case '4':
+            interaction.editReply('4')
+            break;
+        }
+      } catch {
+        await interaction.editReply({ content: 'Confirmation not received within 1 minute, cancelling', components: [] });
+      }
     }
 
     showConfigEmbed();
