@@ -17,15 +17,15 @@ export function validateCommandInteractionInGuild(interaction: Discord.CommandIn
   isRepliable: true;
 } {
   if (!interaction.guild || !interaction.member || !interaction.channel) {
-    throw new Error('Guild, member, or channel missing.');
+    throw new Error('Guild, member, or channel missing from command.');
   }
 
   if (interaction.channel.isDMBased() || !interaction.inGuild()) {
-    throw new Error('Command must be used on server.')
+    throw new Error('Command must be used on a server.')
   }
 
   if (!interaction.isRepliable()) {
-    throw new Error('Interaction is not repliable.')
+    throw new Error('Interaction cannot be replied to.')
   }
 }
 
@@ -35,15 +35,15 @@ export function validateCommandInteractionInDM(interaction: Discord.CommandInter
   isRepliable: true;
 } {
   if (!interaction.member || !interaction.channel) {
-    throw new Error('Guild, member, or channel missing.');
+    throw new Error('Guild, member, or channel missing from command.');
   }
 
   if (!interaction.channel.isDMBased()) {
-    throw new Error('Command must be used in DMs.');
+    throw new Error('Command must be used in direct messages.');
   }
 
   if (!interaction.isRepliable()) {
-    throw new Error('Interaction is not repliable.')
+    throw new Error('Interaction cannot be replied to.')
   }
 }
 

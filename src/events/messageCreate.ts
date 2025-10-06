@@ -88,7 +88,6 @@ async function messageOnGuild(message: Discord.Message): Promise<void> {
     })
 
     //   TO GET TOTAL XP FROM LEVEL 0 TO DESIRED LEVEL, DO AN INTEGRAL
-
     await server_user_data.save();
   }
 }
