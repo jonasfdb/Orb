@@ -20,16 +20,20 @@ export default {
         .setPlaceholder('Select setting...')
         .setOptions(
           new Discord.StringSelectMenuOptionBuilder()
-            .setLabel('Welcome/Leave messages')
+            .setLabel('Moderation')
+            .setDescription('Modify how Orb protects you.')
             .setValue('1'),
           new Discord.StringSelectMenuOptionBuilder()
-            .setLabel('Welcome/Leave channel')
+            .setLabel('Welcoming and security')
+            .setDescription('Change how members get to join your server.')
             .setValue('2'),
           new Discord.StringSelectMenuOptionBuilder()
-            .setLabel('Announcement channel')
+            .setLabel('specil deal')
+            .setDescription('spamtong')
             .setValue('3'),
           new Discord.StringSelectMenuOptionBuilder()
-            .setLabel('Option 3')
+            .setLabel('Toggleables')
+            .setDescription('Change some toggles for Orb.')
             .setValue('4'),
         )
 
@@ -39,23 +43,26 @@ export default {
 
       try {
         const collectorFilter = (selection: Discord.MessageComponentInteraction) => selection.user.id === interaction.user.id;
-        const confirmation = await reply.awaitMessageComponent({ filter: collectorFilter, time: 60_000 });
-        await confirmation.deferUpdate();
+        const confirmationCollector = reply.createMessageComponentCollector({ filter: collectorFilter, time: 30_000 });
+        
+        confirmationCollector.on('collect', (confirmation: Discord.StringSelectMenuInteraction) => {
+          switch (confirmation.values[0]) {
+            case '1':
+              interaction.editReply({ content: `${confirmation.customId}`, components: [] });
+              console.log("gee willickers")
+              break;
+            case '2':
+              interaction.editReply({ content: `${confirmation.customId}`, components: [] });
+              break;
+            case '3':
+              interaction.editReply({ content: `${confirmation.customId}`, components: [] });
+              break;
+            case '4':
+              interaction.editReply({ content: `${confirmation.customId}`, components: [] });
+              break;
+          }
+        });
 
-        switch (confirmation.customId) {
-          case '1':
-            interaction.editReply('1')
-            break;
-          case '2':
-            interaction.editReply('2')
-            break;
-          case '3':
-            interaction.editReply('3')
-            break;
-          case '4':
-            interaction.editReply('4')
-            break;
-        }
       } catch {
         await interaction.editReply({ content: 'Confirmation not received within 1 minute, cancelling', components: [] });
       }

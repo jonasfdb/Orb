@@ -58,7 +58,7 @@ export default {
       }
     } else if (interaction.isMessageComponent()) {
       // handle message component
-      console.log("Message component")
+      // console.log("Message component")
     }
 	},
 };
