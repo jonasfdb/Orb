@@ -364,8 +364,6 @@ export default {
             const min_level = interaction.options.getNumber('give-at-level');
             const reward_role = interaction.options.getRole('role');
 
-            console.log(max_level, min_level, reward_role)
-
             validateNullNumber(max_level);
             validateNumber(min_level);
             validateRole(reward_role);
