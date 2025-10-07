@@ -14,6 +14,32 @@ export default {
       const embConfig = new Discord.EmbedBuilder()
         .setTitle('bing')
         .setDescription('bong')
+        .addFields([
+          {
+            name: '**I.** Moderation',
+            value:  '\u{251C}[<:attention_icon_flat:1222305975822717120>] Swear Word List\n' +
+                    '\u{2514}[<:orb_toggle_b_enabled_flat:1222635342457339914>] Toxicity Analyzer',
+            inline: true,
+          },
+          {
+            name: '**II.** Welcoming',
+            value:  '\u{251C}[<:orb_toggle_b_enabled_flat:1222635342457339914>] Captcha Security\n' +
+                    '\u{251C}[<:orb_disabled:1222634792777023688>] Welcome/Leave channel\n' + 
+                    '\u{2514}[<:orb_disabled:1222634792777023688>] Welcome/Leave messages',
+            inline: true,
+          },
+          {
+            name: '**III.** Leveling',
+            value:  '\u{251C}[<:attention_icon_flat:1222305975822717120>] MEE6 Import\n' + 
+                    '\u{2514}[<:orb_toggle_b_enabled_flat:1222635342457339914>] Rewards',
+            inline: true,
+          },
+          {
+            name: '**IV.** Toggleables',
+            value: '(none)',
+            inline: true,
+          }
+        ])
 
       const selSettings = new Discord.StringSelectMenuBuilder()
         .setCustomId('selSettings')
@@ -28,8 +54,8 @@ export default {
             .setDescription('Change how members get to join your server.')
             .setValue('2'),
           new Discord.StringSelectMenuOptionBuilder()
-            .setLabel('specil deal')
-            .setDescription('spamtong')
+            .setLabel('Leveling')
+            .setDescription('How Orb leveling works.')
             .setValue('3'),
           new Discord.StringSelectMenuOptionBuilder()
             .setLabel('Toggleables')

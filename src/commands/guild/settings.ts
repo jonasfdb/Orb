@@ -8,7 +8,7 @@ import { colors } from "../../../util/json/colors"
 import { emojis } from "../../../util/json/emojis"
 import { generate_token } from "../../util/generators"
 import { ServerSettings } from "../../util/database/models/ServerSettings";
-import { validateCommandInteractionInGuild, validateGuildChannel, validateNumber, validateRole, validateString } from "../../util/validate";
+import { validateCommandInteractionInGuild, validateGuildChannel, validateNullNumber, validateNumber, validateRole, validateString } from "../../util/validate";
 import { getGuildIcon } from "../../util/helpers";
 import { RoleReward } from "../../types/interfaces";
 
@@ -364,7 +364,9 @@ export default {
             const min_level = interaction.options.getNumber('give-at-level');
             const reward_role = interaction.options.getRole('role');
 
-            validateNumber(max_level);
+            console.log(max_level, min_level, reward_role)
+
+            validateNullNumber(max_level);
             validateNumber(min_level);
             validateRole(reward_role);
             let max_level_string = max_level.toString();

@@ -24,7 +24,7 @@ export function initServerModel(sequelize: Sequelize) {
         primaryKey: true
       },
       role_rewards_level_string: {  // holy shit this needs to be changed
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: false,
         defaultValue: ''
       },
