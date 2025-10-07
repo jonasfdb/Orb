@@ -6,7 +6,6 @@ import { Events, EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle, Int
 import { generate_error_id } from "../util/generators";
 import { emojis } from "../../util/json/emojis";
 import { colors } from "../../util/json/colors";
-import { validateCommandInteractionInDM } from "../util/validate";
 
 export default {
 	name: Events.InteractionCreate,
