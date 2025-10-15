@@ -38,10 +38,9 @@ async function navigateSettings(interaction: Discord.ChatInputCommandInteraction
     const collectorFilter = (selection: Discord.MessageComponentInteraction) => selection.user.id === interaction.user.id;
     const navCollector = message.createMessageComponentCollector({ filter: collectorFilter, time: 30_000 });
     
-    navCollector.on('collect', async (confirmation: Discord.ButtonInteraction) => {
-      console.log(confirmation)
-      await confirmation.deferUpdate();
-      switch (confirmation.customId) {
+    navCollector.on('collect', async (selection: Discord.ButtonInteraction) => {
+      await selection.deferUpdate();
+      switch (selection.customId) {
         case 'backButton':
           /*
           // console.log(interaction);
@@ -52,8 +51,8 @@ async function navigateSettings(interaction: Discord.ChatInputCommandInteraction
           // TODO: Save routine here, and save error handler (perhaps sequelize.save()? could work yea)
 
           const saveContainer = new Discord.ContainerBuilder()
-          .addTextDisplayComponents((textDisplay) =>
-            textDisplay.setContent(
+          .addTextDisplayComponents((textDisplay) => textDisplay
+            .setContent(
               `### ${emojis.success_emoji} - Changes saved!\n` +
               'Successfully (and carefully) stored the changes you made.'
             ),
@@ -64,10 +63,11 @@ async function navigateSettings(interaction: Discord.ChatInputCommandInteraction
             flags: Discord.MessageFlags.IsComponentsV2,
           });
           break;
+
         case 'abortButton':
           const abortContainer = new Discord.ContainerBuilder()
-            .addTextDisplayComponents((textDisplay) =>
-              textDisplay.setContent(
+            .addTextDisplayComponents((textDisplay) => textDisplay
+              .setContent(
                 `### ${emojis.failure_emoji} - Aborted\n` +
                 'Successfully aborted. No changes to your settings were made.'
               ),
@@ -89,49 +89,52 @@ async function showSettingsMenu(interaction: Discord.ChatInputCommandInteraction
   // pathArray.push(showSettingsMenu);
 
   const settingsContainer = new Discord.ContainerBuilder()
-    .addTextDisplayComponents((textDisplay) =>
-      textDisplay.setContent(
+    .addTextDisplayComponents((textDisplay) => textDisplay
+      .setContent(
         '## \u{1F9D9} - Settings Wizard\n' +
         'Welcome to the Settings Wizard for this wonderful server. Please select a setting to change below.'
       ),
     )
     .addSeparatorComponents((separator) => separator)
     .addSectionComponents((section) => section
-      .addTextDisplayComponents(
-        (textDisplay) =>
-          textDisplay.setContent(
+      .addTextDisplayComponents((textDisplay) => textDisplay
+        .setContent(
             '### General\n' +
             'Server locale, bot permissions, privacy, ...'
           ),
       )
-      .setButtonAccessory((button) =>
-        button.setCustomId('ebutton1').setLabel('Change...').setStyle(Discord.ButtonStyle.Primary),
+      .setButtonAccessory((button) => button
+        .setCustomId('sGeneral')
+        .setLabel('Change...')
+        .setStyle(Discord.ButtonStyle.Primary),
       )
     )
     .addSeparatorComponents((separator) => separator)
     .addSectionComponents((section) => section
-      .addTextDisplayComponents(
-        (textDisplay) =>
-          textDisplay.setContent(
+      .addTextDisplayComponents((textDisplay) => textDisplay
+          .setContent(
             '### Welcoming\n' +
             'Welcome/leave messages and channels, captcha, verification, ...'
           ),
       )
-      .setButtonAccessory((button) =>
-        button.setCustomId('ebutton2').setLabel('Change...').setStyle(Discord.ButtonStyle.Primary),
+      .setButtonAccessory((button) => button
+        .setCustomId('sWelcoming')
+        .setLabel('Change...')
+        .setStyle(Discord.ButtonStyle.Primary),
       )
     )
     .addSeparatorComponents((separator) => separator)
     .addSectionComponents((section) => section
-      .addTextDisplayComponents(
-        (textDisplay) =>
-          textDisplay.setContent(
+      .addTextDisplayComponents((textDisplay) => textDisplay
+        .setContent(
             '### Logging\n' +
             'Log channels, what to log, ...'
           ),
       )
-      .setButtonAccessory((button) =>
-        button.setCustomId('ebutton3').setLabel('Change...').setStyle(Discord.ButtonStyle.Primary),
+      .setButtonAccessory((button) => button
+        .setCustomId('sLogging')
+        .setLabel('Change...')
+        .setStyle(Discord.ButtonStyle.Primary),
       )
     );
 
@@ -142,23 +145,18 @@ async function showSettingsMenu(interaction: Discord.ChatInputCommandInteraction
 
   try {
     const collectorFilter = (selection: Discord.MessageComponentInteraction) => selection.user.id === interaction.user.id;
-    const confirmationCollector = reply.createMessageComponentCollector({ filter: collectorFilter, time: 30_000 });
+    const selectionCollector = reply.createMessageComponentCollector({ filter: collectorFilter, time: 30_000 });
     
-    confirmationCollector.on('collect', (confirmation: Discord.StringSelectMenuInteraction) => {
-      console.log("collected")
-      console.log(confirmation)
-      switch (confirmation.customId) {
-        case 'ebutton1':
-          interaction.editReply({ content: `${confirmation.customId}`, components: [] });
+    selectionCollector.on('collect', (selection: Discord.StringSelectMenuInteraction) => {
+      switch (selection.customId) {
+        case 'sGeneral':
+          showGeneralSettingsPage(interaction);
           break;
-        case 'ebutton2':
-          showConfigMessage(interaction);
+        case 'sWelcoming':
+          showWelcomingSettingsPage(interaction);
           break;
-        case 'ebutton3':
-          interaction.editReply({ content: `${confirmation.customId}`, components: [] });
-          break;
-        case 'ebutton4':
-          interaction.editReply({ content: `${confirmation.customId}`, components: [] });
+        case 'sLogging':
+          interaction.editReply({ content: `${selection.customId}`, components: [] });
           break;
       }
     });
@@ -168,39 +166,85 @@ async function showSettingsMenu(interaction: Discord.ChatInputCommandInteraction
   }
 }
 
-async function showConfigMessage(interaction: Discord.ChatInputCommandInteraction) {
+async function showGeneralSettingsPage(interaction: Discord.ChatInputCommandInteraction) {
   // pathArray.push(showConfigMessage);
 
   const exampleContainer = new Discord.ContainerBuilder()
-    .addTextDisplayComponents((textDisplay) =>
-      textDisplay.setContent(`Current welcome channel: <#${interaction.channel?.id}>`),
+    .addTextDisplayComponents((textDisplay) => textDisplay
+      .setContent(`Orb update announcement channel`),
     )
-    .addActionRowComponents((actionRow) =>
-      actionRow.setComponents(
+    .addActionRowComponents((actionRow) => actionRow
+      .setComponents(
+        new Discord.ChannelSelectMenuBuilder()
+          .setCustomId('aExample')
+          .setPlaceholder('Change...'), 
+        ),
+    )
+
+  let reply = await interaction.editReply({
+    components: [exampleContainer, navButtonRow],
+    flags: Discord.MessageFlags.IsComponentsV2,
+  });
+  validateMessageInGuild(reply);
+  navigateSettings(interaction, reply);
+  return;
+}
+
+async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandInteraction) {
+  // pathArray.push(showConfigMessage);
+
+  const exampleContainer = new Discord.ContainerBuilder()
+    .addTextDisplayComponents((textDisplay) => textDisplay
+      .setContent(
+        `### Current welcoming settings\n\n` +
+        `**Toggles**\n` +
+        `\u{251C}<:orb_disabled:1222634792777023688> Welcome messages\n` +
+        `\u{2514}<:orb_toggle_b_enabled_flat:1222635342457339914> Leave messages`
+      ),
+    )
+    .addActionRowComponents((actionRow) => actionRow
+      .setComponents(
+        new Discord.StringSelectMenuBuilder()			
+          .setCustomId('toggleWelcomingMessages')
+          .setPlaceholder('Enable/Disable...')
+          .addOptions(
+            new Discord.StringSelectMenuOptionBuilder()
+              .setLabel('Enable all')
+              .setValue('11'),
+            new Discord.StringSelectMenuOptionBuilder()
+              .setLabel('Enable only welcome messages')
+              .setValue('10'),
+            new Discord.StringSelectMenuOptionBuilder()
+              .setLabel('Enable only leave messages')
+              .setValue('01'),
+            new Discord.StringSelectMenuOptionBuilder()
+              .setLabel('Disable all')
+              .setValue('00'),
+            // take value, split into two numbers, treat numbers as boolean, ez
+          )
+      )
+    )
+    .addSeparatorComponents((separator) => separator)
+    .addTextDisplayComponents((textDisplay) => textDisplay
+      .setContent(
+        `**Channels**\n` +
+        `\u{251C} Welcome messages sent in <#${interaction.channel?.id}>\n` +
+        `\u{2514} Leave messages sent in <#${interaction.channel?.id}>\n`
+      ),
+    )
+    .addActionRowComponents((actionRow) => actionRow
+      .setComponents(
         new Discord.ChannelSelectMenuBuilder()
           .setCustomId('welcomeChannelSelect')
           .setPlaceholder('Change welcome channel...'),
         ),
     )
-    .addActionRowComponents((actionRow) =>
-      actionRow.setComponents(
+    .addActionRowComponents((actionRow) => actionRow
+      .setComponents(
         new Discord.ChannelSelectMenuBuilder()
           .setCustomId('leaveChannelSelect')
           .setPlaceholder('Change leave channel...'),
         ),
-    )
-    .addSeparatorComponents((separator) => separator)
-    .addTextDisplayComponents((textDisplay) =>
-      textDisplay.setContent(`Current leave message channel: <#${interaction.channel?.id}>`),
-    )
-    .addActionRowComponents((actionRow) =>
-      actionRow.setComponents(
-        new Discord.ChannelSelectMenuBuilder()
-          .setCustomId('exampleSelect2')
-          .setPlaceholder('Change...'), 
-        // new Discord.ButtonBuilder().setCustomId('exampleToggle').setLabel('Disable').setStyle(Discord.ButtonStyle.Danger),
-        // new Discord.ButtonBuilder().setCustomId('exampleToggle2').setLabel('Enable').setStyle(Discord.ButtonStyle.Success).setDisabled(),
-      ),
     )
 
   let reply = await interaction.editReply({
