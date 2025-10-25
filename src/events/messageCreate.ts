@@ -2,7 +2,7 @@
 // Copyright (C) 2025 Jonas Frank de Buhr (jonasfdb)
 // Licensed under the AGPL-3.0 license as laid out in LICENSE
 
-import Discord, { ColorResolvable, Events, RoleResolvable } from "discord.js";
+import Discord, { ColorResolvable, Events } from "discord.js";
 import { find_server_user, find_server, find_user } from "../util/database/dbutils";
 import { ServerUser } from "../util/database/models/ServerUser.js";
 import { GlobalUser } from "../util/database/models/GlobalUser.js";
@@ -101,6 +101,7 @@ export default {
       messageOnGuild(message);
     } else {
       validateMessageInDM(message);
+      message.reply({ content: 'Sorry, Orb is not yet able to do much in DMs. Check back later!' })
       return;
     }
   },
