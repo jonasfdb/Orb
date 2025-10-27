@@ -1,6 +1,9 @@
 import Discord from "discord.js";
-import { validateCommandInteractionInGuild, validateMessageInGuild } from "../../util/validate";
+import { validateCommandInteractionInGuild, validateGuildChannel, validateGuildTextChannel, validateMessageInGuild } from "../../util/validate";
 import { emojis } from "../../../util/json/emojis";
+import { find_server_settings } from "../../util/database/dbutils";
+import { ServerSettings } from "../../util/database/models/ServerSettings";
+import { colors } from "../../../util/json/colors";
 
 export default {
   data: new Discord.SlashCommandBuilder()
@@ -10,14 +13,15 @@ export default {
   async execute(client: Discord.Client<true>, interaction: Discord.ChatInputCommandInteraction) {
     validateCommandInteractionInGuild(interaction);
     await interaction.deferReply();
-    // showConfigEmbed();
-    // showConfigMessage(interaction);
+
+    guildSettings = await find_server_settings(interaction.guild.id);
     pathArray = [];
     showSettingsMenu(interaction);
   }
 }
 
 let pathArray: any = [];
+let guildSettings: ServerSettings;
 
 const backButton = new Discord.ButtonBuilder()
   .setCustomId('backButton')
@@ -251,6 +255,98 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
     components: [exampleContainer, navButtonRow],
     flags: Discord.MessageFlags.IsComponentsV2,
   });
+
+  try {
+    const collectorFilter = (selection: Discord.MessageComponentInteraction) => selection.user.id === interaction.user.id;
+    const selectionChannelCollector = reply.createMessageComponentCollector({ filter: collectorFilter, time: 30_000 });
+    
+    selectionChannelCollector.on('collect', async (selection: Discord.ChannelSelectMenuInteraction) => {
+      switch (selection.customId) {
+        case 'welcomeChannelSelect':
+          let welcome_channel = selection.channels.get(selection.values[0]);
+          validateGuildTextChannel(welcome_channel);
+
+          if (welcome_channel.permissionsFor(interaction.client.user)?.has(Discord.PermissionFlagsBits.SendMessages)) {
+            guildSettings.welcome_channel_id = welcome_channel.id;
+            await guildSettings.save();
+
+            const welcome_channel_success_embed = new Discord.EmbedBuilder()
+              .setColor(colors.color_success)
+              .setTitle(`${emojis.success_emoji} - Changes saved!`)
+              .setDescription(`Set new welcome message channel to ${interaction.options.getChannel("channel")}!`);
+
+            interaction.editReply({ embeds: [welcome_channel_success_embed] });
+          } else {
+            /*
+            const welcome_channel_failure_embed = new Discord.EmbedBuilder()
+              .setColor(colors.color_warning)
+              .setTitle(`${emojis.attention_emoji} - Lacking permissions!`)
+              .setDescription(`Orb does not have permission to send messages to this channel!\n\nWould you like Orb to **change channel permissions** to allow it to send messages in ${interaction.options.getChannel("channel")}?`);
+
+            const confirm_permission_change = new Discord.ButtonBuilder()
+              .setCustomId('confirm_perm_change')
+              .setLabel('Yes')
+              .setStyle(Discord.ButtonStyle.Success)
+              .setEmoji('1111384687378710699');
+            const cancel_permission_change = new Discord.ButtonBuilder()
+              .setCustomId('cancel_perm_change')
+              .setLabel('No')
+              .setStyle(Discord.ButtonStyle.Danger)
+              .setEmoji('1111323889105121350');
+
+            const permission_change_action_row = new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(confirm_permission_change, cancel_permission_change);
+
+            const lacking_permissions_response = await interaction.reply({ embeds: [welcome_channel_failure_embed], components: [permission_change_action_row] });
+            const collector_filter = (selection: Discord.MessageComponentInteraction) => selection.user.id === interaction.user.id;
+
+            try {
+              const permission_change_interaction = await lacking_permissions_response.awaitMessageComponent({ filter: collector_filter, time: (1000 * 60 * 1) });
+
+              switch (permission_change_interaction.customId) {
+                case 'confirm_perm_change':
+
+                  try {
+                    welcome_channel.permissionOverwrites.create(client.user, { SendMessages: true });
+
+                    await ServerSettings.update(
+                      { welcome_channel_id: welcome_channel.id },
+                      { where: { server_id: interaction.guild.id } }
+                    );
+
+                    const welcome_channel_perm_change_success_embed = new Discord.EmbedBuilder()
+                      .setColor(colors.color_success)
+                      .setTitle(`${emojis.success_emoji} - Changes saved!`)
+                      .setDescription(`Set new welcome message channel to ${interaction.options.getChannel("channel")} and gave Orb permission to send messages to this channel!`);
+
+                    permission_change_interaction.deferUpdate();
+                    interaction.editReply({ embeds: [welcome_channel_perm_change_success_embed], components: [] })
+                  } catch (error) {
+                    throw error;
+                  }
+
+                  break;
+                case 'cancel_perm_change':
+                  const welcome_channel_cancel_perm_change_embed = new Discord.EmbedBuilder()
+                    .setColor(colors.color_error)
+                    .setTitle(`${emojis.failure_emoji} - Lacking permissions!`)
+                    .setDescription(`Orb did not change channel permissions and aborted. Try again with a different channel.`);
+
+                  interaction.editReply({ embeds: [welcome_channel_cancel_perm_change_embed] })
+                  break;
+              }
+            } catch (error) {
+              throw error;
+            }
+            */
+          }
+          break;
+      }
+    });
+
+  } catch {
+    // TODO: Add timeout message as MessageComponentV2 too
+  }
+
   validateMessageInGuild(reply);
   navigateSettings(interaction, reply);
   return;

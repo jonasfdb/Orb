@@ -38,7 +38,7 @@ for (const folder of commands_folders) {
 
 try {
   console.log(`Refreshing ${commands.length} commands...`);
-  //  commands = []   // uncomment to delete all commands
+  // commands = []   // uncomment to delete all commands
   const data: any = await rest.put(Routes.applicationGuildCommands(clientId as string, testGuildId as string), { body: commands });
   console.warn(`Successfully reloaded ${data.length} application commands.`);
 } catch (error) {
