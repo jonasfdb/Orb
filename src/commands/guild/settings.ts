@@ -596,75 +596,8 @@ export default {
         break;
 
       case `toggles`:
-        switch (interaction.options.getSubcommand()) {
-          case `current`:
-            interaction.reply("Currently not working.")
-            break;
-          case `join-leave-messages`:
-            let welcome_message_result = "";
-            let leave_message_result = "";
-
-            switch (interaction.options.getString('option')) {
-              case `all`:
-                await ServerSettings.update(
-                  {
-                    welcome_messages_enabled: true,
-                    leave_messages_enabled: true
-                  },
-                  { where: { server_id: interaction.guild.id } }
-                );
-
-                welcome_message_result = 'enabled';
-                leave_message_result = 'enabled';
-                break;
-              case `join`:
-                await ServerSettings.update(
-                  {
-                    welcome_messages_enabled: true,
-                    leave_messages_enabled: false
-                  },
-                  { where: { server_id: interaction.guild.id } }
-                );
-
-                welcome_message_result = 'enabled';
-                leave_message_result = 'disabled';
-                break;
-              case `leave`:
-                await ServerSettings.update(
-                  {
-                    welcome_messages_enabled: false,
-                    leave_messages_enabled: true
-                  },
-                  { where: { server_id: interaction.guild.id } }
-                );
-
-                welcome_message_result = 'disabled';
-                leave_message_result = 'enabled';
-                break;
-              case `none`:
-                await ServerSettings.update(
-                  {
-                    welcome_messages_enabled: false,
-                    leave_messages_enabled: false
-                  },
-                  { where: { server_id: interaction.guild.id } }
-                );
-
-                welcome_message_result = 'disabled';
-                leave_message_result = 'disabled';
-                break;
-            }
-
-            const message_toggle_success_embed = new Discord.EmbedBuilder()
-              .setColor(colors.color_success)
-              .setTitle(`${emojis.success_emoji} - Changes saved!`)
-              .addFields(
-                { name: `\u{1F6E0} Changes:`, value: `\u{200B}\u{2514} Welcome messages are now **${welcome_message_result}**\n\u{200B}\u{2514} Leave messages are now **${leave_message_result}**` }
-              )
-
-            interaction.reply({ embeds: [message_toggle_success_embed] })
-            break;
-        }
+        out_of_order(interaction, 'This command was moved to /configure.');
+        break;
     }
   }
 }

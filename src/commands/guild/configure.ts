@@ -34,7 +34,7 @@ const abortButton = new Discord.ButtonBuilder()
   .setStyle(Discord.ButtonStyle.Danger)
 const againButton = new Discord.ButtonBuilder()
   .setCustomId('againButton')
-  .setLabel('Change another setting')
+  .setLabel('Change more settings')
   .setStyle(Discord.ButtonStyle.Success)
 const navButtonRow = new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(backButton, abortButton);
 const againButtonRow = new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(againButton);
@@ -42,8 +42,8 @@ const againButtonRow = new Discord.ActionRowBuilder<Discord.ButtonBuilder>().add
 async function navigateSettings(interaction: Discord.ChatInputCommandInteraction, message: Discord.Message<true>) {
   try {
     const collectorFilter = (selection: Discord.MessageComponentInteraction) => selection.user.id === interaction.user.id;
-    const navCollector = message.createMessageComponentCollector({ filter: collectorFilter, time: 30_000 });
-    
+    const navCollector = message.createMessageComponentCollector({ filter: collectorFilter, time: 60_000 });
+
     navCollector.on('collect', async (selection: Discord.ButtonInteraction) => {
       // await selection.deferUpdate();
       switch (selection.customId) {
@@ -71,8 +71,16 @@ async function navigateSettings(interaction: Discord.ChatInputCommandInteraction
         // TODO: A save and exit button could be a great idea too
       }
     });
+
+    navCollector.on('end', async (collected) => {
+      if (collected.size < 1) {
+        let interactionFinalReply = await interaction.fetchReply()
+        console.log(interactionFinalReply);
+        selectionTimeout(interaction);
+      }
+    })
   } catch {
-    // TODO: Add timeout message as MessageComponentV2 too
+
   }
 }
 
@@ -136,7 +144,7 @@ async function showSettingsMenu(interaction: Discord.ChatInputCommandInteraction
 
   try {
     const collectorFilter = (selection: Discord.MessageComponentInteraction) => selection.user.id === interaction.user.id;
-    const selectionCollector = reply.createMessageComponentCollector({ filter: collectorFilter, time: 30_000 });
+    const selectionCollector = reply.createMessageComponentCollector({ filter: collectorFilter, time: 30_000, max: 1 });
     
     selectionCollector.on('collect', (selection: Discord.StringSelectMenuInteraction) => {
       switch (selection.customId) {
@@ -151,8 +159,14 @@ async function showSettingsMenu(interaction: Discord.ChatInputCommandInteraction
           break;
       }
     });
+
+    selectionCollector.on('end', (collected) => {
+      if (collected.size < 1) {
+        selectionTimeout(interaction);
+      }
+    })
   } catch {
-    // TODO: Add timeout message as MessageComponentV2 too
+
   }
 }
 
@@ -245,23 +259,41 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
 
   try {
     const collectorFilter = (selection: Discord.MessageComponentInteraction) => selection.user.id === interaction.user.id;
-    const selectionChannelCollector = reply.createMessageComponentCollector({ filter: collectorFilter, time: 30_000 });
-    const selectionMessageToggleColletor = reply.createMessageComponentCollector({ filter: collectorFilter, time: 30_000 });
+    const selectionChannelCollector = reply.createMessageComponentCollector({ filter: collectorFilter, time: 30_000, max: 1 });
+    const selectionMessageToggleColletor = reply.createMessageComponentCollector({ filter: collectorFilter, time: 30_000, max: 1 });
     
     selectionMessageToggleColletor.on('collect', async (selection: Discord.StringSelectMenuInteraction) => {
       switch (selection.customId) {
         case 'toggleWelcomingMessages':
           let selectionArray = selection.values[0].split('');
-          if (parseInt(selectionArray[0]) > 0) 
-                { guildSettings.welcome_messages_enabled = true; } 
-          else  { guildSettings.welcome_messages_enabled = false; }
-          if (parseInt(selectionArray[0]) > 0) 
-                { guildSettings.leave_messages_enabled = true; } 
-          else  { guildSettings.leave_messages_enabled = false; }
+          guildSettings.welcome_messages_enabled = parseInt(selectionArray[0], 10) > 0;
+          guildSettings.leave_messages_enabled = parseInt(selectionArray[1], 10) > 0;
           await guildSettings.save();
+
+          let boolWelcomeMessagesEnabled = parseInt(selectionArray[0]) > 0 ? 'enabled' : 'disabled';
+          let boolLeaveMessagesEnabled = parseInt(selectionArray[1]) > 0 ? 'enabled' : 'disabled';
+
+          const saveContainer = new Discord.ContainerBuilder()
+            .setAccentColor(colors.color_success)
+            .addTextDisplayComponents((textDisplay) => textDisplay
+              .setContent(
+                `### ${emojis.success_emoji} - Changes saved!\n` +
+                `Welcome messages are now **${boolWelcomeMessagesEnabled}**, leave messages are now **${boolLeaveMessagesEnabled}**.`
+              )
+            );
+          await interaction.editReply({
+            components: [saveContainer, againButtonRow],
+            flags: Discord.MessageFlags.IsComponentsV2,
+          });
           break;
       }
     });
+
+    selectionMessageToggleColletor.on('end', (collected) => {
+      if (collected.size < 1) {
+        selectionTimeout(interaction);
+      }
+    })
 
     selectionChannelCollector.on('collect', async (selection: Discord.ChannelSelectMenuInteraction) => {
       // await selection.deferUpdate();
@@ -452,6 +484,12 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
           break;
       }
     });
+
+    selectionChannelCollector.on('end', (collected) => {
+      if (collected.size < 1) {
+        selectionTimeout(interaction);
+      }
+    })
   } catch {
     // TODO: Add timeout message as MessageComponentV2
   }
@@ -471,3 +509,18 @@ async function attachChangedSettingsSection(container: Discord.ContainerBuilder)
   return;
 }
 */
+
+async function selectionTimeout (interaction: Discord.ChatInputCommandInteraction) {
+  const timeoutContainer = new Discord.ContainerBuilder()
+    .setAccentColor(colors.color_warning)
+    .addTextDisplayComponents((textDisplay) => textDisplay
+      .setContent(
+        `### ${emojis.attention_emoji} - Timed out!\n` +
+        `You took too long to make a selection, so this interaction was cancelled. Run the command again to restart.`
+      )
+    );
+  await interaction.editReply({
+    components: [timeoutContainer],
+    flags: Discord.MessageFlags.IsComponentsV2,
+  });
+}
