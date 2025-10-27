@@ -246,6 +246,22 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
   try {
     const collectorFilter = (selection: Discord.MessageComponentInteraction) => selection.user.id === interaction.user.id;
     const selectionChannelCollector = reply.createMessageComponentCollector({ filter: collectorFilter, time: 30_000 });
+    const selectionMessageToggleColletor = reply.createMessageComponentCollector({ filter: collectorFilter, time: 30_000 });
+    
+    selectionMessageToggleColletor.on('collect', async (selection: Discord.StringSelectMenuInteraction) => {
+      switch (selection.customId) {
+        case 'toggleWelcomingMessages':
+          let selectionArray = selection.values[0].split('');
+          if (parseInt(selectionArray[0]) > 0) 
+                { guildSettings.welcome_messages_enabled = true; } 
+          else  { guildSettings.welcome_messages_enabled = false; }
+          if (parseInt(selectionArray[0]) > 0) 
+                { guildSettings.leave_messages_enabled = true; } 
+          else  { guildSettings.leave_messages_enabled = false; }
+          await guildSettings.save();
+          break;
+      }
+    });
 
     selectionChannelCollector.on('collect', async (selection: Discord.ChannelSelectMenuInteraction) => {
       // await selection.deferUpdate();
