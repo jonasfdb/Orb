@@ -251,11 +251,11 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
       // await selection.deferUpdate();
       switch (selection.customId) {
         case 'welcomeChannelSelect':
-          let welcome_channel = selection.channels.get(selection.values[0]);
-          validateGuildChannel(welcome_channel);
+          let wChannel = selection.channels.get(selection.values[0]);
+          validateGuildChannel(wChannel);
 
-          if (welcome_channel.permissionsFor(interaction.client.user)?.has(Discord.PermissionFlagsBits.SendMessages)) {
-            guildSettings.welcome_channel_id = welcome_channel.id;
+          if (wChannel.permissionsFor(interaction.client.user)?.has(Discord.PermissionFlagsBits.SendMessages)) {
+            guildSettings.welcome_channel_id = wChannel.id;
             await guildSettings.save();
 
             const saveContainer = new Discord.ContainerBuilder()
@@ -263,7 +263,7 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
               .addTextDisplayComponents((textDisplay) => textDisplay
                 .setContent(
                   `### ${emojis.success_emoji} - Changes saved!\n` +
-                  `Orb will welcome new members in <#${welcome_channel.id}>.`
+                  `Orb will welcome new members in <#${wChannel.id}>.`
                 )
               );
             await interaction.editReply({
@@ -276,36 +276,36 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
             .addTextDisplayComponents((textDisplay) => textDisplay
               .setContent(
                 `### ${emojis.attention_emoji} - Lacking permissions!\n` +
-                `Orb does not have permission to send messages in <#${welcome_channel.id}>!\n` + 
+                `Orb does not have permission to send messages in <#${wChannel.id}>!\n` + 
                 `Would you like Orb to **change channel permissions** to be able to send messages in there?`
               )
             );
-            const confirm_permission_change = new Discord.ButtonBuilder()
-              .setCustomId('confirm_perm_change')
+            const pChangeConfirmButton = new Discord.ButtonBuilder()
+              .setCustomId('pChangeConfirm')
               .setLabel('Yes')
               .setStyle(Discord.ButtonStyle.Success)
               .setEmoji('1222305979518156830');
-            const cancel_permission_change = new Discord.ButtonBuilder()
-              .setCustomId('cancel_perm_change')
+            const pChangeAbortButton = new Discord.ButtonBuilder()
+              .setCustomId('pChangeAbort')
               .setLabel('Nevermind, abort')
               .setStyle(Discord.ButtonStyle.Danger)
               .setEmoji('1222305977546706955');
-            const permission_change_action_row = new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(confirm_permission_change, cancel_permission_change);
+            const pChangeActionRow = new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(pChangeConfirmButton, pChangeAbortButton);
 
             let reply = await interaction.editReply({
-              components: [wChannelPermissionFailureContainer, permission_change_action_row],
+              components: [wChannelPermissionFailureContainer, pChangeActionRow],
               flags: Discord.MessageFlags.IsComponentsV2,
             });
 
             const collectorFilter = (selection: Discord.MessageComponentInteraction) => selection.user.id === interaction.user.id;
             const selectionChannelCollector = reply.createMessageComponentCollector({ filter: collectorFilter, time: 30_000 });
 
-            selectionChannelCollector.on('collect', async (permission_change_interaction: Discord.ChannelSelectMenuInteraction) => {
-              switch (permission_change_interaction.customId) {
-                case 'confirm_perm_change':
+            selectionChannelCollector.on('collect', async (pChangeSelection: Discord.ChannelSelectMenuInteraction) => {
+              switch (pChangeSelection.customId) {
+                case 'pChangeConfirm':
                   try {
-                    welcome_channel.permissionOverwrites.create(interaction.client.user, { SendMessages: true });
-                    guildSettings.welcome_channel_id = welcome_channel.id;
+                    wChannel.permissionOverwrites.create(interaction.client.user, { SendMessages: true });
+                    guildSettings.welcome_channel_id = wChannel.id;
                     await guildSettings.save();
 
                     const saveContainer = new Discord.ContainerBuilder()
@@ -313,7 +313,7 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
                       .addTextDisplayComponents((textDisplay) => textDisplay
                         .setContent(
                           `### ${emojis.success_emoji} - Changes saved!\n` +
-                          `Orb will welcome new members in <#${welcome_channel.id}>.`
+                          `Orb will welcome new members in <#${wChannel.id}>.`
                         )
                       );
                     await interaction.editReply({
@@ -324,20 +324,117 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
                     throw error;
                   }
                   break;
-                case 'cancel_perm_change':
-                  const welcome_channel_cancel_perm_change_embed = new Discord.EmbedBuilder()
-                    .setColor(colors.color_error)
-                    .setTitle(`${emojis.failure_emoji} - Lacking permissions!`)
-                    .setDescription(`Orb did not change channel permissions and aborted. Try again with a different channel.`);
-                  interaction.editReply({ embeds: [welcome_channel_cancel_perm_change_embed] })
+                case 'pChangeAbort':
+                  const abortContainer = new Discord.ContainerBuilder()
+                    .setAccentColor(colors.color_error)
+                    .addTextDisplayComponents((textDisplay) => textDisplay
+                      .setContent(
+                        `### ${emojis.failure_emoji} - Lacking permissions!\n` +
+                        `Orb aborted, and nothing changed. Maybe try a different channel?`
+                      )
+                    );
+                  await interaction.editReply({
+                    components: [abortContainer, againButtonRow],
+                    flags: Discord.MessageFlags.IsComponentsV2,
+                  });
+                  break;
+                }
+            });
+            }
+          break;
+        case 'leaveChannelSelect':
+          let lChannel = selection.channels.get(selection.values[0]);
+          validateGuildChannel(lChannel);
+
+          if (lChannel.permissionsFor(interaction.client.user)?.has(Discord.PermissionFlagsBits.SendMessages)) {
+            guildSettings.leave_channel_id = lChannel.id;
+            await guildSettings.save();
+
+            const saveContainer = new Discord.ContainerBuilder()
+              .setAccentColor(colors.color_success)
+              .addTextDisplayComponents((textDisplay) => textDisplay
+                .setContent(
+                  `### ${emojis.success_emoji} - Changes saved!\n` +
+                  `Orb will wish leaving members farewell in <#${lChannel.id}>.`
+                )
+              );
+            await interaction.editReply({
+              components: [saveContainer, againButtonRow],
+              flags: Discord.MessageFlags.IsComponentsV2,
+            });
+          } else {
+            const wChannelPermissionFailureContainer = new Discord.ContainerBuilder()
+            .setAccentColor(colors.color_warning)
+            .addTextDisplayComponents((textDisplay) => textDisplay
+              .setContent(
+                `### ${emojis.attention_emoji} - Lacking permissions!\n` +
+                `Orb does not have permission to send messages in <#${lChannel.id}>!\n` + 
+                `Would you like Orb to **change channel permissions** to be able to send messages in there?`
+              )
+            );
+            const pChangeConfirmButton = new Discord.ButtonBuilder()
+              .setCustomId('pChangeConfirm')
+              .setLabel('Yes')
+              .setStyle(Discord.ButtonStyle.Success)
+              .setEmoji('1222305979518156830');
+            const pChangeAbortButton = new Discord.ButtonBuilder()
+              .setCustomId('pChangeAbort')
+              .setLabel('Nevermind, abort')
+              .setStyle(Discord.ButtonStyle.Danger)
+              .setEmoji('1222305977546706955');
+            const pChangeActionRow = new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(pChangeConfirmButton, pChangeAbortButton);
+
+            let reply = await interaction.editReply({
+              components: [wChannelPermissionFailureContainer, pChangeActionRow],
+              flags: Discord.MessageFlags.IsComponentsV2,
+            });
+
+            const collectorFilter = (selection: Discord.MessageComponentInteraction) => selection.user.id === interaction.user.id;
+            const selectionChannelCollector = reply.createMessageComponentCollector({ filter: collectorFilter, time: 30_000 });
+
+            selectionChannelCollector.on('collect', async (pChangeSelection: Discord.ChannelSelectMenuInteraction) => {
+              switch (pChangeSelection.customId) {
+                case 'pChangeConfirm':
+                  try {
+                    lChannel.permissionOverwrites.create(interaction.client.user, { SendMessages: true });
+                    guildSettings.leave_channel_id = lChannel.id;
+                    await guildSettings.save();
+
+                    const saveContainer = new Discord.ContainerBuilder()
+                      .setAccentColor(colors.color_success)
+                      .addTextDisplayComponents((textDisplay) => textDisplay
+                        .setContent(
+                          `### ${emojis.success_emoji} - Changes saved!\n` +
+                          `Orb will wish leaving members farewell in <#${lChannel.id}>.`
+                        )
+                      );
+                    await interaction.editReply({
+                      components: [saveContainer, againButtonRow],
+                      flags: Discord.MessageFlags.IsComponentsV2,
+                    });
+                  } catch (error) {
+                    throw error;
+                  }
+                  break;
+                case 'pChangeAbort':
+                  const abortContainer = new Discord.ContainerBuilder()
+                    .setAccentColor(colors.color_error)
+                    .addTextDisplayComponents((textDisplay) => textDisplay
+                      .setContent(
+                        `### ${emojis.failure_emoji} - Lacking permissions!\n` +
+                        `Orb aborted, and nothing changed. Maybe try a different channel?`
+                      )
+                    );
+                  await interaction.editReply({
+                    components: [abortContainer, againButtonRow],
+                    flags: Discord.MessageFlags.IsComponentsV2,
+                  });
                   break;
                 }
             });
           }
-        break;
       }
     });
-
   } catch {
     // TODO: Add timeout message as MessageComponentV2
   }
