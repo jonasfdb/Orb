@@ -482,51 +482,7 @@ export default {
         break;
 
       case 'channels':
-        switch (interaction.options.getSubcommand()) {
-          case `current`:
-            let current_server_settings = await find_server_settings(interaction.guild.id);
-            console.log(current_server_settings.welcome_channel_id, current_server_settings.leave_channel_id, current_server_settings.welcome_message, current_server_settings.leave_message);
-
-            let welcome_message_channel_string = '';
-            let leave_message_channel_string = '';
-
-            if (!current_server_settings.welcome_channel_id) {
-              welcome_message_channel_string = '_No channel assigned_'
-            } else {
-              welcome_message_channel_string = `<#${current_server_settings.welcome_channel_id}>`
-            }
-
-            if (!current_server_settings.leave_channel_id) {
-              leave_message_channel_string = '_No channel assigned_'
-            } else {
-              leave_message_channel_string = `<#${current_server_settings.leave_channel_id}>`
-            }
-
-            const current_channel_settings_embed = new Discord.EmbedBuilder()
-              .setColor(colors.color_default)
-              .setTitle(`\u{2699} - Current settings:`)
-              .addFields(
-                {
-                  name: 'Welcome message channel:',
-                  value: ` \u{2514} ${welcome_message_channel_string}`,
-                },
-                {
-                  name: 'Leave message channel:',
-                  value: ` \u{2514} ${leave_message_channel_string}`,
-                }
-              )
-
-            interaction.reply({ embeds: [current_channel_settings_embed] });
-            break;
-
-          case `welcome-channel`:
-            out_of_order(interaction, 'This setting has been moved to /configure.');
-            break;
-
-          case `leave-channel`:
-            out_of_order(interaction, 'This setting has been moved to /configure.');
-            break;
-        }
+        out_of_order(interaction, 'This setting has been moved to /configure.');
         break;
 
       case `messages`:
