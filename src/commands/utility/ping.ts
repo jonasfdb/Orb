@@ -53,8 +53,8 @@ export default {
         .setURL('https://discord.gg/UDpMWv5xfe')
         .setStyle(Discord.ButtonStyle.Link)
       const homepageButton: Discord.ButtonBuilder = new Discord.ButtonBuilder()
-        .setLabel('Join Orb Support Server')
-        .setURL('https://discord.gg/UDpMWv5xfe')
+        .setLabel('Visit website')
+        .setURL('https://orb.jonasfdb.dev')
         .setStyle(Discord.ButtonStyle.Link)
 
       const buttonRow = new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(supportServerButton, homepageButton)

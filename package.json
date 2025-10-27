@@ -1,6 +1,6 @@
 {
   "name": "orb",
-  "version": "0.26.0",
+  "version": "0.27.0",
   "description": "General purpose moderation, leveling and fun bot.",
   "main": "orb.ts",
   "author": "none",
@@ -14,7 +14,6 @@
     "pg": "^8.11.0",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.12.0-beta.1",
-    "symbology": "^4.0.2",
     "tsx": "^4.20.3",
     "ulid": "^3.0.1"
   },

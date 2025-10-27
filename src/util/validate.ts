@@ -120,6 +120,12 @@ export function validateNumber(number: unknown): asserts number is number {
   }
 }
 
+export function validateNullNumber(number: unknown): asserts number is number {
+  if (typeof number !== 'number' || number !== 0) {
+    throw new Error("Expected Number of size 0, got something else.")
+  }
+}
+
 export function validateString(string: unknown): asserts string is string {
   if (!string || typeof string !== 'string') {
     throw new Error('Expected String, got something else.')

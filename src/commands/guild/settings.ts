@@ -8,9 +8,10 @@ import { colors } from "../../../util/json/colors"
 import { emojis } from "../../../util/json/emojis"
 import { generate_token } from "../../util/generators"
 import { ServerSettings } from "../../util/database/models/ServerSettings";
-import { validateCommandInteractionInGuild, validateGuildChannel, validateNumber, validateRole, validateString } from "../../util/validate";
+import { validateCommandInteractionInGuild, validateGuildChannel, validateNullNumber, validateNumber, validateRole, validateString } from "../../util/validate";
 import { getGuildIcon } from "../../util/helpers";
 import { RoleReward } from "../../types/interfaces";
+import { out_of_order } from "../../util/outOfOrder";
 
 export default {
   data: new Discord.SlashCommandBuilder()
@@ -307,10 +308,14 @@ export default {
                   channel_array.forEach(channel => {
                     try {
                       validateGuildChannel(channel);
+                      console.log(channel);
                       channel.permissionOverwrites.create(not_verified_role, { ViewChannel: false });
                     } catch (error) {
+                      throw error;
+                      /*
                       console.trace(error);
                       failure_count++;
+                      */
                     }
                   });
 
@@ -364,7 +369,7 @@ export default {
             const min_level = interaction.options.getNumber('give-at-level');
             const reward_role = interaction.options.getRole('role');
 
-            validateNumber(max_level);
+            validateNullNumber(max_level);
             validateNumber(min_level);
             validateRole(reward_role);
             let max_level_string = max_level.toString();
@@ -477,201 +482,7 @@ export default {
         break;
 
       case 'channels':
-        switch (interaction.options.getSubcommand()) {
-          case `current`:
-            let current_server_settings = await find_server_settings(interaction.guild.id);
-            console.log(current_server_settings.welcome_channel_id, current_server_settings.leave_channel_id, current_server_settings.welcome_message, current_server_settings.leave_message);
-
-            let welcome_message_channel_string = '';
-            let leave_message_channel_string = '';
-
-            if (!current_server_settings.welcome_channel_id) {
-              welcome_message_channel_string = '_No channel assigned_'
-            } else {
-              welcome_message_channel_string = `<#${current_server_settings.welcome_channel_id}>`
-            }
-
-            if (!current_server_settings.leave_channel_id) {
-              leave_message_channel_string = '_No channel assigned_'
-            } else {
-              leave_message_channel_string = `<#${current_server_settings.leave_channel_id}>`
-            }
-
-            const current_channel_settings_embed = new Discord.EmbedBuilder()
-              .setColor(colors.color_default)
-              .setTitle(`\u{2699} - Current settings:`)
-              .addFields(
-                {
-                  name: 'Welcome message channel:',
-                  value: ` \u{2514} ${welcome_message_channel_string}`,
-                },
-                {
-                  name: 'Leave message channel:',
-                  value: ` \u{2514} ${leave_message_channel_string}`,
-                }
-              )
-
-            interaction.reply({ embeds: [current_channel_settings_embed] });
-            break;
-
-          case `welcome-channel`:
-            let welcome_channel = interaction.options.getChannel("channel");
-            validateGuildChannel(welcome_channel);
-
-            if (welcome_channel.permissionsFor(client.user)?.has(Discord.PermissionFlagsBits.SendMessages)) {
-              await ServerSettings.update(
-                { welcome_channel_id: welcome_channel.id },
-                { where: { server_id: interaction.guild.id } }
-              );
-
-              const welcome_channel_success_embed = new Discord.EmbedBuilder()
-                .setColor(colors.color_success)
-                .setTitle(`${emojis.success_emoji} - Changes saved!`)
-                .setDescription(`Set new welcome message channel to ${interaction.options.getChannel("channel")}!`);
-
-              interaction.reply({ embeds: [welcome_channel_success_embed] });
-            } else {
-              const welcome_channel_failure_embed = new Discord.EmbedBuilder()
-                .setColor(colors.color_warning)
-                .setTitle(`${emojis.attention_emoji} - Lacking permissions!`)
-                .setDescription(`Orb does not have permission to send messages to this channel!\n\nWould you like Orb to **change channel permissions** to allow it to send messages in ${interaction.options.getChannel("channel")}?`);
-
-              const confirm_permission_change = new Discord.ButtonBuilder()
-                .setCustomId('confirm_perm_change')
-                .setLabel('Yes')
-                .setStyle(Discord.ButtonStyle.Success)
-                .setEmoji('1111384687378710699');
-              const cancel_permission_change = new Discord.ButtonBuilder()
-                .setCustomId('cancel_perm_change')
-                .setLabel('No')
-                .setStyle(Discord.ButtonStyle.Danger)
-                .setEmoji('1111323889105121350');
-
-              const permission_change_action_row = new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(confirm_permission_change, cancel_permission_change);
-
-              const lacking_permissions_response = await interaction.reply({ embeds: [welcome_channel_failure_embed], components: [permission_change_action_row] });
-              const collector_filter = (selection: Discord.MessageComponentInteraction) => selection.user.id === interaction.user.id;
-
-              try {
-                const permission_change_interaction = await lacking_permissions_response.awaitMessageComponent({ filter: collector_filter, time: (1000 * 60 * 1) });
-
-                switch (permission_change_interaction.customId) {
-                  case 'confirm_perm_change':
-
-                    try {
-                      welcome_channel.permissionOverwrites.create(client.user, { SendMessages: true });
-
-                      await ServerSettings.update(
-                        { welcome_channel_id: welcome_channel.id },
-                        { where: { server_id: interaction.guild.id } }
-                      );
-
-                      const welcome_channel_perm_change_success_embed = new Discord.EmbedBuilder()
-                        .setColor(colors.color_success)
-                        .setTitle(`${emojis.success_emoji} - Changes saved!`)
-                        .setDescription(`Set new welcome message channel to ${interaction.options.getChannel("channel")} and gave Orb permission to send messages to this channel!`);
-
-                      permission_change_interaction.deferUpdate();
-                      interaction.editReply({ embeds: [welcome_channel_perm_change_success_embed], components: [] })
-                    } catch (error) {
-                      throw error;
-                    }
-
-                    break;
-                  case 'cancel_perm_change':
-                    const welcome_channel_cancel_perm_change_embed = new Discord.EmbedBuilder()
-                      .setColor(colors.color_error)
-                      .setTitle(`${emojis.failure_emoji} - Lacking permissions!`)
-                      .setDescription(`Orb did not change channel permissions and aborted. Try again with a different channel.`);
-
-                    interaction.editReply({ embeds: [welcome_channel_cancel_perm_change_embed] })
-                    break;
-                }
-              } catch (error) {
-                throw error;
-              }
-            }
-            break;
-
-          case `leave-channel`:
-            let leave_channel = interaction.options.getChannel("channel");
-            validateGuildChannel(leave_channel);
-
-            if (leave_channel.permissionsFor(client.user)?.has(Discord.PermissionFlagsBits.SendMessages)) {
-              await ServerSettings.update(
-                { leave_channel_id: leave_channel.id },
-                { where: { server_id: interaction.guild.id } }
-              );
-
-              const leave_channel_success_embed = new Discord.EmbedBuilder()
-                .setColor(colors.color_success)
-                .setTitle(`${emojis.success_emoji} - Changes saved!`)
-                .setDescription(`Set new leave message channel to ${interaction.options.getChannel("channel")}!`);
-
-              interaction.reply({ embeds: [leave_channel_success_embed] });
-            } else {
-              const leave_channel_failure_embed = new Discord.EmbedBuilder()
-                .setColor(colors.color_warning)
-                .setTitle(`${emojis.attention_emoji} - Lacking permissions!`)
-                .setDescription(`Orb does not have permission to send messages to this channel!\n\nWould you like Orb to **change channel permissions** to allow it to send messages in ${interaction.options.getChannel("channel")}?`);
-
-              const confirm_permission_change = new Discord.ButtonBuilder()
-                .setCustomId('confirm_perm_change')
-                .setLabel('Yes')
-                .setStyle(Discord.ButtonStyle.Success)
-                .setEmoji('1111384687378710699');
-              const cancel_permission_change = new Discord.ButtonBuilder()
-                .setCustomId('cancel_perm_change')
-                .setLabel('No')
-                .setStyle(Discord.ButtonStyle.Danger)
-                .setEmoji('1111323889105121350');
-
-              const permission_change_action_row = new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(confirm_permission_change, cancel_permission_change);
-
-              const lacking_permissions_response = await interaction.reply({ embeds: [leave_channel_failure_embed], components: [permission_change_action_row] });
-              const collector_filter = (selection: Discord.MessageComponentInteraction) => selection.user.id === interaction.user.id;
-
-              try {
-                const permission_change_interaction = await lacking_permissions_response.awaitMessageComponent({ filter: collector_filter, time: (1000 * 60 * 1) });
-
-                switch (permission_change_interaction.customId) {
-                  case 'confirm_perm_change':
-
-                    try {
-                      leave_channel.permissionOverwrites.create(client.user, { SendMessages: true });
-
-                      await ServerSettings.update(
-                        { leave_channel_id: leave_channel.id },
-                        { where: { server_id: interaction.guild.id } }
-                      );
-
-                      const leave_channel_perm_change_success_embed = new Discord.EmbedBuilder()
-                        .setColor(colors.color_success)
-                        .setTitle(`${emojis.success_emoji} - Changes saved!`)
-                        .setDescription(`Set new leave message channel to ${interaction.options.getChannel("channel")} and gave Orb permission to send messages to this channel!`);
-
-                      permission_change_interaction.deferUpdate();
-                      interaction.editReply({ embeds: [leave_channel_perm_change_success_embed], components: [] })
-                    } catch (error) {
-                      throw error;
-                    }
-
-                    break;
-                  case 'cancel_perm_change':
-                    const leave_channel_cancel_perm_change_embed = new Discord.EmbedBuilder()
-                      .setColor(colors.color_error)
-                      .setTitle(`${emojis.failure_emoji} - Lacking permissions!`)
-                      .setDescription(`Orb did not change channel permissions and aborted. Try again with a different channel.`);
-
-                    interaction.editReply({ embeds: [leave_channel_cancel_perm_change_embed] })
-                    break;
-                }
-              } catch (error) {
-                throw error;
-              }
-            }
-            break;
-        }
+        out_of_order(interaction, 'This setting has been moved to /configure.');
         break;
 
       case `messages`:
@@ -741,75 +552,8 @@ export default {
         break;
 
       case `toggles`:
-        switch (interaction.options.getSubcommand()) {
-          case `current`:
-            interaction.reply("Currently not working.")
-            break;
-          case `join-leave-messages`:
-            let welcome_message_result = "";
-            let leave_message_result = "";
-
-            switch (interaction.options.getString('option')) {
-              case `all`:
-                await ServerSettings.update(
-                  {
-                    welcome_messages_enabled: true,
-                    leave_messages_enabled: true
-                  },
-                  { where: { server_id: interaction.guild.id } }
-                );
-
-                welcome_message_result = 'enabled';
-                leave_message_result = 'enabled';
-                break;
-              case `join`:
-                await ServerSettings.update(
-                  {
-                    welcome_messages_enabled: true,
-                    leave_messages_enabled: false
-                  },
-                  { where: { server_id: interaction.guild.id } }
-                );
-
-                welcome_message_result = 'enabled';
-                leave_message_result = 'disabled';
-                break;
-              case `leave`:
-                await ServerSettings.update(
-                  {
-                    welcome_messages_enabled: false,
-                    leave_messages_enabled: true
-                  },
-                  { where: { server_id: interaction.guild.id } }
-                );
-
-                welcome_message_result = 'disabled';
-                leave_message_result = 'enabled';
-                break;
-              case `none`:
-                await ServerSettings.update(
-                  {
-                    welcome_messages_enabled: false,
-                    leave_messages_enabled: false
-                  },
-                  { where: { server_id: interaction.guild.id } }
-                );
-
-                welcome_message_result = 'disabled';
-                leave_message_result = 'disabled';
-                break;
-            }
-
-            const message_toggle_success_embed = new Discord.EmbedBuilder()
-              .setColor(colors.color_success)
-              .setTitle(`${emojis.success_emoji} - Changes saved!`)
-              .addFields(
-                { name: `\u{1F6E0} Changes:`, value: `\u{200B}\u{2514} Welcome messages are now **${welcome_message_result}**\n\u{200B}\u{2514} Leave messages are now **${leave_message_result}**` }
-              )
-
-            interaction.reply({ embeds: [message_toggle_success_embed] })
-            break;
-        }
+        out_of_order(interaction, 'This command was moved to /configure.');
+        break;
     }
   }
 }
