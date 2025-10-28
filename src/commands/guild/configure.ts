@@ -75,7 +75,7 @@ async function navigateSettings(interaction: Discord.ChatInputCommandInteraction
     navCollector.on('end', async (collected) => {
       if (collected.size < 1) {
         let interactionFinalReply = await interaction.fetchReply()
-        console.log(interactionFinalReply);
+        console.log(interactionFinalReply.components);
         selectionTimeout(interaction);
       }
     })
@@ -202,8 +202,14 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
       .setContent(
         `### Current welcoming settings\n\n` +
         `**Toggles**\n` +
-        `\u{251C}<:orb_disabled:1222634792777023688> Welcome messages\n` +
-        `\u{2514}<:orb_toggle_b_enabled_flat:1222635342457339914> Leave messages`
+        `\u{251C}${guildSettings.welcome_messages_enabled ? 
+          '<:orb_toggle_b_enabled_flat:1222635342457339914>' : 
+          '<:orb_disabled:1222634792777023688>'
+        } Welcome messages\n` +
+        `\u{2514}${guildSettings.leave_messages_enabled ?
+          '<:orb_toggle_b_enabled_flat:1222635342457339914>' :
+          '<:orb_disabled:1222634792777023688>'
+        } Leave messages`
       ),
     )
     .addActionRowComponents((actionRow) => actionRow

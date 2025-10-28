@@ -191,7 +191,7 @@ export default {
         const server_settings = await find_server_settings(interaction.guild.id);
 
         let welcome_message_enabled = server_settings.welcome_messages_enabled ? 'enabled' : 'disabled';
-        let leave_message_enabled = server_settings.leave_messages_enabled ? 'enabled' : 'disabled';;
+        let leave_message_enabled = server_settings.leave_messages_enabled ? 'enabled' : 'disabled';
         let welcome_message_channel = '';
         let leave_message_channel = '';
         let welcome_message_text = server_settings.welcome_message;
