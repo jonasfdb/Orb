@@ -18,8 +18,8 @@ export default {
 
     if (server.captcha_verification_required) {
       await member.roles.add(server.captcha_unverified_role_id as RoleResolvable);
-
-      let captcha_has_failed_before = false
+      let captcha_has_failed_before = false;
+      let captcha_embed: Discord.EmbedBuilder;
 
       async function captchaPrompter() {
         const captcha_ready: Discord.ButtonBuilder = new Discord.ButtonBuilder()
@@ -35,10 +35,6 @@ export default {
         const captcha_attachment = captcha.file;
         const captcha_attachment_filename = captcha.attachment;
         const captcha_text = captcha.solution;
-
-        console.log(captcha_text)
-
-        let captcha_embed: Discord.EmbedBuilder;
 
         if (!captcha_has_failed_before) {
           captcha_embed = new Discord.EmbedBuilder()
@@ -63,7 +59,6 @@ export default {
         }
 
         const captcha_button_row = new Discord.ActionRowBuilder<ButtonBuilder>().addComponents(captcha_ready, captcha_regenerate)
-
         const captcha_embed_message: Discord.Message = await member.user.send({ embeds: [captcha_embed], components: [captcha_button_row], files: [captcha_attachment] });
 
         const captcha_button_collector = captcha_embed_message.createMessageComponentCollector({
@@ -86,7 +81,6 @@ export default {
           switch (captcha_modal_interaction.customId) {
             case 'captcha_ready':
               const captcha_uuid = ulid();
-
               const captcha_input_modal = new Discord.ModalBuilder()
                 .setCustomId(captcha_uuid)
                 .setTitle('Enter captcha...')
@@ -101,19 +95,14 @@ export default {
 
               const captcha_input_row = new Discord.ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(captcha_input_field)
               captcha_input_modal.addComponents(captcha_input_row);
-
               await captcha_modal_interaction.showModal(captcha_input_modal);
-
-              console.log(captcha_uuid);
 
               try {
                 const modal_filter = (modal: Discord.ModalSubmitInteraction) => modal.customId === captcha_uuid;
-
                 const captcha_input_response = await captcha_modal_interaction.awaitModalSubmit({ filter: modal_filter, time: (1000 * 60 * 2) });
 
                 if (captcha_input_response.customId === captcha_uuid) {
                   const user_response = captcha_input_response.fields.getTextInputValue('captcha_input_field');
-
                   const verifying_captcha_embed = new Discord.EmbedBuilder()
                     .setColor(colors.color_default)
                     .setTitle(`${emojis.loading_animation_emoji} Verifying captcha...`)
@@ -132,16 +121,13 @@ export default {
                     // give someone the role here and shit
 
                     await member.roles.remove(server.captcha_unverified_role_id as RoleResolvable);
-
                     await captcha_input_response.deleteReply();
                     await captcha_embed_message.edit({ embeds: [captcha_passed_embed], components: [], files: [] });
                     captcha_button_collector.empty();
                     captcha_button_collector.stop();
                     return;
-
                   } else {
                     captcha_has_failed_before = true;
-
                     const captcha_retry = new Discord.ButtonBuilder()
                       .setCustomId('captcha_retry')
                       .setLabel('Get new captcha')
@@ -175,7 +161,6 @@ export default {
                           captcha_embed_message.delete();
                           captcha_button_collector.empty();
                           captcha_button_collector.stop();
-
                           break;
                       }
                     } catch (error) {
@@ -188,17 +173,14 @@ export default {
                 console.trace(error);
               }
               break;
-
             case `captcha_regen`:
               captcha_modal_interaction.deferUpdate();
               captcha_embed_message.delete();
-
               captchaPrompter();
               break;
           }
         })
       }
-
       captchaPrompter();
     }
 
@@ -223,7 +205,6 @@ export default {
     if (join_message_channel && join_message_channel.isTextBased()) {
       await join_message_channel.send({ embeds: [guild_member_add_embed] });
     } // If no join message, just do nothing
-
-    console.log(`Welcomed new member ${joined_user.id} on server ${member.guild.id}`);
+    // console.log(`Welcomed new member ${joined_user.id} on server ${member.guild.id}`);
   },
 };
