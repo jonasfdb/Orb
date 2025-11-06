@@ -3,7 +3,7 @@
 // Licensed under the AGPL-3.0 license as laid out in LICENSE
 
 import Discord, { PermissionFlagsBits } from "discord.js";
-import { find_server, findGuildSettings } from "../../util/database/dbutils";
+import { findGuild, findGuildSettings } from "../../util/database/dbutils";
 import { colors } from "../../../util/json/colors"
 import { emojis } from "../../../util/json/emojis"
 import { generateToken } from "../../util/generators"
@@ -390,7 +390,7 @@ export default {
               return;
             }
 
-            const server = await find_server(interaction.guild.id);
+            const server = await findGuild(interaction.guild.id);
             let rewardsArray;
             try {
               rewardsArray = server.role_rewards_level_string ? JSON.parse(server.role_rewards_level_string) : [];
@@ -447,7 +447,7 @@ export default {
                   : `The token **${providedToken}** is not assigned to any reward.`
               );
 
-            const server = await find_server(interaction.guild.id);
+            const server = await findGuild(interaction.guild.id);
             let rewardsArray;
             try {
               rewardsArray = server.role_rewards_level_string ? JSON.parse(server.role_rewards_level_string) : [];

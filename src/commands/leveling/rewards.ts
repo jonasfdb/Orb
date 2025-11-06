@@ -3,7 +3,7 @@
 // Licensed under the AGPL-3.0 license as laid out in LICENSE
 
 import Discord from "discord.js";
-import { find_server } from "../../util/database/dbutils";
+import { findGuild } from "../../util/database/dbutils";
 import { colors } from "../../../util/json/colors";
 import { validateCommandInteractionInGuild } from "../../util/validate";
 
@@ -16,7 +16,7 @@ export default {
     validateCommandInteractionInGuild(interaction);
     await interaction.deferReply();
 
-    const server = await find_server(interaction.guild.id);
+    const server = await findGuild(interaction.guild.id);
     let rewardsArray;
     try {
       rewardsArray = server.role_rewards_level_string ? JSON.parse(server.role_rewards_level_string) : [];
