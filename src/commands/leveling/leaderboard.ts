@@ -20,7 +20,7 @@ export default {
     let e = 0;
     let leaderboard_string_array = [];
     let leaderboard_embed = new Discord.EmbedBuilder()
-      .setColor(colors.color_default)
+      .setColor(colors.default)
       .setAuthor({ name: `${interaction.guild.name}'s leaderboard`, iconURL: getGuildIcon(interaction) })
       .setTimestamp(Date.now());
 

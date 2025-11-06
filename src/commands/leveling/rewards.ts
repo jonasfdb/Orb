@@ -27,7 +27,7 @@ export default {
     // Build embed
     const guild_icon = interaction.guild.iconURL({ extension: "png" }) || client.user.avatarURL({ extension: "png" });
     const reward_list_embed = new Discord.EmbedBuilder()
-      .setColor(colors.color_default)
+      .setColor(colors.default)
       .setAuthor({ name: `Rewards on ${interaction.guild.name}`, iconURL: guild_icon as string })
       .setTimestamp();
 

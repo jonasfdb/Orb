@@ -28,7 +28,7 @@ export default {
     }
 
     const cat_embed = new Discord.EmbedBuilder()
-      .setColor(colors.color_default)
+      .setColor(colors.default)
       .setTitle("Here is a random cat for you!")
       .setImage(random_cat.image)
 

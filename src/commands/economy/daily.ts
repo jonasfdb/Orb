@@ -48,9 +48,9 @@ export default {
     let dailyReward = Math.floor((Math.random() * 10) + 10) * 1000;
 
     const embDaily = new Discord.EmbedBuilder()
-      .setColor(colors.color_default)
-      .setTitle(`${emojis.success_emoji} - Claimed!`)
-      .setDescription(`You got **${dailyReward}** ${emojis.currency_emoji}. Spend them wisely!`)
+      .setColor(colors.default)
+      .setTitle(`${emojis.checkmark} - Claimed!`)
+      .setDescription(`You got **${dailyReward}** ${emojis.currency}. Spend them wisely!`)
     await interaction.reply({ embeds: [embDaily] });
 
     await user.update({ currentMoney: user.currentMoney - dailyReward });
@@ -63,8 +63,8 @@ export default {
       const timestring = `${hours}h ${minutes}m ${seconds}s`;
 
       const embAbort = new Discord.EmbedBuilder()
-        .setColor(colors.color_error)
-        .setTitle(`${emojis.failure_emoji} - Gambled too much!`)
+        .setColor(colors.error)
+        .setTitle(`${emojis.cross} - Gambled too much!`)
         .setDescription(`Please wait **${timestring}** until you can play this game again.`)
 
       await interaction.reply({ embeds: [embAbort] });

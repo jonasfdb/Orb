@@ -51,7 +51,7 @@ export default {
     let messages_until_levelup = Math.round((server_user.requiredXPForNextLevel - server_user.currentXP) / 6.5);
 
     const rank_embed = new Discord.EmbedBuilder()
-      .setColor(colors.color_default)
+      .setColor(colors.default)
       .setAuthor({ name: `${rank_target_member.nickname || rank_target_member.displayName}`, iconURL: member_avatar })
       .addFields({
         name: `Level **${server_user.currentLevel}** - ${server_user.currentXP.toString()} / ${server_user.requiredXPForNextLevel.toString()} XP - Rank **${member_rank}**`,

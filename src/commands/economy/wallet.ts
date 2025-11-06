@@ -27,9 +27,9 @@ export default {
     const member_avatar = wallet_target_member.displayAvatarURL({ extension: 'webp' });
 
     const wallet_embed = new Discord.EmbedBuilder()
-      .setColor(colors.color_default)
+      .setColor(colors.default)
       .setAuthor({ name: `${wallet_target_member.nickname || wallet_target_member.displayName}`, iconURL: member_avatar })
-      .setDescription(`Current money: ${server_user.currentMoney} ${emojis.currency_emoji}`)
+      .setDescription(`Current money: ${server_user.currentMoney} ${emojis.currency}`)
 
     interaction.reply({ embeds: [wallet_embed] });
   }

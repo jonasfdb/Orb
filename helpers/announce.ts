@@ -28,7 +28,7 @@ const client = new Discord.Client({
 */
 
 const announcement_embed = new Discord.EmbedBuilder()
-  .setColor(colors.color_default)
+  .setColor(colors.default)
   .setTitle(`\u{1F4EF} - Announcement!`)
   .setDescription(`test`)
   .addFields(

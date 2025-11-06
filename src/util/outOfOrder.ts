@@ -4,8 +4,8 @@ import { emojis } from '../../util/json/emojis';
 
 export async function outOfOrder(interaction: Discord.ChatInputCommandInteraction, reason: string) {
   const oooEmbed = new Discord.EmbedBuilder()
-    .setColor(colors.color_warning)
-    .setTitle(`${emojis.attention_emoji} - Out of order!`)
+    .setColor(colors.warning)
+    .setTitle(`${emojis.attention} - Out of order!`)
     .setDescription(
       `This feature is currently under maintenance, being reworked, or is otherwise not usable. `  +
       `Check the support server or the website for additional information.` +

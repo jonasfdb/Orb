@@ -260,7 +260,7 @@ export default {
             }
 
             const captcha_information_embed = new Discord.EmbedBuilder()
-              .setColor(colors.color_default)
+              .setColor(colors.default)
               .setTitle(`\u{1F6E1} - Captcha Protection Setup`)
               .addFields(
                 { name: `Orb will:`, value: ` \u{2514} Edit **${index} channels**\n \u{2514} Create a new "Not Verified" role` },
@@ -272,12 +272,12 @@ export default {
               .setCustomId('start_captcha_setup')
               .setLabel('Start')
               .setStyle(Discord.ButtonStyle.Success)
-              .setEmoji(emojis.success_emoji);
+              .setEmoji(emojis.checkmark);
             const captcha_cancel_button = new Discord.ButtonBuilder()
               .setCustomId('cancel_captcha_setup')
               .setLabel('Cancel')
               .setStyle(Discord.ButtonStyle.Danger)
-              .setEmoji(emojis.failure_emoji);
+              .setEmoji(emojis.cross);
             const captcha_begin_action_row = new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(captcha_start_button, captcha_cancel_button);
 
             const captcha_begin_embed_prompt = await interaction.editReply({ embeds: [captcha_information_embed], components: [captcha_begin_action_row] });
@@ -290,9 +290,9 @@ export default {
               switch (captcha_begin_embed_response.customId) {
                 case 'start_captcha_setup':
                   const captcha_working_embed = new Discord.EmbedBuilder()
-                    .setColor(colors.color_default)
+                    .setColor(colors.default)
                     .setTitle(`\u{1F6E1} - Captcha Protection Setup`)
-                    .setDescription(`${emojis.loading_animation_emoji} Setting up permissions...\n\nThis may take a while if you have lots of channels. Sit back and relax!`)
+                    .setDescription(`${emojis.animatedLoading} Setting up permissions...\n\nThis may take a while if you have lots of channels. Sit back and relax!`)
 
                   await interaction.editReply({ embeds: [captcha_working_embed], components: [] });
 
@@ -320,17 +320,17 @@ export default {
                   });
 
                   const captcha_finished_embed = new Discord.EmbedBuilder()
-                    .setColor(colors.color_success)
+                    .setColor(colors.success)
                     .setTitle(`\u{1F6E1} - Captcha Protection Setup`)
-                    .setDescription(`${emojis.success_emoji} Captcha set up!\n\nFailed to override ${failure_count} channels.`)
+                    .setDescription(`${emojis.checkmark} Captcha set up!\n\nFailed to override ${failure_count} channels.`)
 
                   await interaction.editReply({ embeds: [captcha_finished_embed] });
                   break;
                 case `cancel_captcha_setup`:
                   const captcha_setup_canceled_embed = new Discord.EmbedBuilder()
-                    .setColor(colors.color_error)
+                    .setColor(colors.error)
                     .setTitle(`\u{1F6E1} - Captcha Protection Setup`)
-                    .setDescription(`${emojis.failure_emoji} Captcha setup canceled by user.`)
+                    .setDescription(`${emojis.cross} Captcha setup canceled by user.`)
 
                   await interaction.editReply({ embeds: [captcha_setup_canceled_embed], components: [] });
                   break;
@@ -349,8 +349,8 @@ export default {
 
 
             const captcha_disable_embed = new Discord.EmbedBuilder()
-              .setColor(colors.color_success)
-              .setTitle(`${emojis.success_emoji} - Changes saved!`)
+              .setColor(colors.success)
+              .setTitle(`${emojis.checkmark} - Changes saved!`)
               .addFields(
                 { name: `\u{1F6E0} Changes:`, value: `\u{200B}\u{2514} Captcha protection is now **disabled** ` }
               )
@@ -383,8 +383,8 @@ export default {
             // validate levels
             if (max_level <= min_level || max_level < 0 || min_level < 1) {
               const role_reward_invalid_levels_embed = new Discord.EmbedBuilder()
-                .setColor(colors.color_error)
-                .setTitle(`${emojis.failure_emoji} - Invalid level configuration!`)
+                .setColor(colors.error)
+                .setTitle(`${emojis.cross} - Invalid level configuration!`)
                 .setDescription(`Levels must be positive and the removal level must be greater than the give level, or zero to never remove the role.`);
               await interaction.reply({ embeds: [role_reward_invalid_levels_embed] });
               return;
@@ -400,8 +400,8 @@ export default {
 
             if (rewardsArray.some((r: RoleReward) => r.role_id === reward_role.id)) {
               const role_reward_duplicate_embed = new Discord.EmbedBuilder()
-                .setColor(colors.color_error)
-                .setTitle(`${emojis.failure_emoji} - Role reward already exists!`)
+                .setColor(colors.error)
+                .setTitle(`${emojis.cross} - Role reward already exists!`)
                 .setDescription(`The role <@&${reward_role.id}> already has a reward.`);
               await interaction.editReply({ embeds: [role_reward_duplicate_embed] });
               return;
@@ -424,8 +424,8 @@ export default {
             await server.save();
 
             const new_role_reward_success_embed = new Discord.EmbedBuilder()
-              .setColor(colors.color_success)
-              .setTitle(`${emojis.success_emoji} - New role reward created!`)
+              .setColor(colors.success)
+              .setTitle(`${emojis.checkmark} - New role reward created!`)
               .setDescription(
                 `The role <@&${reward_role.id}> will be given at level **${min_level}** ` +
                 `and removed at **${max_level_string}**.\nToken: **${reward_token}**`
@@ -439,8 +439,8 @@ export default {
             const providedToken = interaction.options.getString('token');
 
             const no_reward_to_delete_embed = new Discord.EmbedBuilder()
-              .setColor(colors.color_error)
-              .setTitle(`${emojis.failure_emoji} - No reward found!`)
+              .setColor(colors.error)
+              .setTitle(`${emojis.cross} - No reward found!`)
               .setDescription(
                 providedRole && !providedToken
                   ? `The role <@&${providedRole.id}> has no reward attached.`
@@ -472,8 +472,8 @@ export default {
             await server.save();
 
             const reward_deletion_success_embed = new Discord.EmbedBuilder()
-              .setColor(colors.color_success)
-              .setTitle(`${emojis.success_emoji} - Reward deleted!`)
+              .setColor(colors.success)
+              .setTitle(`${emojis.checkmark} - Reward deleted!`)
               .setDescription(`The role <@&${removedReward.role_id}> will no longer be given as a reward.`);
             await interaction.editReply({ embeds: [reward_deletion_success_embed] });
             break;
@@ -491,7 +491,7 @@ export default {
             let current_server_settings = await findGuildSettings(interaction.guild.id);
 
             const current_message_settings_embed = new Discord.EmbedBuilder()
-              .setColor(colors.color_default)
+              .setColor(colors.default)
               .setTitle(`\u{2699} - Current settings:`)
               .addFields(
                 {
@@ -521,8 +521,8 @@ export default {
             );
 
             const welcome_message_success_embed = new Discord.EmbedBuilder()
-              .setColor(colors.color_success)
-              .setTitle(`${emojis.success_emoji} - Changes saved!`)
+              .setColor(colors.success)
+              .setTitle(`${emojis.checkmark} - Changes saved!`)
               .setDescription(`The new welcome message is now "${interaction.options.getString("message")}"!`);
 
             interaction.reply({ embeds: [welcome_message_success_embed] })
@@ -538,8 +538,8 @@ export default {
             );
 
             const leave_message_success_embed = new Discord.EmbedBuilder()
-              .setColor(colors.color_success)
-              .setTitle(`${emojis.success_emoji} - Changes saved!`)
+              .setColor(colors.success)
+              .setTitle(`${emojis.checkmark} - Changes saved!`)
               .setDescription(`The new leave message is now "${interaction.options.getString("message")}"!`);
 
             interaction.reply({ embeds: [leave_message_success_embed] })

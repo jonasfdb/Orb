@@ -22,7 +22,7 @@ export default {
     let leave_message = leave_message_prototype.replace(/USER/g, left_user.username).replace(/SERVER/g, member.guild.name)
 
     const guild_member_leave_embed = new Discord.EmbedBuilder()
-      .setColor(colors.color_default)
+      .setColor(colors.default)
       .setAuthor({ name: `${left_user.username} left`, iconURL: left_user_icon })
       .setDescription(`${leave_message}`)
       .setFooter({ text: `Member count: ${member.guild.memberCount}` })

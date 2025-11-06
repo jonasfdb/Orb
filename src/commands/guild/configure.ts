@@ -52,10 +52,10 @@ async function navigateSettings(interaction: Discord.ChatInputCommandInteraction
           break;
         case 'abortButton':
           const abortContainer = new Discord.ContainerBuilder()
-            .setAccentColor(colors.color_error)
+            .setAccentColor(colors.error)
             .addTextDisplayComponents((textDisplay) => textDisplay
               .setContent(
-                `### ${emojis.failure_emoji} - Aborted\n` +
+                `### ${emojis.cross} - Aborted\n` +
                 'Successfully aborted. No changes to your settings were made.'
               ),
             )
@@ -280,10 +280,10 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
           let boolLeaveMessagesEnabled = parseInt(selectionArray[1]) > 0 ? 'enabled' : 'disabled';
 
           const saveContainer = new Discord.ContainerBuilder()
-            .setAccentColor(colors.color_success)
+            .setAccentColor(colors.success)
             .addTextDisplayComponents((textDisplay) => textDisplay
               .setContent(
-                `### ${emojis.success_emoji} - Changes saved!\n` +
+                `### ${emojis.checkmark} - Changes saved!\n` +
                 `Welcome messages are now **${boolWelcomeMessagesEnabled}**, leave messages are now **${boolLeaveMessagesEnabled}**.`
               )
             );
@@ -313,10 +313,10 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
             await guildSettings.save();
 
             const saveContainer = new Discord.ContainerBuilder()
-              .setAccentColor(colors.color_success)
+              .setAccentColor(colors.success)
               .addTextDisplayComponents((textDisplay) => textDisplay
                 .setContent(
-                  `### ${emojis.success_emoji} - Changes saved!\n` +
+                  `### ${emojis.checkmark} - Changes saved!\n` +
                   `Orb will welcome new members in <#${wChannel.id}>.`
                 )
               );
@@ -326,10 +326,10 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
             });
           } else {
             const wChannelPermissionFailureContainer = new Discord.ContainerBuilder()
-            .setAccentColor(colors.color_warning)
+            .setAccentColor(colors.warning)
             .addTextDisplayComponents((textDisplay) => textDisplay
               .setContent(
-                `### ${emojis.attention_emoji} - Lacking permissions!\n` +
+                `### ${emojis.attention} - Lacking permissions!\n` +
                 `Orb does not have permission to send messages in <#${wChannel.id}>!\n` + 
                 `Would you like Orb to **change channel permissions** to be able to send messages in there?`
               )
@@ -363,10 +363,10 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
                     await guildSettings.save();
 
                     const saveContainer = new Discord.ContainerBuilder()
-                      .setAccentColor(colors.color_success)
+                      .setAccentColor(colors.success)
                       .addTextDisplayComponents((textDisplay) => textDisplay
                         .setContent(
-                          `### ${emojis.success_emoji} - Changes saved!\n` +
+                          `### ${emojis.checkmark} - Changes saved!\n` +
                           `Orb will welcome new members in <#${wChannel.id}>.`
                         )
                       );
@@ -380,10 +380,10 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
                   break;
                 case 'pChangeAbort':
                   const abortContainer = new Discord.ContainerBuilder()
-                    .setAccentColor(colors.color_error)
+                    .setAccentColor(colors.error)
                     .addTextDisplayComponents((textDisplay) => textDisplay
                       .setContent(
-                        `### ${emojis.failure_emoji} - Lacking permissions!\n` +
+                        `### ${emojis.cross} - Lacking permissions!\n` +
                         `Orb aborted, and nothing changed. Maybe try a different channel?`
                       )
                     );
@@ -405,10 +405,10 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
             await guildSettings.save();
 
             const saveContainer = new Discord.ContainerBuilder()
-              .setAccentColor(colors.color_success)
+              .setAccentColor(colors.success)
               .addTextDisplayComponents((textDisplay) => textDisplay
                 .setContent(
-                  `### ${emojis.success_emoji} - Changes saved!\n` +
+                  `### ${emojis.checkmark} - Changes saved!\n` +
                   `Orb will wish leaving members farewell in <#${lChannel.id}>.`
                 )
               );
@@ -418,10 +418,10 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
             });
           } else {
             const wChannelPermissionFailureContainer = new Discord.ContainerBuilder()
-            .setAccentColor(colors.color_warning)
+            .setAccentColor(colors.warning)
             .addTextDisplayComponents((textDisplay) => textDisplay
               .setContent(
-                `### ${emojis.attention_emoji} - Lacking permissions!\n` +
+                `### ${emojis.attention} - Lacking permissions!\n` +
                 `Orb does not have permission to send messages in <#${lChannel.id}>!\n` + 
                 `Would you like Orb to **change channel permissions** to be able to send messages in there?`
               )
@@ -455,10 +455,10 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
                     await guildSettings.save();
 
                     const saveContainer = new Discord.ContainerBuilder()
-                      .setAccentColor(colors.color_success)
+                      .setAccentColor(colors.success)
                       .addTextDisplayComponents((textDisplay) => textDisplay
                         .setContent(
-                          `### ${emojis.success_emoji} - Changes saved!\n` +
+                          `### ${emojis.checkmark} - Changes saved!\n` +
                           `Orb will wish leaving members farewell in <#${lChannel.id}>.`
                         )
                       );
@@ -472,10 +472,10 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
                   break;
                 case 'pChangeAbort':
                   const abortContainer = new Discord.ContainerBuilder()
-                    .setAccentColor(colors.color_error)
+                    .setAccentColor(colors.error)
                     .addTextDisplayComponents((textDisplay) => textDisplay
                       .setContent(
-                        `### ${emojis.failure_emoji} - Lacking permissions!\n` +
+                        `### ${emojis.cross} - Lacking permissions!\n` +
                         `Orb aborted, and nothing changed. Maybe try a different channel?`
                       )
                     );
@@ -518,10 +518,10 @@ async function attachChangedSettingsSection(container: Discord.ContainerBuilder)
 
 async function selectionTimeout (interaction: Discord.ChatInputCommandInteraction) {
   const timeoutContainer = new Discord.ContainerBuilder()
-    .setAccentColor(colors.color_warning)
+    .setAccentColor(colors.warning)
     .addTextDisplayComponents((textDisplay) => textDisplay
       .setContent(
-        `### ${emojis.attention_emoji} - Timed out!\n` +
+        `### ${emojis.attention} - Timed out!\n` +
         `You took too long to make a selection, so this interaction was cancelled. Run the command again to restart.`
       )
     );
