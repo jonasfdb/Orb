@@ -3,14 +3,14 @@
 // Licensed under the AGPL-3.0 license as laid out in LICENSE
 
 import Discord, { ColorResolvable, Events } from "discord.js";
-import { findGuildMember, find_server, findUser } from "../util/database/dbutils";
+import { findGuildMember, findUser, findGuild } from "../util/database/dbutils";
 import { validateMessageInDM, validateMessageInGuild } from "../util/validate";
 import { RoleReward } from "../types/interfaces";
 
 async function messageOnGuild(message: Discord.Message): Promise<void> {
   validateMessageInGuild(message);
   const server_user_data = await findGuildMember(message.author.id, message.guild.id);
-  const server = await find_server(message.guild.id);
+  const server = await findGuild(message.guild.id);
   const user = await findUser(message.author.id);
 
   const random_xp = Math.floor(Math.random() * 9) + 3; // Min 3, Max 12 (mee6 has max 30, this is to balance because orb has no cooldown)
@@ -41,7 +41,7 @@ async function messageOnGuild(message: Discord.Message): Promise<void> {
       .setTitle(`Level ${server_user_data.currentLevel}   \u{22D9}   **Level ${server_user_data.currentLevel + 1}**  \u{1F389}`)
 
     try {
-      rewardsArray = server.role_rewards_level_string ? JSON.parse(server.role_rewards_level_string) : [];
+      rewardsArray = server.roleRewardsString ? JSON.parse(server.roleRewardsString) : [];
       rewardsArray.forEach(reward => {
         if (reward.min_level === next_level) { roleRewardsToGive.push(reward.role_id) };        // reward to give
         if (reward.max_level === next_level) { roleRewardsToTake.push(reward.role_id) };        // reward to remove
