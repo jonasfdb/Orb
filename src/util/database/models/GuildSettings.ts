@@ -4,35 +4,35 @@
 
 import { Model, DataTypes, Sequelize, InferAttributes, InferCreationAttributes, CreationOptional } from 'sequelize';
 
-export class ServerSettings extends Model<InferAttributes<ServerSettings>, InferCreationAttributes<ServerSettings>> {
-  declare orb_uuid: string;
-  declare server_id: string;
-  declare broadcast_channel_id: CreationOptional<string | null>;
+export class GuildSettings extends Model<InferAttributes<GuildSettings>, InferCreationAttributes<GuildSettings>> {
+  declare UUID: string;
+  declare dGuildID: string;
+  declare channelsBroadcastID: CreationOptional<string | null>;
   declare broadcasts_allowed: CreationOptional<boolean>;
-  declare levelup_message_channel_id: CreationOptional<string | null>;
-  declare welcome_channel_id: CreationOptional<string | null>;
-  declare leave_channel_id: CreationOptional<string | null>;
-  declare welcome_message: CreationOptional<string>;
-  declare leave_message: CreationOptional<string>;
-  declare welcome_messages_enabled: CreationOptional<boolean>;
-  declare leave_messages_enabled: CreationOptional<boolean>;
-  declare captcha_verification_required: CreationOptional<boolean>;
-  declare captcha_unverified_role_id: CreationOptional<string | null>;
+  declare channelsLevelupID: CreationOptional<string | null>;
+  declare channelsWelcomeID: CreationOptional<string | null>;
+  declare channelsLeaveID: CreationOptional<string | null>;
+  declare messagesWelcome: CreationOptional<string>;
+  declare messagesLeave: CreationOptional<string>;
+  declare welcomeMessagesEnabled: CreationOptional<boolean>;
+  declare leaveMessagesEnabled: CreationOptional<boolean>;
+  declare captchaRequired: CreationOptional<boolean>;
+  declare unverifiedRoleID: CreationOptional<string | null>;
 }
 
-export function initServerSettingsModel(sequelize: Sequelize) {
-  ServerSettings.init(
+export function initGuildSettingsModel(sequelize: Sequelize) {
+  GuildSettings.init(
     {
-      orb_uuid: {
+      UUID: {
         type: DataTypes.STRING,
         allowNull: false
       },
-      server_id: {
+      dGuildID: {
         type: DataTypes.STRING,
         allowNull: false,
         primaryKey: true
       },
-      broadcast_channel_id: {
+      channelsBroadcastID: {
         type: DataTypes.STRING,
         allowNull: true
       },
@@ -41,52 +41,52 @@ export function initServerSettingsModel(sequelize: Sequelize) {
         allowNull: false,
         defaultValue: false
       },
-      levelup_message_channel_id: {
+      channelsLevelupID: {
         type: DataTypes.STRING,
         allowNull: true
       },
-      welcome_channel_id: {
+      channelsWelcomeID: {
         type: DataTypes.STRING,
         allowNull: true
       },
-      leave_channel_id: {
+      channelsLeaveID: {
         type: DataTypes.STRING,
         allowNull: true
       },
-      welcome_message: {
+      messagesWelcome: {
         type: DataTypes.STRING,
         allowNull: false,
         defaultValue: 'Welcome to SERVER! We are glad to have you here.',
       },
-      leave_message: {
+      messagesLeave: {
         type: DataTypes.STRING,
         allowNull: false,
         defaultValue: 'Goodbye, we will miss you...',
       },
-      welcome_messages_enabled: {
+      welcomeMessagesEnabled: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false
       },
-      leave_messages_enabled: {
+      leaveMessagesEnabled: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false
       },
-      captcha_verification_required: {
+      captchaRequired: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false
       },
-      captcha_unverified_role_id: {
+      unverifiedRoleID: {
         type: DataTypes.STRING,
         allowNull: true
       },
     },
     {
       sequelize,
-      modelName: 'ServerSettings',
-      tableName: 'server_settings',
+      modelName: 'GuildSettings',
+      tableName: 'guildSettings',
       timestamps: false,
     }
   );

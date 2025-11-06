@@ -3,13 +3,13 @@
 // Licensed under the AGPL-3.0 license as laid out in LICENSE
 
 export const colors = {
-  color_primary: 0x1266f1,
-  color_secondary: 0xb23cfd,
-  color_success: 0x00b74a,
-  color_warning: 0xffa900,
-  color_error: 0xf93154,
-  color_info: 0x39c0ed,
-  color_default: 0x3f45a1,
-  color_default_dark: 0x33155c,
-  color_default_beta: 0x63285c,
+  primary:      0x1266f1,
+  secondary:    0xb23cfd,
+  success:      0x00b74a,
+  warning:      0xffa900,
+  error:        0xf93154,
+  info:         0x39c0ed,
+  default:      0x3f45a1,
+  defaultDark:  0x33155c,
+  defaultBeta:  0x63285c,
 }

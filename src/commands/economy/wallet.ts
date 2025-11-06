@@ -3,7 +3,7 @@
 // Licensed under the AGPL-3.0 license as laid out in LICENSE
 
 import Discord from "discord.js";
-import { find_server_user } from "../../util/database/dbutils";
+import { findGuildMember } from "../../util/database/dbutils";
 import { validateCommandInteractionInGuild, validateGuildMember } from "../../util/validate";
 import { colors } from "../../../util/json/colors";
 import { emojis } from "../../../util/json/emojis";
@@ -23,13 +23,13 @@ export default {
     let wallet_target_member = interaction.options.getMember("user") ?? interaction.member;
     validateGuildMember(wallet_target_member);
 
-    const server_user = await find_server_user(wallet_target_member.id, wallet_target_member.guild.id);
+    const server_user = await findGuildMember(wallet_target_member.id, wallet_target_member.guild.id);
     const member_avatar = wallet_target_member.displayAvatarURL({ extension: 'webp' });
 
     const wallet_embed = new Discord.EmbedBuilder()
-      .setColor(colors.color_default)
+      .setColor(colors.default)
       .setAuthor({ name: `${wallet_target_member.nickname || wallet_target_member.displayName}`, iconURL: member_avatar })
-      .setDescription(`Current money: ${server_user.current_money} ${emojis.currency_emoji}`)
+      .setDescription(`Current money: ${server_user.currentMoney} ${emojis.currency}`)
 
     interaction.reply({ embeds: [wallet_embed] });
   }

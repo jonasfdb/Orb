@@ -5,7 +5,7 @@
 import Discord from "discord.js";
 import { colors } from "../../../util/json/colors";
 import { emojis } from "../../../util/json/emojis";
-import { generate_captcha } from "../../util/generateCaptcha";
+import { generateCaptcha } from "../../util/generateCaptcha";
 import { validateCommandInteractionInGuild } from "../../util/validate";
 import { ulid } from "ulid";
 
@@ -29,7 +29,7 @@ export default {
         .setLabel('Get new captcha')
         .setStyle(Discord.ButtonStyle.Secondary)
 
-      const captcha = await generate_captcha();
+      const captcha = await generateCaptcha();
       const captcha_attachment = captcha.file;
       const captcha_attachment_filename = captcha.attachment;
       const captcha_text = captcha.solution;
@@ -40,7 +40,7 @@ export default {
 
       if (!captcha_has_failed_before) {
         captcha_embed = new Discord.EmbedBuilder()
-          .setColor(colors.color_default)
+          .setColor(colors.default)
           .setTitle('\u{1FAAA} - Verification required!')
           .setDescription('This server requires you to verify that you are a human by solving the following captcha.')
           .setImage(captcha_attachment_filename)
@@ -50,7 +50,7 @@ export default {
           .setFooter({ text: 'You can submit custom backgrounds for captchas by supporting Orb on Patreon! Orb will pick one at random.\nThis captcha will time out in 10 minutes.' })
       } else {
         captcha_embed = new Discord.EmbedBuilder()
-          .setColor(colors.color_error)
+          .setColor(colors.error)
           .setTitle('\u{1FAAA} - Verification required')
           .setDescription('You have failed the captcha. Please try verifying yourself again.')
           .setImage(captcha_attachment_filename)
@@ -70,8 +70,8 @@ export default {
       captcha_button_collector.on('end', async (collected, reason) => {
         if (reason === "time") {
           const captcha_timeout_embed = new Discord.EmbedBuilder()
-            .setColor(colors.color_error)
-            .setTitle(`${emojis.failure_emoji} - Captcha timeout`)
+            .setColor(colors.error)
+            .setTitle(`${emojis.cross} - Captcha timeout`)
             .setDescription('This captcha timed out. You can leave and rejoin the server to get a new captcha to solve.');
 
           captcha_embed_message.edit({ embeds: [captcha_timeout_embed], components: [], files: [] });
@@ -109,8 +109,8 @@ export default {
                 const user_response = captcha_input_response.fields.getTextInputValue('captcha_input_field');
 
                 const verifying_captcha_embed = new Discord.EmbedBuilder()
-                  .setColor(colors.color_default)
-                  .setTitle(`${emojis.loading_animation_emoji} Verifying captcha...`)
+                  .setColor(colors.default)
+                  .setTitle(`${emojis.animatedLoading} Verifying captcha...`)
 
                 // await captcha_input_response.reply({ embeds: [verifying_captcha_embed] });
 
@@ -119,8 +119,8 @@ export default {
 
                 if (user_response.toUpperCase() === captcha_text) {
                   const captcha_passed_embed = new Discord.EmbedBuilder()
-                    .setColor(colors.color_success)
-                    .setTitle(`${emojis.success_emoji} - Verified!`)
+                    .setColor(colors.success)
+                    .setTitle(`${emojis.checkmark} - Verified!`)
                     .setDescription('Thank you for making sure you are a human! You should now be able to access the server.\n\nIf you are unable to access the server in more than five minutes, contact the moderation team.')
 
                   // give someone the role here and shit
@@ -140,8 +140,8 @@ export default {
                     .setStyle(Discord.ButtonStyle.Secondary)
                   const captcha_retry_button_row = new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(captcha_retry)
                   const captcha_failed_embed = new Discord.EmbedBuilder()
-                    .setColor(colors.color_error)
-                    .setTitle(`${emojis.failure_emoji} - Failed to verify`)
+                    .setColor(colors.error)
+                    .setTitle(`${emojis.cross} - Failed to verify`)
                     .setDescription('You entered the wrong captcha. Please try again.\n\nIf this problem persists, contact the moderation team of the server.')
 
                   await captcha_input_response.deleteReply();
@@ -153,8 +153,8 @@ export default {
                     switch (captcha_failed_embed_interaction.customId) {
                       case 'captcha_retry':
                         const grabbing_new_captcha_embed = new Discord.EmbedBuilder()
-                          .setColor(colors.color_error)
-                          .setTitle(`${emojis.loading_animation_emoji} Grabbing new captcha...`)
+                          .setColor(colors.error)
+                          .setTitle(`${emojis.animatedLoading} Grabbing new captcha...`)
 
                         await captcha_failed_embed_interaction.deferUpdate();
                         await interaction.editReply({ embeds: [grabbing_new_captcha_embed] });

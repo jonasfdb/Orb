@@ -4,31 +4,31 @@
 
 import { Model, DataTypes, Sequelize, InferAttributes, InferCreationAttributes, CreationOptional } from 'sequelize';
 
-export class Server extends Model<InferAttributes<Server>, InferCreationAttributes<Server>> {
-  declare server_id: string;
-  declare orb_uuid: string;
-  declare role_rewards_level_string: CreationOptional<string>;
-  declare requires_verification: CreationOptional<boolean>;
+export class Guild extends Model<InferAttributes<Guild>, InferCreationAttributes<Guild>> {
+  declare UUID: string;
+  declare dGuildID: string;
+  declare roleRewardsString: CreationOptional<string>;
+  declare verificationEnabled: CreationOptional<boolean>;
 }
 
-export function initServerModel(sequelize: Sequelize) {
-  Server.init(
+export function initGuildModel(sequelize: Sequelize) {
+  Guild.init(
     {
-      orb_uuid: {
+      UUID: {
         type: DataTypes.STRING,
         allowNull: false
       },
-      server_id: {
+      dGuildID: {
         type: DataTypes.STRING,
         allowNull: false,
         primaryKey: true
       },
-      role_rewards_level_string: {  // holy shit this needs to be changed
+      roleRewardsString: {  // holy shit this needs to be changed
         type: DataTypes.TEXT,
         allowNull: false,
         defaultValue: ''
       },
-      requires_verification: {
+      verificationEnabled: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false
@@ -36,8 +36,8 @@ export function initServerModel(sequelize: Sequelize) {
     },
     {
       sequelize,
-      modelName: 'Server',
-      tableName: 'server',
+      modelName: 'Guild',
+      tableName: 'guild',
       timestamps: false,
     }
   );

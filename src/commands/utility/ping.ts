@@ -17,10 +17,10 @@ export default {
     const received = Date.now();
 
     const embPinging = new Discord.EmbedBuilder()
-      .setColor(colors.color_default)
+      .setColor(colors.default)
       .setTitle("Current pings:")
       .setAuthor({ iconURL: client.user.displayAvatarURL().toString(), name: 'Orb' })
-      .setDescription(`${emojis.loading_animation_emoji} Pinging...`)
+      .setDescription(`${emojis.animatedLoading} Pinging...`)
 
     let sent = await interaction.reply({ embeds: [embPinging] });
 
@@ -33,7 +33,7 @@ export default {
     let websocket_ping = Math.floor(client.ws.ping) < 1 ? `?` : Math.ceil(client.ws.ping);
 
     const embPing = new Discord.EmbedBuilder()
-      .setColor(colors.color_default)
+      .setColor(colors.default)
       .setTitle("\u{1F3D3} Pong!")
       .setAuthor({ iconURL: client.user.displayAvatarURL().toString(), name: 'Orb' })
       .setDescription(`Client has been running for **${uptimeString}**.`)

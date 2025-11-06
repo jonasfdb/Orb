@@ -5,7 +5,7 @@
 import Discord from "discord.js";
 import { emojis } from "../../../util/json/emojis";
 import { colors } from "../../../util/json/colors";
-import { find_server_user } from "../../util/database/dbutils";
+import { findGuildMember } from "../../util/database/dbutils";
 import { validateCommandInteractionInGuild, validateInteractionCallbackResponse, validateNumber } from "../../util/validate";
 
 interface UserCooldowns {
@@ -65,7 +65,7 @@ export default {
   async execute(client: Discord.Client<true>, interaction: Discord.ChatInputCommandInteraction) {
     validateCommandInteractionInGuild(interaction);
 
-    let user = await find_server_user(interaction.user.id, interaction.guild.id);
+    let user = await findGuildMember(interaction.user.id, interaction.guild.id);
     let user_cooldowns: UserCooldowns = JSON.parse(user.cooldowns);
 
     let coinflip_max_uses = 10;
@@ -85,7 +85,7 @@ export default {
         bet = interaction.options.getInteger('bet');
         validateNumber(bet);
 
-        if (bet > user.current_money) {
+        if (bet > user.currentMoney) {
           await abort_game_no_funds('Coinflip');
           return;
         }
@@ -108,22 +108,22 @@ export default {
         let coinflip_result = (Math.floor(Math.random() * 2)) ? 'heads' : 'tails';
         if (coinflip_result === interaction.options.getString('coin')) {
           const emb_coinflip_result = new Discord.EmbedBuilder()
-            .setColor(colors.color_default)
+            .setColor(colors.default)
             .setTitle(`\u{1F389} - You won!`)
-            .setDescription(`The coin landed on **${coinflip_result}**.\nYou won **${bet * 2}** ${emojis.currency_emoji}!`)
+            .setDescription(`The coin landed on **${coinflip_result}**.\nYou won **${bet * 2}** ${emojis.currency}!`)
             .setFooter({ text: `${uses_left}/${coinflip_max_uses} uses left.` });
           await interaction.reply({ embeds: [emb_coinflip_result] });
 
-          await user.update({ current_money: user.current_money + (bet * 2) });
+          await user.update({ currentMoney: user.currentMoney + (bet * 2) });
         } else {
           const emb_coinflip_result = new Discord.EmbedBuilder()
-            .setColor(colors.color_default)
+            .setColor(colors.default)
             .setTitle(`\u{1FAC2} - You lost...`)
-            .setDescription(`The coin landed on **${coinflip_result}**.\nYou lost **${bet}** ${emojis.currency_emoji}.`)
+            .setDescription(`The coin landed on **${coinflip_result}**.\nYou lost **${bet}** ${emojis.currency}.`)
             .setFooter({ text: `${uses_left}/${coinflip_max_uses} uses left.` });
           await interaction.reply({ embeds: [emb_coinflip_result] });
 
-          await user.update({ current_money: user.current_money - bet });
+          await user.update({ currentMoney: user.currentMoney - bet });
         }
         break;
 
@@ -131,7 +131,7 @@ export default {
         bet = interaction.options.getInteger('bet');
         validateNumber(bet);
 
-        if (bet > user.current_money) {
+        if (bet > user.currentMoney) {
           await abort_game_no_funds('Slots');
           return;
         }
@@ -152,11 +152,11 @@ export default {
         }
 
         const symbols = [
-          { emoji: emojis.red_gem, weight: 1000, multiplier: 2 },
-          { emoji: emojis.blue_gem, weight: 475, multiplier: 10 },
-          { emoji: emojis.green_gem, weight: 255, multiplier: 20 },
-          { emoji: emojis.pink_gem, weight: 130, multiplier: 50 },
-          { emoji: emojis.darkblue_gem, weight: 55, multiplier: 5000 }
+          { emoji: emojis.gemRed, weight: 1000, multiplier: 2 },
+          { emoji: emojis.gemBlue, weight: 475, multiplier: 10 },
+          { emoji: emojis.gemGreen, weight: 255, multiplier: 20 },
+          { emoji: emojis.gemPink, weight: 130, multiplier: 50 },
+          { emoji: emojis.gemDarkBlue, weight: 55, multiplier: 5000 }
         ];
 
         function pick_symbol_unweighted(): { emoji: string, weight: number, multiplier: number } {
@@ -183,19 +183,19 @@ export default {
           payout = bet * sym.multiplier;
           if (sym.multiplier >= 1000) {  // jackpot
             title = '🎉 JACKPOT! 🎉';
-            desc = `All three 🔷! You win **${payout}** ${emojis.currency_emoji}!`;
+            desc = `All three 🔷! You win **${payout}** ${emojis.currency}!`;
           } else {
             title = '🎉 You hit a match! 🎉';
-            desc = `Three ${sym.emoji} = **${sym.multiplier}×** → you win **${payout}** ${emojis.currency_emoji}!`;
+            desc = `Three ${sym.emoji} = **${sym.multiplier}×** → you win **${payout}** ${emojis.currency}!`;
           }
         } else {
           title = 'No match...';
-          desc = `Better luck next time. You lost **${bet}** ${emojis.currency_emoji}.`;
+          desc = `Better luck next time. You lost **${bet}** ${emojis.currency}.`;
           payout = -bet;
         }
 
         let slots_embed = new Discord.EmbedBuilder()
-          .setColor(colors.color_default)
+          .setColor(colors.default)
           .setTitle(title)
           .setDescription(desc + `\n\n` +
             grid.map(row => row.map(s => s.emoji).join(' ')).join('\n') +
@@ -204,14 +204,14 @@ export default {
 
         // 5) Reply and update money
         await interaction.reply({ embeds: [slots_embed] });
-        await user.update({ current_money: user.current_money + payout });
+        await user.update({ currentMoney: user.currentMoney + payout });
         break;
 
       case 'high-low':
         bet = interaction.options.getInteger('bet');
         validateNumber(bet);
 
-        if (bet > user.current_money) {
+        if (bet > user.currentMoney) {
           await abort_game_no_funds('High-low');
           return;
         }
@@ -253,9 +253,9 @@ export default {
             `Your bet **doubles** each time you guess right, and you can chicken out at any time. ` +
             `If you guess right, you can win big! But if you guess wrong, **you lose the entire bet!**\n\n` +
             `The number we start with is... **${highlow_random_number}**!\n\n` +
-            `Multiplier: ${highlow_multiplier}x -> Cash out ${bet * highlow_multiplier} ${emojis.currency_emoji}`
+            `Multiplier: ${highlow_multiplier}x -> Cash out ${bet * highlow_multiplier} ${emojis.currency}`
           )
-          .setColor(colors.color_default)
+          .setColor(colors.default)
           .setFooter({ text: `${uses_left}/${highlow_max_uses} uses left.` });
 
         let highlow_start_message = await interaction.reply({ embeds: [emb_highlow_start], components: [row_highlow_start], withResponse: true });
@@ -298,9 +298,9 @@ export default {
                 .setDescription(
                   `I am thinking of a number. Is it **lower** or **higher** than ${highlow_last_numbers[highlow_iteration]}?\n\n` +
                   `Previous: **${highlow_last_numbers.join(` > `)} > ...**\nYou guessed right ${highlow_iteration} times.\n\n` +
-                  `Multiplier: ${highlow_multiplier}x -> Cash out ${bet * highlow_multiplier} ${emojis.currency_emoji}`
+                  `Multiplier: ${highlow_multiplier}x -> Cash out ${bet * highlow_multiplier} ${emojis.currency}`
                 )
-                .setColor(colors.color_default)
+                .setColor(colors.default)
                 .setFooter({ text: `${uses_left}/${highlow_max_uses} uses left.` });
 
               let highlow_response = await highlow_confirmation.editReply({ embeds: [emb_highlow_game], components: [row_highlow] });
@@ -322,13 +322,13 @@ export default {
                   const emb_highlow_cashout = new Discord.EmbedBuilder()
                     .setTitle(`You chickened out!`)
                     .setDescription(
-                      `You multiplier was **${highlow_multiplier}x**, so you win **${bet * highlow_multiplier}** ${emojis.currency_emoji}!\n\n` +
+                      `You multiplier was **${highlow_multiplier}x**, so you win **${bet * highlow_multiplier}** ${emojis.currency}!\n\n` +
                       `Numbers: **${highlow_last_numbers.join(` > `)}**\nYou had ${highlow_iteration} correct guesses.`
                     )
-                    .setColor(colors.color_success)
+                    .setColor(colors.success)
                     .setFooter({ text: `${uses_left}/${highlow_max_uses} uses left.` });
 
-                  await user.update({ current_money: user.current_money + (bet * highlow_multiplier) });
+                  await user.update({ currentMoney: user.currentMoney + (bet * highlow_multiplier) });
 
                   await highlow_confirmation.editReply({ embeds: [emb_highlow_cashout], components: [] });
                 } else {
@@ -339,18 +339,18 @@ export default {
                     .setTitle(`You lost!`)
                     .setDescription(
                       `Oh no! You guessed wrong! My number was **${highlow_random_number}**.\n\n` +
-                      `You multiplier was **${highlow_multiplier}x**, so you lose **${bet * highlow_multiplier}** ${emojis.currency_emoji}...\n\n` +
+                      `You multiplier was **${highlow_multiplier}x**, so you lose **${bet * highlow_multiplier}** ${emojis.currency}...\n\n` +
                       `Numbers: **${highlow_last_numbers.join(` > `)} > ${highlow_random_number}**\nYou had ${highlow_iteration} correct guesses.`
                     )
-                    .setColor(colors.color_error)
+                    .setColor(colors.error)
                     .setFooter({ text: `${uses_left}/${highlow_max_uses} uses left.` });
 
                   await highlow_confirmation.editReply({ embeds: [emb_highlow_loss], components: [] });
 
-                  if (user.current_money < (bet * highlow_multiplier)) {
-                    await user.update({ current_money: 0 });
+                  if (user.currentMoney < (bet * highlow_multiplier)) {
+                    await user.update({ currentMoney: 0 });
                   } else {
-                    await user.update({ current_money: user.current_money - (bet * highlow_multiplier) });
+                    await user.update({ currentMoney: user.currentMoney - (bet * highlow_multiplier) });
                   }
                 }
               } catch (error) {
@@ -370,8 +370,8 @@ export default {
 
     async function abort_game_no_funds(game: string) {
       const emb_game_abort = new Discord.EmbedBuilder()
-        .setColor(colors.color_error)
-        .setTitle(`${emojis.failure_emoji} - No funds!`)
+        .setColor(colors.error)
+        .setTitle(`${emojis.cross} - No funds!`)
         .setDescription(`You can't bet more gems than you actually have!`)
 
       await interaction.reply({ embeds: [emb_game_abort] });
@@ -385,8 +385,8 @@ export default {
       const timestring = `${hours}h ${minutes}m ${seconds}s`;
 
       const emb_game_abort = new Discord.EmbedBuilder()
-        .setColor(colors.color_error)
-        .setTitle(`${emojis.failure_emoji} - Gambled too much!`)
+        .setColor(colors.error)
+        .setTitle(`${emojis.cross} - Gambled too much!`)
         .setDescription(`Please wait **${timestring}** until you can play this game again.`)
 
       await interaction.reply({ embeds: [emb_game_abort] });

@@ -2,11 +2,11 @@
 // Copyright (C) 2025 Jonas Frank de Buhr (jonasfdb)
 // Licensed under the AGPL-3.0 license as laid out in LICENSE
 
-import { generate_captcha_string, generate_random_string } from "./generators";
+import { generateUppercaseString, generateLowercaseString } from "./generators";
 import canvas from "@napi-rs/canvas";
 import Discord from "discord.js";
 
-export async function generate_captcha() {
+export async function generateCaptcha() {
   const captcha_image_canvas = canvas.createCanvas(400, 250);
   const captcha_image_context = captcha_image_canvas.getContext('2d');
   let bg_image;
@@ -26,8 +26,8 @@ export async function generate_captcha() {
     throw error;
   }
   const bg = await canvas.loadImage(bg_image.image);
-  const solution = Array.from(generate_captcha_string(6).toUpperCase());
-  const decoy = Array.from(generate_random_string(30).toUpperCase());
+  const solution = Array.from(generateUppercaseString(6).toUpperCase());
+  const decoy = Array.from(generateLowercaseString(30).toUpperCase());
 
   console.log(solution)
 

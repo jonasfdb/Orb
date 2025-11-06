@@ -3,23 +3,23 @@
 // Licensed under the AGPL-3.0 license as laid out in LICENSE
 
 import { config } from '../../../config/config';
-import { initServerSettingsModel } from './models/ServerSettings';
-import { initServerModel } from './models/Server';
-import { initServerOtpTokenModel } from './models/ServerOtpToken';
-import { initServerBadgesModel } from './models/ServerBadges';
-import { initServerUserModel } from './models/ServerUser';
-import { initUserModel } from './models/GlobalUser';
+import { initGuildSettingsModel } from './models/GuildSettings';
+import { initGuildModel } from './models/Guild';
+import { initGuildTokenModel } from './models/GuildToken';
+import { initGuildBadgesModel } from './models/GuildBadges';
+import { initGuildMemberModel } from './models/GuildMember';
+import { initUserModel } from './models/User';
 
 const { database } = config;
 
 export async function initDatabase() {
   console.log(`Connecting to main database...`);
 
-  initServerSettingsModel(database);
-  initServerModel(database);
-  initServerOtpTokenModel(database);
-  initServerBadgesModel(database);
-  initServerUserModel(database);
+  initGuildSettingsModel(database);
+  initGuildModel(database);
+  initGuildTokenModel(database);
+  initGuildBadgesModel(database);
+  initGuildMemberModel(database);
   initUserModel(database);
 
   try {

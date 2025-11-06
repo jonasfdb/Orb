@@ -5,7 +5,7 @@
 import Discord from "discord.js";
 import { emojis } from "../../../util/json/emojis";
 import { colors } from "../../../util/json/colors";
-import { find_server_user } from "../../util/database/dbutils";
+import { findGuildMember } from "../../util/database/dbutils";
 import { validateCommandInteractionInGuild } from "../../util/validate";
 
 interface UserCooldowns {
@@ -23,51 +23,51 @@ export default {
   async execute(client: Discord.Client<true>, interaction: Discord.ChatInputCommandInteraction) {
     validateCommandInteractionInGuild(interaction);
 
-    let user = await find_server_user(interaction.user.id, interaction.guild.id);
-    let user_cooldowns: UserCooldowns = JSON.parse(user.cooldowns);
+    let user = await findGuildMember(interaction.user.id, interaction.guild.id);
+    let userCooldowns: UserCooldowns = JSON.parse(user.cooldowns);
 
-    let daily_max_uses = 1;
-    let daily_timeout_interval_ms = 1000 * 60 * 60 * 12;
-    let uses_left;
+    let dailyMaxUses = 1;
+    let dailyTimeoutInterval = 1000 * 60 * 60 * 12;
+    let usesLeft;
 
-    if (user_cooldowns.daily.last_use_timestamp > (Date.now() - daily_timeout_interval_ms)) {
-      await abort_daily(user_cooldowns.daily.last_use_timestamp + daily_timeout_interval_ms - Date.now());
+    if (userCooldowns.daily.last_use_timestamp > (Date.now() - dailyTimeoutInterval)) {
+      await abort_daily(userCooldowns.daily.last_use_timestamp + dailyTimeoutInterval - Date.now());
       return;
     } else {
-      user_cooldowns.daily.uses_left = user_cooldowns.daily.uses_left - 1;
-      await user.update({ cooldowns: JSON.stringify(user_cooldowns) });
-      uses_left = user_cooldowns.daily.uses_left;
+      userCooldowns.daily.uses_left = userCooldowns.daily.uses_left - 1;
+      await user.update({ cooldowns: JSON.stringify(userCooldowns) });
+      usesLeft = userCooldowns.daily.uses_left;
 
-      if (user_cooldowns.daily.uses_left < 1) {
-        user_cooldowns.daily.uses_left = daily_max_uses;
-        user_cooldowns.daily.last_use_timestamp = Date.now();
-        await user.update({ cooldowns: JSON.stringify(user_cooldowns) });
+      if (userCooldowns.daily.uses_left < 1) {
+        userCooldowns.daily.uses_left = dailyMaxUses;
+        userCooldowns.daily.last_use_timestamp = Date.now();
+        await user.update({ cooldowns: JSON.stringify(userCooldowns) });
       }
     }
 
-    let user_daily_reward = Math.floor((Math.random() * 10) + 10) * 1000;
+    let dailyReward = Math.floor((Math.random() * 10) + 10) * 1000;
 
-    const emb_daily = new Discord.EmbedBuilder()
-      .setColor(colors.color_default)
-      .setTitle(`${emojis.success_emoji} - Claimed!`)
-      .setDescription(`You got **${user_daily_reward}** ${emojis.currency_emoji}. Spend them wisely!`)
-    await interaction.reply({ embeds: [emb_daily] });
+    const embDaily = new Discord.EmbedBuilder()
+      .setColor(colors.default)
+      .setTitle(`${emojis.checkmark} - Claimed!`)
+      .setDescription(`You got **${dailyReward}** ${emojis.currency}. Spend them wisely!`)
+    await interaction.reply({ embeds: [embDaily] });
 
-    await user.update({ current_money: user.current_money - user_daily_reward });
+    await user.update({ currentMoney: user.currentMoney - dailyReward });
 
-    async function abort_daily(remaining_time: number) {
-      let hours = Math.floor(remaining_time / 3600000) % 24;
-      let minutes = Math.floor(remaining_time / 60000) % 60;
-      let seconds = Math.floor(remaining_time / 1000) % 60;
+    async function abort_daily(timeRemaining: number) {
+      let hours = Math.floor(timeRemaining / 3600000) % 24;
+      let minutes = Math.floor(timeRemaining / 60000) % 60;
+      let seconds = Math.floor(timeRemaining / 1000) % 60;
 
       const timestring = `${hours}h ${minutes}m ${seconds}s`;
 
-      const emb_abort = new Discord.EmbedBuilder()
-        .setColor(colors.color_error)
-        .setTitle(`${emojis.failure_emoji} - Gambled too much!`)
+      const embAbort = new Discord.EmbedBuilder()
+        .setColor(colors.error)
+        .setTitle(`${emojis.cross} - Gambled too much!`)
         .setDescription(`Please wait **${timestring}** until you can play this game again.`)
 
-      await interaction.reply({ embeds: [emb_abort] });
+      await interaction.reply({ embeds: [embAbort] });
     }
   }
 }

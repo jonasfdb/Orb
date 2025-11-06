@@ -3,7 +3,7 @@
 // Licensed under the AGPL-3.0 license as laid out in LICENSE
 
 import { Events, EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle, Interaction } from "discord.js";
-import { generate_error_id } from "../util/generators";
+import { generateErrorID } from "../util/generators";
 import { emojis } from "../../util/json/emojis";
 import { colors } from "../../util/json/colors";
 
@@ -22,7 +22,7 @@ export default {
       try {
         await command.execute(interaction.client, interaction);
       } catch (error: unknown) {
-        const error_code = generate_error_id();
+        const error_code = generateErrorID();
 
         try {
           console.warn(`New error added to error log at ID ${error_code}.`);
@@ -33,8 +33,8 @@ export default {
         }
 
         const failure_embed = new EmbedBuilder()
-          .setTitle(`${emojis.failure_emoji} - Something went wrong!`)
-          .setColor(colors.color_error)
+          .setTitle(`${emojis.cross} - Something went wrong!`)
+          .setColor(colors.error)
           .setDescription('An unexpected error occurred while executing the command. You can report this error on the Orb Support Server with the error code below if the command keeps failing.')
           .addFields({
             name: 'Error code:',

@@ -4,7 +4,7 @@
 
 import Discord from "discord.js";
 import { colors } from "../../../util/json/colors"
-import { ServerUser } from "../../util/database/models/ServerUser";
+import { GuildMember } from "../../util/database/models/GuildMember";
 import { validateCommandInteractionInGuild } from "../../util/validate";
 import { getGuildIcon } from "../../util/helpers";
 
@@ -20,19 +20,19 @@ export default {
     let e = 0;
     let leaderboard_string_array = [];
     let leaderboard_embed = new Discord.EmbedBuilder()
-      .setColor(colors.color_default)
+      .setColor(colors.default)
       .setAuthor({ name: `${interaction.guild.name}'s leaderboard`, iconURL: getGuildIcon(interaction) })
       .setTimestamp(Date.now());
 
-    const raw_leaderboard_array = await ServerUser.findAll({
+    const raw_leaderboard_array = await GuildMember.findAll({
       limit: 10,
       order: [["total_xp", "DESC"]],
-      where: { server_id: interaction.guild.id },
+      where: { dGuildID: interaction.guild.id },
     });
 
     for (e; e < raw_leaderboard_array.length; e++) {
       let name_string = ``;
-      const leaderboard_user = await client.users.fetch(raw_leaderboard_array[e].user_id.toString());
+      const leaderboard_user = await client.users.fetch(raw_leaderboard_array[e].dUserID.toString());
 
       switch (e) {
         // \u{1F948} is the 1st place medal, \u{1F3C6} is the trophy
@@ -50,7 +50,7 @@ export default {
           break;
       }
 
-      leaderboard_string_array.push(`${name_string}\n\u{200B}\u{2514} Level **${raw_leaderboard_array[e].current_level}** | XP: **${raw_leaderboard_array[e].total_xp}**`);
+      leaderboard_string_array.push(`${name_string}\n\u{200B}\u{2514} Level **${raw_leaderboard_array[e].currentLevel}** | XP: **${raw_leaderboard_array[e].totalXP}**`);
     }
 
     leaderboard_embed.addFields({

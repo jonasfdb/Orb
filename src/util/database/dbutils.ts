@@ -2,25 +2,25 @@
 // Copyright (C) 2025 Jonas Frank de Buhr (jonasfdb)
 // Licensed under the AGPL-3.0 license as laid out in LICENSE
 
-import { ServerSettings } from "./models/ServerSettings";
-import { ServerUser } from "./models/ServerUser";
-import { Server } from "./models/Server";
-import { GlobalUser } from "./models/GlobalUser";
+import { GuildSettings } from "./models/GuildSettings";
+import { GuildMember } from "./models/GuildMember";
+import { Guild } from "./models/Guild";
+import { User } from "./models/User";
 import { ulid } from "ulid";
 
-export async function find_user(user_id: string): Promise<GlobalUser> {
-  let user = await GlobalUser.findOne({ where: { user_id: user_id } });
+export async function findUser(user_id: string): Promise<User> {
+  let user = await User.findOne({ where: { dUserID: user_id } });
 
   if (!user) {
     try {
-      user = await GlobalUser.create({
-        orb_uuid: ulid(),
-        user_id: user_id,
-        user_bot_status: 0,
-        profile_color: `5d20a1`,
-        lifetime_xp: 1
+      user = await User.create({
+        UUID: ulid(),
+        dUserID: user_id,
+        userStatus: 0,
+        profileColor: `5d20a1`,
+        lifetimeXP: 1
       });
-      console.warn(`New user ${user.user_id} added to database with default color ${user.profile_color}`);
+      console.warn(`New user ${user.dUserID} added to database with default color ${user.profileColor}`);
     } catch (error) {
       console.trace(error);
       throw error;
@@ -30,16 +30,16 @@ export async function find_user(user_id: string): Promise<GlobalUser> {
   return user;
 }
 
-export async function find_server(server_id: string): Promise<Server> {
-  let server = await Server.findOne({ where: { server_id: server_id } });
+export async function findGuild(server_id: string): Promise<Guild> {
+  let server = await Guild.findOne({ where: { dGuildID: server_id } });
 
   if (!server) {
     try {
-      server = await Server.create({
-        orb_uuid: ulid(),
-        server_id: server_id,
+      server = await Guild.create({
+        UUID: ulid(),
+        dGuildID: server_id,
       });
-      console.warn(`New server ${server.server_id} added to database`);
+      console.warn(`New server ${server.dGuildID} added to database`);
     } catch (error) {
       console.trace(error);
       throw error;
@@ -49,21 +49,21 @@ export async function find_server(server_id: string): Promise<Server> {
   return server;
 }
 
-export async function find_server_user(user_id: string, server_id: string): Promise<ServerUser> {
-  let server_user = await ServerUser.findOne({ where: { user_id: user_id, server_id: server_id } });
+export async function findGuildMember(user_id: string, server_id: string): Promise<GuildMember> {
+  let server_user = await GuildMember.findOne({ where: { dUserID: user_id, dGuildID: server_id } });
 
   if (!server_user) {
     try {
-      server_user = await ServerUser.create({
-        orb_uuid: ulid(),
-        server_id: server_id,
-        user_id: user_id,
-        current_money: 1000,
-        current_level: 0,
-        current_xp: 1,
-        total_xp: 1,
-        next_required_xp: 100,
-        is_verified: false,
+      server_user = await GuildMember.create({
+        UUID: ulid(),
+        dGuildID: server_id,
+        dUserID: user_id,
+        currentMoney: 1000,
+        currentLevel: 0,
+        currentXP: 1,
+        totalXP: 1,
+        requiredXPForNextLevel: 100,
+        verified: false,
         cooldowns: JSON.stringify({
           daily: { uses_left: 1, last_use_timestamp: 0 },
           coinflip: { uses_left: 20, last_use_timestamp: 0 },
@@ -71,7 +71,7 @@ export async function find_server_user(user_id: string, server_id: string): Prom
           highlow: { uses_left: 5, last_use_timestamp: 0 }
         })
       });
-      console.warn(`New user ${user_id} added to database with ${server_user.user_id}, on server ${server_user.server_id}`);
+      console.warn(`New user ${user_id} added to database with ${server_user.dUserID}, on server ${server_user.dGuildID}`);
     } catch (error) {
       console.trace(error);
       throw error;
@@ -81,18 +81,18 @@ export async function find_server_user(user_id: string, server_id: string): Prom
   return server_user;
 }
 
-export async function find_server_settings(server_id: string): Promise<ServerSettings> {
-  let server = await ServerSettings.findOne({
-    where: { server_id: server_id },
+export async function findGuildSettings(server_id: string): Promise<GuildSettings> {
+  let server = await GuildSettings.findOne({
+    where: { dGuildID: server_id },
   });
 
   if (!server) {
     try {
-      server = await ServerSettings.create({
-        orb_uuid: ulid(),
-        server_id: server_id,
+      server = await GuildSettings.create({
+        UUID: ulid(),
+        dGuildID: server_id,
       });
-      console.warn(`New server settings for ${server.server_id} added to database`);
+      console.warn(`New server settings for ${server.dGuildID} added to database`);
     } catch (error) {
       console.trace(error);
       throw error;

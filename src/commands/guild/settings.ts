@@ -3,15 +3,15 @@
 // Licensed under the AGPL-3.0 license as laid out in LICENSE
 
 import Discord, { PermissionFlagsBits } from "discord.js";
-import { find_server, find_server_settings } from "../../util/database/dbutils";
+import { findGuild, findGuildSettings } from "../../util/database/dbutils";
 import { colors } from "../../../util/json/colors"
 import { emojis } from "../../../util/json/emojis"
-import { generate_token } from "../../util/generators"
-import { ServerSettings } from "../../util/database/models/ServerSettings";
+import { generateToken } from "../../util/generators"
+import { GuildSettings } from "../../util/database/models/GuildSettings";
 import { validateCommandInteractionInGuild, validateGuildChannel, validateNullNumber, validateNumber, validateRole, validateString } from "../../util/validate";
 import { getGuildIcon } from "../../util/helpers";
 import { RoleReward } from "../../types/interfaces";
-import { out_of_order } from "../../util/outOfOrder";
+import { outOfOrder } from "../../util/outOfOrder";
 
 export default {
   data: new Discord.SlashCommandBuilder()
@@ -184,29 +184,29 @@ export default {
 
   async execute(client: Discord.Client<true>, interaction: Discord.ChatInputCommandInteraction) {
     validateCommandInteractionInGuild(interaction);
-    await find_server_settings(interaction.guild.id);
+    await findGuildSettings(interaction.guild.id);
 
     switch (interaction.options.getSubcommandGroup() || interaction.options.getSubcommand()) {
       case `current`:
-        const server_settings = await find_server_settings(interaction.guild.id);
+        const server_settings = await findGuildSettings(interaction.guild.id);
 
-        let welcome_message_enabled = server_settings.welcome_messages_enabled ? 'enabled' : 'disabled';
-        let leave_message_enabled = server_settings.leave_messages_enabled ? 'enabled' : 'disabled';;
+        let welcome_message_enabled = server_settings.welcomeMessagesEnabled ? 'enabled' : 'disabled';
+        let leave_message_enabled = server_settings.leaveMessagesEnabled ? 'enabled' : 'disabled';
         let welcome_message_channel = '';
         let leave_message_channel = '';
-        let welcome_message_text = server_settings.welcome_message;
-        let leave_message_text = server_settings.leave_message;
+        let welcome_message_text = server_settings.messagesWelcome;
+        let leave_message_text = server_settings.messagesLeave;
 
-        if (!server_settings.welcome_channel_id) {
+        if (!server_settings.channelsWelcomeID) {
           welcome_message_channel = '_No channel assigned_'
         } else {
-          welcome_message_channel = `<#${server_settings.welcome_channel_id}>`
+          welcome_message_channel = `<#${server_settings.channelsWelcomeID}>`
         }
 
-        if (!server_settings.leave_channel_id) {
+        if (!server_settings.channelsLeaveID) {
           leave_message_channel = '_No channel assigned_'
         } else {
-          leave_message_channel = `<#${server_settings.leave_channel_id}>`
+          leave_message_channel = `<#${server_settings.channelsLeaveID}>`
         }
 
         const settings_toggles_string_array = [
@@ -260,7 +260,7 @@ export default {
             }
 
             const captcha_information_embed = new Discord.EmbedBuilder()
-              .setColor(colors.color_default)
+              .setColor(colors.default)
               .setTitle(`\u{1F6E1} - Captcha Protection Setup`)
               .addFields(
                 { name: `Orb will:`, value: ` \u{2514} Edit **${index} channels**\n \u{2514} Create a new "Not Verified" role` },
@@ -272,12 +272,12 @@ export default {
               .setCustomId('start_captcha_setup')
               .setLabel('Start')
               .setStyle(Discord.ButtonStyle.Success)
-              .setEmoji(emojis.success_emoji);
+              .setEmoji(emojis.checkmark);
             const captcha_cancel_button = new Discord.ButtonBuilder()
               .setCustomId('cancel_captcha_setup')
               .setLabel('Cancel')
               .setStyle(Discord.ButtonStyle.Danger)
-              .setEmoji(emojis.failure_emoji);
+              .setEmoji(emojis.cross);
             const captcha_begin_action_row = new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(captcha_start_button, captcha_cancel_button);
 
             const captcha_begin_embed_prompt = await interaction.editReply({ embeds: [captcha_information_embed], components: [captcha_begin_action_row] });
@@ -290,18 +290,18 @@ export default {
               switch (captcha_begin_embed_response.customId) {
                 case 'start_captcha_setup':
                   const captcha_working_embed = new Discord.EmbedBuilder()
-                    .setColor(colors.color_default)
+                    .setColor(colors.default)
                     .setTitle(`\u{1F6E1} - Captcha Protection Setup`)
-                    .setDescription(`${emojis.loading_animation_emoji} Setting up permissions...\n\nThis may take a while if you have lots of channels. Sit back and relax!`)
+                    .setDescription(`${emojis.animatedLoading} Setting up permissions...\n\nThis may take a while if you have lots of channels. Sit back and relax!`)
 
                   await interaction.editReply({ embeds: [captcha_working_embed], components: [] });
 
                   const not_verified_role = await interaction.guild.roles.create({ name: 'Not Verified', permissions: [] });
 
-                  await ServerSettings.update({
-                    captcha_verification_required: true,
-                    captcha_unverified_role_id: not_verified_role.id,
-                  }, { where: { server_id: interaction.guild.id } }
+                  await GuildSettings.update({
+                    captchaRequired: true,
+                    unverifiedRoleID: not_verified_role.id,
+                  }, { where: { dGuildID: interaction.guild.id } }
                   );
 
                   let failure_count = 0;
@@ -320,17 +320,17 @@ export default {
                   });
 
                   const captcha_finished_embed = new Discord.EmbedBuilder()
-                    .setColor(colors.color_success)
+                    .setColor(colors.success)
                     .setTitle(`\u{1F6E1} - Captcha Protection Setup`)
-                    .setDescription(`${emojis.success_emoji} Captcha set up!\n\nFailed to override ${failure_count} channels.`)
+                    .setDescription(`${emojis.checkmark} Captcha set up!\n\nFailed to override ${failure_count} channels.`)
 
                   await interaction.editReply({ embeds: [captcha_finished_embed] });
                   break;
                 case `cancel_captcha_setup`:
                   const captcha_setup_canceled_embed = new Discord.EmbedBuilder()
-                    .setColor(colors.color_error)
+                    .setColor(colors.error)
                     .setTitle(`\u{1F6E1} - Captcha Protection Setup`)
-                    .setDescription(`${emojis.failure_emoji} Captcha setup canceled by user.`)
+                    .setDescription(`${emojis.cross} Captcha setup canceled by user.`)
 
                   await interaction.editReply({ embeds: [captcha_setup_canceled_embed], components: [] });
                   break;
@@ -342,15 +342,15 @@ export default {
             break;
 
           case `disable`:
-            await ServerSettings.update({
-              captcha_verification_required: false,
-            }, { where: { server_id: interaction.guild.id } }
+            await GuildSettings.update({
+              captchaRequired: false,
+            }, { where: { dGuildID: interaction.guild.id } }
             );
 
 
             const captcha_disable_embed = new Discord.EmbedBuilder()
-              .setColor(colors.color_success)
-              .setTitle(`${emojis.success_emoji} - Changes saved!`)
+              .setColor(colors.success)
+              .setTitle(`${emojis.checkmark} - Changes saved!`)
               .addFields(
                 { name: `\u{1F6E0} Changes:`, value: `\u{200B}\u{2514} Captcha protection is now **disabled** ` }
               )
@@ -383,14 +383,14 @@ export default {
             // validate levels
             if (max_level <= min_level || max_level < 0 || min_level < 1) {
               const role_reward_invalid_levels_embed = new Discord.EmbedBuilder()
-                .setColor(colors.color_error)
-                .setTitle(`${emojis.failure_emoji} - Invalid level configuration!`)
+                .setColor(colors.error)
+                .setTitle(`${emojis.cross} - Invalid level configuration!`)
                 .setDescription(`Levels must be positive and the removal level must be greater than the give level, or zero to never remove the role.`);
               await interaction.reply({ embeds: [role_reward_invalid_levels_embed] });
               return;
             }
 
-            const server = await find_server(interaction.guild.id);
+            const server = await findGuild(interaction.guild.id);
             let rewardsArray;
             try {
               rewardsArray = server.role_rewards_level_string ? JSON.parse(server.role_rewards_level_string) : [];
@@ -400,16 +400,16 @@ export default {
 
             if (rewardsArray.some((r: RoleReward) => r.role_id === reward_role.id)) {
               const role_reward_duplicate_embed = new Discord.EmbedBuilder()
-                .setColor(colors.color_error)
-                .setTitle(`${emojis.failure_emoji} - Role reward already exists!`)
+                .setColor(colors.error)
+                .setTitle(`${emojis.cross} - Role reward already exists!`)
                 .setDescription(`The role <@&${reward_role.id}> already has a reward.`);
               await interaction.editReply({ embeds: [role_reward_duplicate_embed] });
               return;
             }
 
-            let reward_token = generate_token(3);
+            let reward_token = generateToken(3);
             while (rewardsArray.some((r: RoleReward) => r.token === reward_token)) {
-              reward_token = generate_token(3);
+              reward_token = generateToken(3);
             }
 
             rewardsArray.push({
@@ -424,8 +424,8 @@ export default {
             await server.save();
 
             const new_role_reward_success_embed = new Discord.EmbedBuilder()
-              .setColor(colors.color_success)
-              .setTitle(`${emojis.success_emoji} - New role reward created!`)
+              .setColor(colors.success)
+              .setTitle(`${emojis.checkmark} - New role reward created!`)
               .setDescription(
                 `The role <@&${reward_role.id}> will be given at level **${min_level}** ` +
                 `and removed at **${max_level_string}**.\nToken: **${reward_token}**`
@@ -439,15 +439,15 @@ export default {
             const providedToken = interaction.options.getString('token');
 
             const no_reward_to_delete_embed = new Discord.EmbedBuilder()
-              .setColor(colors.color_error)
-              .setTitle(`${emojis.failure_emoji} - No reward found!`)
+              .setColor(colors.error)
+              .setTitle(`${emojis.cross} - No reward found!`)
               .setDescription(
                 providedRole && !providedToken
                   ? `The role <@&${providedRole.id}> has no reward attached.`
                   : `The token **${providedToken}** is not assigned to any reward.`
               );
 
-            const server = await find_server(interaction.guild.id);
+            const server = await findGuild(interaction.guild.id);
             let rewardsArray;
             try {
               rewardsArray = server.role_rewards_level_string ? JSON.parse(server.role_rewards_level_string) : [];
@@ -472,8 +472,8 @@ export default {
             await server.save();
 
             const reward_deletion_success_embed = new Discord.EmbedBuilder()
-              .setColor(colors.color_success)
-              .setTitle(`${emojis.success_emoji} - Reward deleted!`)
+              .setColor(colors.success)
+              .setTitle(`${emojis.checkmark} - Reward deleted!`)
               .setDescription(`The role <@&${removedReward.role_id}> will no longer be given as a reward.`);
             await interaction.editReply({ embeds: [reward_deletion_success_embed] });
             break;
@@ -482,25 +482,25 @@ export default {
         break;
 
       case 'channels':
-        out_of_order(interaction, 'This setting has been moved to /configure.');
+        outOfOrder(interaction, 'This setting has been moved to /configure.');
         break;
 
       case `messages`:
         switch (interaction.options.getSubcommand()) {
           case `current`:
-            let current_server_settings = await find_server_settings(interaction.guild.id);
+            let current_server_settings = await findGuildSettings(interaction.guild.id);
 
             const current_message_settings_embed = new Discord.EmbedBuilder()
-              .setColor(colors.color_default)
+              .setColor(colors.default)
               .setTitle(`\u{2699} - Current settings:`)
               .addFields(
                 {
                   name: 'Welcome message:',
-                  value: ` \u{2514} "${current_server_settings.welcome_message}"`,
+                  value: ` \u{2514} "${current_server_settings.messagesWelcome}"`,
                 },
                 {
                   name: 'Leave message:',
-                  value: ` \u{2514} "${current_server_settings.leave_message}"`,
+                  value: ` \u{2514} "${current_server_settings.messagesLeave}"`,
                 },
                 {
                   name: 'Placeholder words:',
@@ -515,14 +515,14 @@ export default {
             let welcome_message = interaction.options.getString('message');
             validateString(welcome_message);
 
-            await ServerSettings.update(
-              { welcome_message: welcome_message },
-              { where: { server_id: interaction.guild.id } }
+            await GuildSettings.update(
+              { messagesWelcome: welcome_message },
+              { where: { dGuildID: interaction.guild.id } }
             );
 
             const welcome_message_success_embed = new Discord.EmbedBuilder()
-              .setColor(colors.color_success)
-              .setTitle(`${emojis.success_emoji} - Changes saved!`)
+              .setColor(colors.success)
+              .setTitle(`${emojis.checkmark} - Changes saved!`)
               .setDescription(`The new welcome message is now "${interaction.options.getString("message")}"!`);
 
             interaction.reply({ embeds: [welcome_message_success_embed] })
@@ -532,14 +532,14 @@ export default {
             let leave_message = interaction.options.getString('message');
             validateString(leave_message);
 
-            await ServerSettings.update(
-              { leave_message: leave_message },
-              { where: { server_id: interaction.guild.id } }
+            await GuildSettings.update(
+              { messagesLeave: leave_message },
+              { where: { dGuildID: interaction.guild.id } }
             );
 
             const leave_message_success_embed = new Discord.EmbedBuilder()
-              .setColor(colors.color_success)
-              .setTitle(`${emojis.success_emoji} - Changes saved!`)
+              .setColor(colors.success)
+              .setTitle(`${emojis.checkmark} - Changes saved!`)
               .setDescription(`The new leave message is now "${interaction.options.getString("message")}"!`);
 
             interaction.reply({ embeds: [leave_message_success_embed] })
@@ -552,7 +552,7 @@ export default {
         break;
 
       case `toggles`:
-        out_of_order(interaction, 'This command was moved to /configure.');
+        outOfOrder(interaction, 'This command was moved to /configure.');
         break;
     }
   }

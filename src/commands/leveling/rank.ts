@@ -3,8 +3,8 @@
 // Licensed under the AGPL-3.0 license as laid out in LICENSE
 
 import Discord from "discord.js";
-import { find_server_user } from "../../util/database/dbutils";
-import { ServerUser } from "../../util/database/models/ServerUser";
+import { findGuildMember } from "../../util/database/dbutils";
+import { GuildMember } from "../../util/database/models/GuildMember";
 import { validateCommandInteractionInGuild, validateGuildMember } from "../../util/validate";
 import { colors } from "../../../util/json/colors";
 
@@ -23,22 +23,22 @@ export default {
     let rank_target_member = interaction.options.getMember("user") ?? interaction.member;
     validateGuildMember(rank_target_member);
 
-    const server_user = await find_server_user(rank_target_member.id, rank_target_member.guild.id);
+    const server_user = await findGuildMember(rank_target_member.id, rank_target_member.guild.id);
 
-    const all_members = await ServerUser.findAll({
+    const all_members = await GuildMember.findAll({
       order: [['total_xp', 'DESC']],
-      where: { server_id: interaction.guild.id },
+      where: { dGuildID: interaction.guild.id },
     })
     let all_members_ids: string[] = [];
     all_members.forEach(member => {
-      all_members_ids.push(member.user_id)
+      all_members_ids.push(member.dUserID)
     })
     const member_rank = all_members_ids.indexOf(rank_target_member.id) + 1;
     const member_avatar = rank_target_member.displayAvatarURL({ extension: 'webp' });
 
     // there used to be a graphical progress bar here using canvas, but I removed that when I switched to TS and also changed the logo
     // it will be there eventually, I have to just learn canvas more to get the look I want, like the logo
-    let fraction = server_user.current_xp / server_user.next_required_xp;
+    let fraction = server_user.currentXP / server_user.requiredXPForNextLevel;
     let progressbar = [];
     for (let i = 0; i < 24; i++) {
       if ((i / 24) < fraction) {
@@ -48,13 +48,13 @@ export default {
       }
     }
 
-    let messages_until_levelup = Math.round((server_user.next_required_xp - server_user.current_xp) / 6.5);
+    let messages_until_levelup = Math.round((server_user.requiredXPForNextLevel - server_user.currentXP) / 6.5);
 
     const rank_embed = new Discord.EmbedBuilder()
-      .setColor(colors.color_default)
+      .setColor(colors.default)
       .setAuthor({ name: `${rank_target_member.nickname || rank_target_member.displayName}`, iconURL: member_avatar })
       .addFields({
-        name: `Level **${server_user.current_level}** - ${server_user.current_xp.toString()} / ${server_user.next_required_xp.toString()} XP - Rank **${member_rank}**`,
+        name: `Level **${server_user.currentLevel}** - ${server_user.currentXP.toString()} / ${server_user.requiredXPForNextLevel.toString()} XP - Rank **${member_rank}**`,
         value: `[${progressbar.join('')}]`,
         inline: false
       })
