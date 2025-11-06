@@ -4,32 +4,32 @@
 
 import { Model, DataTypes, Sequelize, InferAttributes, InferCreationAttributes } from 'sequelize';
 
-export class ServerBadges extends Model<  InferAttributes<ServerBadges>, InferCreationAttributes<ServerBadges>> {
-  declare orb_uuid: string;
-  declare server_id: string;
-  declare emoji_id: string;
+export class GuildBadges extends Model<  InferAttributes<GuildBadges>, InferCreationAttributes<GuildBadges>> {
+  declare UUID: string;
+  declare dGuildID: string;   // dGuildID - d stands for discord
+  declare emojiID: string;
 }
 
-export function initServerBadgesModel(sequelize: Sequelize) {
-  ServerBadges.init(
+export function initGuildBadgesModel(sequelize: Sequelize) {
+  GuildBadges.init(
     {
-      orb_uuid: {
+      UUID: {
         type: DataTypes.STRING,
         allowNull: false
       },
-      server_id: {
+      dGuildID: {
         type: DataTypes.STRING,
         allowNull: false
       },
-      emoji_id: {
+      emojiID: {
         type: DataTypes.STRING,
         allowNull: false
       },
     },
     {
       sequelize,
-      modelName: 'ServerBadges',
-      tableName: 'server_badges',
+      modelName: 'GuildBadges',
+      tableName: 'guildBadges',
       timestamps: false,
     }
   );

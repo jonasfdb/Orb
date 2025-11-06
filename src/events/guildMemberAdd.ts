@@ -3,7 +3,7 @@
 // Licensed under the AGPL-3.0 license as laid out in LICENSE
 
 import Discord, { Events, ButtonStyle, TextInputStyle, GuildMember, RoleResolvable, ButtonBuilder, ModalActionRowComponentBuilder } from "discord.js";
-import { find_server_settings } from "../util/database/dbutils";
+import { findGuildSettings } from "../util/database/dbutils";
 import { colors } from "../../util/json/colors";
 import { emojis } from "../../util/json/emojis";
 import { generate_captcha } from "../util/generateCaptcha";
@@ -12,12 +12,12 @@ import { ulid } from "ulid";
 export default {
   name: Events.GuildMemberAdd,
   async execute(member: GuildMember) {
-    let server = await find_server_settings(member.guild.id);
+    let server = await findGuildSettings(member.guild.id);
     let joined_user = member.user;
     let joined_user_icon = joined_user.displayAvatarURL({ extension: 'webp' }).toString();
 
-    if (server.captcha_verification_required) {
-      await member.roles.add(server.captcha_unverified_role_id as RoleResolvable);
+    if (server.captchaRequired) {
+      await member.roles.add(server.unverifiedRoleID as RoleResolvable);
       let captcha_has_failed_before = false;
       let captcha_embed: Discord.EmbedBuilder;
 
@@ -120,7 +120,7 @@ export default {
 
                     // give someone the role here and shit
 
-                    await member.roles.remove(server.captcha_unverified_role_id as RoleResolvable);
+                    await member.roles.remove(server.unverifiedRoleID as RoleResolvable);
                     await captcha_input_response.deleteReply();
                     await captcha_embed_message.edit({ embeds: [captcha_passed_embed], components: [], files: [] });
                     captcha_button_collector.empty();
@@ -184,12 +184,12 @@ export default {
       captchaPrompter();
     }
 
-    if (!server.welcome_channel_id || !server.welcome_messages_enabled) {
-      console.log(server.welcome_channel_id, server.welcome_messages_enabled)
+    if (!server.channelsWelcomeID || !server.welcomeMessagesEnabled) {
+      console.log(server.channelsWelcomeID, server.welcomeMessagesEnabled)
       return;
     }
 
-    let welcome_message_prototype = server.welcome_message;
+    let welcome_message_prototype = server.messagesWelcome;
     let welcome_message = welcome_message_prototype.replace(/USER/g, joined_user.username).replace(/SERVER/g, member.guild.name)
 
     const guild_member_add_embed = new Discord.EmbedBuilder()
@@ -201,7 +201,7 @@ export default {
         `\u{2514} Account age: **${Math.floor((Date.now() - joined_user.createdAt.getTime()) / 1000 / 60 / 60 / 24)} days**`)
       .setFooter({ text: `Member count: ${member.guild.memberCount}` })
 
-    const join_message_channel = member.guild.channels.cache.get(server.welcome_channel_id);
+    const join_message_channel = member.guild.channels.cache.get(server.channelsWelcomeID);
     if (join_message_channel && join_message_channel.isTextBased()) {
       await join_message_channel.send({ embeds: [guild_member_add_embed] });
     } // If no join message, just do nothing

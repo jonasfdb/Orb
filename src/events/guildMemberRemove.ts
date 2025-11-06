@@ -3,22 +3,22 @@
 // Licensed under the AGPL-3.0 license as laid out in LICENSE
 
 import Discord, { Events } from "discord.js";
-import { find_server_settings } from "../util/database/dbutils";
+import { findGuildSettings } from "../util/database/dbutils";
 import { colors } from "../../util/json/colors";
 
 export default {
   name: Events.GuildMemberRemove,
   async execute(member: Discord.GuildMember) {
-    let server = await find_server_settings(member.guild.id);
+    let server = await findGuildSettings(member.guild.id);
     let left_user = member.user;
     let left_user_icon = left_user.displayAvatarURL({ extension: 'webp' }).toString();
 
-    if (!server.leave_channel_id || !server.leave_messages_enabled) {
-      console.log(server.leave_channel_id, server.leave_messages_enabled)
+    if (!server.channelsLeaveID || !server.leaveMessagesEnabled) {
+      console.log(server.channelsLeaveID, server.leaveMessagesEnabled)
       return;
     }
 
-    let leave_message_prototype = server.leave_message;
+    let leave_message_prototype = server.messagesLeave;
     let leave_message = leave_message_prototype.replace(/USER/g, left_user.username).replace(/SERVER/g, member.guild.name)
 
     const guild_member_leave_embed = new Discord.EmbedBuilder()
@@ -27,7 +27,7 @@ export default {
       .setDescription(`${leave_message}`)
       .setFooter({ text: `Member count: ${member.guild.memberCount}` })
 
-    const leave_message_channel = await member.guild.channels.cache.get(server.leave_channel_id);
+    const leave_message_channel = await member.guild.channels.cache.get(server.channelsLeaveID);
     if (leave_message_channel && leave_message_channel.isTextBased()) {
       await leave_message_channel.send({ embeds: [guild_member_leave_embed] });
     }

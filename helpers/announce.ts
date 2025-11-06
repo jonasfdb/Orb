@@ -3,7 +3,7 @@
 // Licensed under the AGPL-3.0 license as laid out in LICENSE
 
 import Discord from "discord.js";
-import { ServerSettings } from "../src/util/database/models/ServerSettings";
+import { GuildSettings } from "../src/util/database/models/GuildSettings";
 import { validateClientReady, validateGuildTextChannel } from "../src/util/validate";
 import { colors } from "../util/json/colors";
 import { config } from "../config/config";
@@ -36,7 +36,7 @@ const announcement_embed = new Discord.EmbedBuilder()
   )
 
 initDatabase();
-const server_array = await ServerSettings.findAll({ where: { broadcasts_allowed: true } });
+const server_array = await GuildSettings.findAll({ where: { broadcasts_allowed: true } });
 
 let iterator = 0;
 let failures = 0;
@@ -44,13 +44,13 @@ let array_length = server_array.length;
 
 await client.login(token as string);
 console.log("Broadcasting...")
-server_array.forEach(async (server: ServerSettings) => {
+server_array.forEach(async (server: GuildSettings) => {
   try {
-    if (!server.broadcast_channel_id) {
+    if (!server.channelsBroadcastID) {
       return;
     }
 
-    const channel_to_send = await client.channels.fetch(server.broadcast_channel_id);
+    const channel_to_send = await client.channels.fetch(server.channelsBroadcastID);
     if (channel_to_send) {
       validateGuildTextChannel(channel_to_send);
       validateClientReady(client);

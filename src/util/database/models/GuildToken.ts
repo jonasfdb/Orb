@@ -4,32 +4,32 @@
 
 import { Model, DataTypes, Sequelize, InferAttributes, InferCreationAttributes } from 'sequelize';
 
-export class ServerOtpToken extends Model<InferAttributes<ServerOtpToken>, InferCreationAttributes<ServerOtpToken>> {
-  declare server_id: string;
-  declare user_id: string;
-  declare one_time_token: string;
+export class GuildToken extends Model<InferAttributes<GuildToken>, InferCreationAttributes<GuildToken>> {
+  declare dGuildID: string;
+  declare dUserID: string;
+  declare token: string;
 }
 
-export function initServerOtpTokenModel(sequelize: Sequelize) {
-  ServerOtpToken.init(
+export function initGuildTokenModel(sequelize: Sequelize) {
+  GuildToken.init(
     {
-      server_id: {
+      dGuildID: {
         type: DataTypes.STRING,
         allowNull: false
       },
-      user_id: {
+      dUserID: {
         type: DataTypes.STRING,
         allowNull: false
       },
-      one_time_token: {
+      token: {
         type: DataTypes.STRING,
         allowNull: false
       },
     },
     {
       sequelize,
-      modelName: 'ServerOtpToken',
-      tableName: 'server_otp_token',
+      modelName: 'GuildToken',
+      tableName: 'guildToken',
       timestamps: false,
     }
   );

@@ -1,8 +1,8 @@
 import Discord from "discord.js";
 import { validateCommandInteractionInGuild, validateGuildChannel, validateGuildTextChannel, validateMessageInGuild } from "../../util/validate";
 import { emojis } from "../../../util/json/emojis";
-import { find_server_settings } from "../../util/database/dbutils";
-import { ServerSettings } from "../../util/database/models/ServerSettings";
+import { findGuildSettings } from "../../util/database/dbutils";
+import { GuildSettings } from "../../util/database/models/GuildSettings";
 import { colors } from "../../../util/json/colors";
 
 export default {
@@ -14,7 +14,7 @@ export default {
     validateCommandInteractionInGuild(interaction);
     await interaction.deferReply();
 
-    guildSettings = await find_server_settings(interaction.guild.id);
+    guildSettings = await findGuildSettings(interaction.guild.id);
     // pathArray = [];
     showSettingsMenu(interaction);
   }
@@ -22,7 +22,7 @@ export default {
 
 // let pathArray: any[] = [];
 // let changedSettingsArray: string[] = ['bingus', 'bongus', 'bingulus'];
-let guildSettings: ServerSettings;
+let guildSettings: GuildSettings;
 
 const backButton = new Discord.ButtonBuilder()
   .setCustomId('backButton')
@@ -202,11 +202,11 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
       .setContent(
         `### Current welcoming settings\n\n` +
         `**Toggles**\n` +
-        `\u{251C}${guildSettings.welcome_messages_enabled ? 
+        `\u{251C}${guildSettings.welcomeMessagesEnabled ? 
           '<:orb_toggle_b_enabled_flat:1222635342457339914>' : 
           '<:orb_disabled:1222634792777023688>'
         } Welcome messages\n` +
-        `\u{2514}${guildSettings.leave_messages_enabled ?
+        `\u{2514}${guildSettings.leaveMessagesEnabled ?
           '<:orb_toggle_b_enabled_flat:1222635342457339914>' :
           '<:orb_disabled:1222634792777023688>'
         } Leave messages`
@@ -272,8 +272,8 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
       switch (selection.customId) {
         case 'toggleWelcomingMessages':
           let selectionArray = selection.values[0].split('');
-          guildSettings.welcome_messages_enabled = parseInt(selectionArray[0], 10) > 0;
-          guildSettings.leave_messages_enabled = parseInt(selectionArray[1], 10) > 0;
+          guildSettings.welcomeMessagesEnabled = parseInt(selectionArray[0], 10) > 0;
+          guildSettings.leaveMessagesEnabled = parseInt(selectionArray[1], 10) > 0;
           await guildSettings.save();
 
           let boolWelcomeMessagesEnabled = parseInt(selectionArray[0]) > 0 ? 'enabled' : 'disabled';
@@ -309,7 +309,7 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
           validateGuildChannel(wChannel);
 
           if (wChannel.permissionsFor(interaction.client.user)?.has(Discord.PermissionFlagsBits.SendMessages)) {
-            guildSettings.welcome_channel_id = wChannel.id;
+            guildSettings.channelsWelcomeID = wChannel.id;
             await guildSettings.save();
 
             const saveContainer = new Discord.ContainerBuilder()
@@ -359,7 +359,7 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
                 case 'pChangeConfirm':
                   try {
                     wChannel.permissionOverwrites.create(interaction.client.user, { SendMessages: true });
-                    guildSettings.welcome_channel_id = wChannel.id;
+                    guildSettings.channelsWelcomeID = wChannel.id;
                     await guildSettings.save();
 
                     const saveContainer = new Discord.ContainerBuilder()
@@ -401,7 +401,7 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
           validateGuildChannel(lChannel);
 
           if (lChannel.permissionsFor(interaction.client.user)?.has(Discord.PermissionFlagsBits.SendMessages)) {
-            guildSettings.leave_channel_id = lChannel.id;
+            guildSettings.channelsLeaveID = lChannel.id;
             await guildSettings.save();
 
             const saveContainer = new Discord.ContainerBuilder()
@@ -451,7 +451,7 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
                 case 'pChangeConfirm':
                   try {
                     lChannel.permissionOverwrites.create(interaction.client.user, { SendMessages: true });
-                    guildSettings.leave_channel_id = lChannel.id;
+                    guildSettings.channelsLeaveID = lChannel.id;
                     await guildSettings.save();
 
                     const saveContainer = new Discord.ContainerBuilder()

@@ -3,11 +3,11 @@
 // Licensed under the AGPL-3.0 license as laid out in LICENSE
 
 import Discord, { PermissionFlagsBits } from "discord.js";
-import { find_server, find_server_settings } from "../../util/database/dbutils";
+import { find_server, findGuildSettings } from "../../util/database/dbutils";
 import { colors } from "../../../util/json/colors"
 import { emojis } from "../../../util/json/emojis"
 import { generate_token } from "../../util/generators"
-import { ServerSettings } from "../../util/database/models/ServerSettings";
+import { GuildSettings } from "../../util/database/models/GuildSettings";
 import { validateCommandInteractionInGuild, validateGuildChannel, validateNullNumber, validateNumber, validateRole, validateString } from "../../util/validate";
 import { getGuildIcon } from "../../util/helpers";
 import { RoleReward } from "../../types/interfaces";
@@ -184,29 +184,29 @@ export default {
 
   async execute(client: Discord.Client<true>, interaction: Discord.ChatInputCommandInteraction) {
     validateCommandInteractionInGuild(interaction);
-    await find_server_settings(interaction.guild.id);
+    await findGuildSettings(interaction.guild.id);
 
     switch (interaction.options.getSubcommandGroup() || interaction.options.getSubcommand()) {
       case `current`:
-        const server_settings = await find_server_settings(interaction.guild.id);
+        const server_settings = await findGuildSettings(interaction.guild.id);
 
-        let welcome_message_enabled = server_settings.welcome_messages_enabled ? 'enabled' : 'disabled';
-        let leave_message_enabled = server_settings.leave_messages_enabled ? 'enabled' : 'disabled';
+        let welcome_message_enabled = server_settings.welcomeMessagesEnabled ? 'enabled' : 'disabled';
+        let leave_message_enabled = server_settings.leaveMessagesEnabled ? 'enabled' : 'disabled';
         let welcome_message_channel = '';
         let leave_message_channel = '';
-        let welcome_message_text = server_settings.welcome_message;
-        let leave_message_text = server_settings.leave_message;
+        let welcome_message_text = server_settings.messagesWelcome;
+        let leave_message_text = server_settings.messagesLeave;
 
-        if (!server_settings.welcome_channel_id) {
+        if (!server_settings.channelsWelcomeID) {
           welcome_message_channel = '_No channel assigned_'
         } else {
-          welcome_message_channel = `<#${server_settings.welcome_channel_id}>`
+          welcome_message_channel = `<#${server_settings.channelsWelcomeID}>`
         }
 
-        if (!server_settings.leave_channel_id) {
+        if (!server_settings.channelsLeaveID) {
           leave_message_channel = '_No channel assigned_'
         } else {
-          leave_message_channel = `<#${server_settings.leave_channel_id}>`
+          leave_message_channel = `<#${server_settings.channelsLeaveID}>`
         }
 
         const settings_toggles_string_array = [
@@ -298,10 +298,10 @@ export default {
 
                   const not_verified_role = await interaction.guild.roles.create({ name: 'Not Verified', permissions: [] });
 
-                  await ServerSettings.update({
-                    captcha_verification_required: true,
-                    captcha_unverified_role_id: not_verified_role.id,
-                  }, { where: { server_id: interaction.guild.id } }
+                  await GuildSettings.update({
+                    captchaRequired: true,
+                    unverifiedRoleID: not_verified_role.id,
+                  }, { where: { dGuildID: interaction.guild.id } }
                   );
 
                   let failure_count = 0;
@@ -342,9 +342,9 @@ export default {
             break;
 
           case `disable`:
-            await ServerSettings.update({
-              captcha_verification_required: false,
-            }, { where: { server_id: interaction.guild.id } }
+            await GuildSettings.update({
+              captchaRequired: false,
+            }, { where: { dGuildID: interaction.guild.id } }
             );
 
 
@@ -488,7 +488,7 @@ export default {
       case `messages`:
         switch (interaction.options.getSubcommand()) {
           case `current`:
-            let current_server_settings = await find_server_settings(interaction.guild.id);
+            let current_server_settings = await findGuildSettings(interaction.guild.id);
 
             const current_message_settings_embed = new Discord.EmbedBuilder()
               .setColor(colors.color_default)
@@ -496,11 +496,11 @@ export default {
               .addFields(
                 {
                   name: 'Welcome message:',
-                  value: ` \u{2514} "${current_server_settings.welcome_message}"`,
+                  value: ` \u{2514} "${current_server_settings.messagesWelcome}"`,
                 },
                 {
                   name: 'Leave message:',
-                  value: ` \u{2514} "${current_server_settings.leave_message}"`,
+                  value: ` \u{2514} "${current_server_settings.messagesLeave}"`,
                 },
                 {
                   name: 'Placeholder words:',
@@ -515,9 +515,9 @@ export default {
             let welcome_message = interaction.options.getString('message');
             validateString(welcome_message);
 
-            await ServerSettings.update(
-              { welcome_message: welcome_message },
-              { where: { server_id: interaction.guild.id } }
+            await GuildSettings.update(
+              { messagesWelcome: welcome_message },
+              { where: { dGuildID: interaction.guild.id } }
             );
 
             const welcome_message_success_embed = new Discord.EmbedBuilder()
@@ -532,9 +532,9 @@ export default {
             let leave_message = interaction.options.getString('message');
             validateString(leave_message);
 
-            await ServerSettings.update(
-              { leave_message: leave_message },
-              { where: { server_id: interaction.guild.id } }
+            await GuildSettings.update(
+              { messagesLeave: leave_message },
+              { where: { dGuildID: interaction.guild.id } }
             );
 
             const leave_message_success_embed = new Discord.EmbedBuilder()

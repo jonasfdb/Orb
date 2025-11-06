@@ -3,22 +3,22 @@
 // Licensed under the AGPL-3.0 license as laid out in LICENSE
 
 import Discord, { ColorResolvable, Events } from "discord.js";
-import { find_server_user, find_server, find_user } from "../util/database/dbutils";
+import { findGuildMember, find_server, findUser } from "../util/database/dbutils";
 import { validateMessageInDM, validateMessageInGuild } from "../util/validate";
 import { RoleReward } from "../types/interfaces";
 
 async function messageOnGuild(message: Discord.Message): Promise<void> {
   validateMessageInGuild(message);
-  const server_user_data = await find_server_user(message.author.id, message.guild.id);
+  const server_user_data = await findGuildMember(message.author.id, message.guild.id);
   const server = await find_server(message.guild.id);
-  const user = await find_user(message.author.id);
+  const user = await findUser(message.author.id);
 
   const random_xp = Math.floor(Math.random() * 9) + 3; // Min 3, Max 12 (mee6 has max 30, this is to balance because orb has no cooldown)
 
   try {
-    server_user_data.current_xp = server_user_data.current_xp + random_xp;
-    server_user_data.total_xp = server_user_data.total_xp + random_xp;
-    user.lifetime_xp = user.lifetime_xp + random_xp;
+    server_user_data.currentXP = server_user_data.currentXP + random_xp;
+    server_user_data.totalXP = server_user_data.totalXP + random_xp;
+    user.lifetimeXP = user.lifetimeXP + random_xp;
 
     await server_user_data.save();
     await user.save();
@@ -27,8 +27,8 @@ async function messageOnGuild(message: Discord.Message): Promise<void> {
     throw error;
   }
 
-  if ((server_user_data.current_xp + random_xp) > server_user_data.next_required_xp) {
-    const next_level = server_user_data.current_level + 1;
+  if ((server_user_data.currentXP + random_xp) > server_user_data.requiredXPForNextLevel) {
+    const next_level = server_user_data.currentLevel + 1;
 
     let rewardsArray: RoleReward[] = [];
     let roleRewardsToGive: string[] = [];
@@ -36,9 +36,9 @@ async function messageOnGuild(message: Discord.Message): Promise<void> {
 
     let user_profile_picture = message.author.displayAvatarURL({ extension: 'webp' });
     let levelup_embed = new Discord.EmbedBuilder()
-      .setColor(user.profile_color as ColorResolvable)
+      .setColor(user.profileColor as ColorResolvable)
       .setAuthor({ name: `${message.author.username} leveled up!`, iconURL: user_profile_picture })
-      .setTitle(`Level ${server_user_data.current_level}   \u{22D9}   **Level ${server_user_data.current_level + 1}**  \u{1F389}`)
+      .setTitle(`Level ${server_user_data.currentLevel}   \u{22D9}   **Level ${server_user_data.currentLevel + 1}**  \u{1F389}`)
 
     try {
       rewardsArray = server.role_rewards_level_string ? JSON.parse(server.role_rewards_level_string) : [];
@@ -72,9 +72,9 @@ async function messageOnGuild(message: Discord.Message): Promise<void> {
     await message.channel.send({ embeds: [levelup_embed] });
 
     server_user_data.set({
-      current_level: server_user_data.current_level + 1,
-      current_xp: 1,
-      next_required_xp: 5 * ((server_user_data.current_level + 1) ** 2) + (50 * (server_user_data.current_level + 1)) + 100   
+      currentLevel: server_user_data.currentLevel + 1,
+      currentXP: 1,
+      requiredXPForNextLevel: 5 * ((server_user_data.currentLevel + 1) ** 2) + (50 * (server_user_data.currentLevel + 1)) + 100   
       //  mee6 formula = 5 * (currLvl ^ 2) + (50 * currLvl) + 100, add - currXP at end to check how much xp needed still
     })
     await server_user_data.save();

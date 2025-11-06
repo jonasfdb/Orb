@@ -5,7 +5,7 @@
 import Discord from "discord.js";
 import { emojis } from "../../../util/json/emojis";
 import { colors } from "../../../util/json/colors";
-import { find_server_user } from "../../util/database/dbutils";
+import { findGuildMember } from "../../util/database/dbutils";
 import { validateCommandInteractionInGuild, validateInteractionCallbackResponse, validateNumber } from "../../util/validate";
 
 interface UserCooldowns {
@@ -65,7 +65,7 @@ export default {
   async execute(client: Discord.Client<true>, interaction: Discord.ChatInputCommandInteraction) {
     validateCommandInteractionInGuild(interaction);
 
-    let user = await find_server_user(interaction.user.id, interaction.guild.id);
+    let user = await findGuildMember(interaction.user.id, interaction.guild.id);
     let user_cooldowns: UserCooldowns = JSON.parse(user.cooldowns);
 
     let coinflip_max_uses = 10;
@@ -85,7 +85,7 @@ export default {
         bet = interaction.options.getInteger('bet');
         validateNumber(bet);
 
-        if (bet > user.current_money) {
+        if (bet > user.currentMoney) {
           await abort_game_no_funds('Coinflip');
           return;
         }
@@ -114,7 +114,7 @@ export default {
             .setFooter({ text: `${uses_left}/${coinflip_max_uses} uses left.` });
           await interaction.reply({ embeds: [emb_coinflip_result] });
 
-          await user.update({ current_money: user.current_money + (bet * 2) });
+          await user.update({ currentMoney: user.currentMoney + (bet * 2) });
         } else {
           const emb_coinflip_result = new Discord.EmbedBuilder()
             .setColor(colors.color_default)
@@ -123,7 +123,7 @@ export default {
             .setFooter({ text: `${uses_left}/${coinflip_max_uses} uses left.` });
           await interaction.reply({ embeds: [emb_coinflip_result] });
 
-          await user.update({ current_money: user.current_money - bet });
+          await user.update({ currentMoney: user.currentMoney - bet });
         }
         break;
 
@@ -131,7 +131,7 @@ export default {
         bet = interaction.options.getInteger('bet');
         validateNumber(bet);
 
-        if (bet > user.current_money) {
+        if (bet > user.currentMoney) {
           await abort_game_no_funds('Slots');
           return;
         }
@@ -204,14 +204,14 @@ export default {
 
         // 5) Reply and update money
         await interaction.reply({ embeds: [slots_embed] });
-        await user.update({ current_money: user.current_money + payout });
+        await user.update({ currentMoney: user.currentMoney + payout });
         break;
 
       case 'high-low':
         bet = interaction.options.getInteger('bet');
         validateNumber(bet);
 
-        if (bet > user.current_money) {
+        if (bet > user.currentMoney) {
           await abort_game_no_funds('High-low');
           return;
         }
@@ -328,7 +328,7 @@ export default {
                     .setColor(colors.color_success)
                     .setFooter({ text: `${uses_left}/${highlow_max_uses} uses left.` });
 
-                  await user.update({ current_money: user.current_money + (bet * highlow_multiplier) });
+                  await user.update({ currentMoney: user.currentMoney + (bet * highlow_multiplier) });
 
                   await highlow_confirmation.editReply({ embeds: [emb_highlow_cashout], components: [] });
                 } else {
@@ -347,10 +347,10 @@ export default {
 
                   await highlow_confirmation.editReply({ embeds: [emb_highlow_loss], components: [] });
 
-                  if (user.current_money < (bet * highlow_multiplier)) {
-                    await user.update({ current_money: 0 });
+                  if (user.currentMoney < (bet * highlow_multiplier)) {
+                    await user.update({ currentMoney: 0 });
                   } else {
-                    await user.update({ current_money: user.current_money - (bet * highlow_multiplier) });
+                    await user.update({ currentMoney: user.currentMoney - (bet * highlow_multiplier) });
                   }
                 }
               } catch (error) {

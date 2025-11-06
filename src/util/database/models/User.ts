@@ -4,35 +4,35 @@
 
 import { Model, DataTypes, Sequelize, InferAttributes, InferCreationAttributes } from 'sequelize';
 
-export class GlobalUser extends Model<InferAttributes<GlobalUser>, InferCreationAttributes<GlobalUser>> {
-  declare user_id: string;
-  declare orb_uuid: string;
-  declare user_bot_status: number;
-  declare profile_color: string;
-  declare lifetime_xp: number;
+export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
+  declare UUID: string;
+  declare dUserID: string;
+  declare userStatus: number;
+  declare profileColor: string;
+  declare lifetimeXP: number;
 }
 
 export function initUserModel(sequelize: Sequelize) {
-  GlobalUser.init(
+  User.init(
     {
-      orb_uuid: {
+      UUID: {
         type: DataTypes.STRING,
         allowNull: false
       },
-      user_id: {
+      dUserID: {
         type: DataTypes.STRING,
         allowNull: false,
         primaryKey: true
       },
-      user_bot_status: {
+      userStatus: {
         type: DataTypes.INTEGER,
         defaultValue: 0
       },
-      profile_color: {
+      profileColor: {
         type: DataTypes.STRING,
         defaultValue: '5d20a1'
       },
-      lifetime_xp: {
+      lifetimeXP: {
         type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 1
@@ -40,8 +40,8 @@ export function initUserModel(sequelize: Sequelize) {
     },
     {
       sequelize,
-      modelName: 'GlobalUser',
-      tableName: 'global_user',
+      modelName: 'User',
+      tableName: 'user',
       timestamps: false,
     }
   );

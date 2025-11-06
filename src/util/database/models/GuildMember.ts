@@ -4,56 +4,56 @@
 
 import { Model, DataTypes, Sequelize, InferAttributes, InferCreationAttributes } from 'sequelize';
 
-export class ServerUser extends Model<InferAttributes<ServerUser>, InferCreationAttributes<ServerUser>> {
-  declare orb_uuid: string;
-  declare server_id: string;
-  declare user_id: string;
-  declare current_money: number;
-  declare current_level: number;
-  declare current_xp: number;
-  declare total_xp:number;
-  declare next_required_xp: number;
-  declare is_verified: boolean;
+export class GuildMember extends Model<InferAttributes<GuildMember>, InferCreationAttributes<GuildMember>> {
+  declare UUID: string;
+  declare dGuildID: string;
+  declare dUserID: string;
+  declare currentMoney: number;
+  declare currentLevel: number;
+  declare currentXP: number;
+  declare totalXP:number;
+  declare requiredXPForNextLevel: number;
+  declare verified: boolean;
   declare cooldowns: string;
 }
 
-export function initServerUserModel(sequelize: Sequelize) {
-  ServerUser.init(
+export function initGuildMemberModel(sequelize: Sequelize) {
+  GuildMember.init(
     {
-      orb_uuid: {
+      UUID: {
         type: DataTypes.STRING,
         allowNull: false,
         primaryKey: true
       },
-      server_id: {
+      dGuildID: {
         type: DataTypes.STRING,
         allowNull: false
       },
-      user_id: {
+      dUserID: {
         type: DataTypes.STRING,
         allowNull: false
       },
-      current_money: {
+      currentMoney: {
         type: DataTypes.INTEGER,
         defaultValue: 1000
       },
-      current_level: {
+      currentLevel: {
         type: DataTypes.INTEGER,
         defaultValue: 0
       },
-      current_xp: {
+      currentXP: {
         type: DataTypes.INTEGER,
         defaultValue: 1
       },
-      total_xp: {
+      totalXP: {
         type: DataTypes.INTEGER,
         defaultValue: 1
       },
-      next_required_xp: {
+      requiredXPForNextLevel: {
         type: DataTypes.INTEGER,
         defaultValue: 100
       },
-      is_verified: {
+      verified: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
       },
@@ -69,8 +69,8 @@ export function initServerUserModel(sequelize: Sequelize) {
     },
     {
       sequelize,
-      modelName: 'ServerUser',
-      tableName: 'server_user',
+      modelName: 'GuildMember',
+      tableName: 'guildMember',
       timestamps: false,
     }
   );
