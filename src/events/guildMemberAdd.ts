@@ -6,7 +6,7 @@ import Discord, { Events, ButtonStyle, TextInputStyle, GuildMember, RoleResolvab
 import { findGuildSettings } from "../util/database/dbutils";
 import { colors } from "../../util/json/colors";
 import { emojis } from "../../util/json/emojis";
-import { generate_captcha } from "../util/generateCaptcha";
+import { generateCaptcha } from "../util/generateCaptcha";
 import { ulid } from "ulid";
 
 export default {
@@ -31,7 +31,7 @@ export default {
           .setLabel('Get new captcha')
           .setStyle(ButtonStyle.Secondary)
 
-        const captcha = await generate_captcha();
+        const captcha = await generateCaptcha();
         const captcha_attachment = captcha.file;
         const captcha_attachment_filename = captcha.attachment;
         const captcha_text = captcha.solution;

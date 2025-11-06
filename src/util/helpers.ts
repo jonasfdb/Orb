@@ -7,7 +7,7 @@ import Discord from "discord.js";
 export function getGuildIcon(interaction: Discord.ChatInputCommandInteraction): string {
   // validateCommandInteractionInGuild(interaction);
   // validation not needed because this function is only called after chat input command has already been validated in handler
-  let guild_icon = interaction.guild?.iconURL({ extension: "png" }) ?? interaction.client.user.avatarURL({ extension: "png" });
+  let guildIcon = interaction.guild?.iconURL({ extension: "png" }) ?? interaction.client.user.avatarURL({ extension: "png" });
 
-  return guild_icon as string;
+  return guildIcon as string;
 }

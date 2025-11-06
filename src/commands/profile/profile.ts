@@ -6,7 +6,7 @@ import Discord from "discord.js";
 import { colors } from "../../../util/json/colors";
 import { emojis } from "../../../util/json/emojis";
 import { validateCommandInteractionInGuild } from "../../util/validate";
-import { out_of_order } from "../../util/outOfOrder";
+import { outOfOrder } from "../../util/outOfOrder";
 
 export default {
   data: new Discord.SlashCommandBuilder()
@@ -20,7 +20,7 @@ export default {
   async execute(client: Discord.Client<true>, interaction: Discord.ChatInputCommandInteraction) {
     validateCommandInteractionInGuild(interaction);
 
-    out_of_order(interaction, 'Profiles are being reworked at the moment.');
+    outOfOrder(interaction, 'Profiles are being reworked at the moment.');
     return;
   }
 }

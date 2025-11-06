@@ -3,7 +3,7 @@
 // Licensed under the AGPL-3.0 license as laid out in LICENSE
 
 import { Events, EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle, Interaction } from "discord.js";
-import { generate_error_id } from "../util/generators";
+import { generateErrorID } from "../util/generators";
 import { emojis } from "../../util/json/emojis";
 import { colors } from "../../util/json/colors";
 
@@ -22,7 +22,7 @@ export default {
       try {
         await command.execute(interaction.client, interaction);
       } catch (error: unknown) {
-        const error_code = generate_error_id();
+        const error_code = generateErrorID();
 
         try {
           console.warn(`New error added to error log at ID ${error_code}.`);

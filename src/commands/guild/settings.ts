@@ -6,12 +6,12 @@ import Discord, { PermissionFlagsBits } from "discord.js";
 import { find_server, findGuildSettings } from "../../util/database/dbutils";
 import { colors } from "../../../util/json/colors"
 import { emojis } from "../../../util/json/emojis"
-import { generate_token } from "../../util/generators"
+import { generateToken } from "../../util/generators"
 import { GuildSettings } from "../../util/database/models/GuildSettings";
 import { validateCommandInteractionInGuild, validateGuildChannel, validateNullNumber, validateNumber, validateRole, validateString } from "../../util/validate";
 import { getGuildIcon } from "../../util/helpers";
 import { RoleReward } from "../../types/interfaces";
-import { out_of_order } from "../../util/outOfOrder";
+import { outOfOrder } from "../../util/outOfOrder";
 
 export default {
   data: new Discord.SlashCommandBuilder()
@@ -407,9 +407,9 @@ export default {
               return;
             }
 
-            let reward_token = generate_token(3);
+            let reward_token = generateToken(3);
             while (rewardsArray.some((r: RoleReward) => r.token === reward_token)) {
-              reward_token = generate_token(3);
+              reward_token = generateToken(3);
             }
 
             rewardsArray.push({
@@ -482,7 +482,7 @@ export default {
         break;
 
       case 'channels':
-        out_of_order(interaction, 'This setting has been moved to /configure.');
+        outOfOrder(interaction, 'This setting has been moved to /configure.');
         break;
 
       case `messages`:
@@ -552,7 +552,7 @@ export default {
         break;
 
       case `toggles`:
-        out_of_order(interaction, 'This command was moved to /configure.');
+        outOfOrder(interaction, 'This command was moved to /configure.');
         break;
     }
   }

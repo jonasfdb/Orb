@@ -2,23 +2,23 @@
 // Copyright (C) 2025 Jonas Frank de Buhr (jonasfdb)
 // Licensed under the AGPL-3.0 license as laid out in LICENSE
 
-export function generate_error_id(): string {
+export function generateErrorID(): string {
   const timestamp = Math.floor(((Date.now() / 1000) / 60)).toString(32);
-  const randomString = generate_random_string(5);
-  const error_id = `err-${timestamp}-${randomString}`;
+  const randomString = generateLowercaseString(5);
+  const id = `err-${timestamp}-${randomString}`;
 
-  return error_id;
+  return id;
 }
 
-export function generate_orb_id(): string {
+export function generateOrbUUID(): string {
   const timestamp = Date.now().toString(32);
-  const randomString = generate_random_string(12);
-  const orb_id = `orb-${timestamp}-${randomString}`;
+  const randomString = generateLowercaseString(12);
+  const id = `orb-${timestamp}-${randomString}`;
 
-  return orb_id;
+  return id;
 }
 
-export function generate_token(length: number): string {
+export function generateToken(length: number): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   let token: string = '';
 
@@ -33,26 +33,26 @@ export function generate_token(length: number): string {
   return token;
 }
 
-export function generate_captcha_string(length: number): string {
-  let r_string: string = '';
+export function generateUppercaseString(length: number): string {
+  let rString: string = '';
   const characters = 'ABCDEFGHIJKLMNPQRSTUVWXYZ123456789';
 
   for (let i = 0; i < length; i++) {
     const randomIndex = Math.floor(Math.random() * characters.length);
-    r_string += characters.charAt(randomIndex);
+    rString += characters.charAt(randomIndex);
   }
 
-  return r_string;
+  return rString;
 }
 
-export function generate_random_string(length: number): string {
-  let r_string: string = '';
+export function generateLowercaseString(length: number): string {
+  let rString: string = '';
   const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
 
   for (let i = 0; i < length; i++) {
     const randomIndex = Math.floor(Math.random() * characters.length);
-    r_string += characters.charAt(randomIndex);
+    rString += characters.charAt(randomIndex);
   }
 
-  return r_string;
+  return rString;
 }
