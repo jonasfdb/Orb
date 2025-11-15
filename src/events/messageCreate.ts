@@ -43,8 +43,8 @@ async function messageOnGuild(message: Discord.Message): Promise<void> {
     try {
       rewardsArray = server.roleRewardsString ? JSON.parse(server.roleRewardsString) : [];
       rewardsArray.forEach(reward => {
-        if (reward.min_level === next_level) { roleRewardsToGive.push(reward.role_id) };        // reward to give
-        if (reward.max_level === next_level) { roleRewardsToTake.push(reward.role_id) };        // reward to remove
+        if (reward.minLevel === next_level) { roleRewardsToGive.push(reward.roleID) };        // reward to give
+        if (reward.maxLevel === next_level) { roleRewardsToTake.push(reward.roleID) };        // reward to remove
       })
     } catch {
       rewardsArray = [];

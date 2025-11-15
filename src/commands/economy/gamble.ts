@@ -66,19 +66,19 @@ export default {
     validateCommandInteractionInGuild(interaction);
 
     let user = await findGuildMember(interaction.user.id, interaction.guild.id);
-    let user_cooldowns: UserCooldowns = JSON.parse(user.cooldowns);
+    let userCooldowns: UserCooldowns = JSON.parse(user.cooldowns);
 
-    let coinflip_max_uses = 10;
-    let coinflip_timeout_interval_ms = 1000 * 60 * 10;
+    let maxUsesCoinflip = 10;
+    let timeoutIntervalCoinflip = 1000 * 60 * 10; // in ms
 
-    let slots_max_uses = 10;
-    let slots_timeout_interval_ms = 1000 * 60 * 10;
+    let maxUsesSlots = 10;
+    let timeoutIntervalSlots = 1000 * 60 * 10;
 
-    let highlow_max_uses = 5;
-    let highlow_timeout_interval_ms = 1000 * 60 * 60 * 3;
+    let maxUsesHighlow = 5;
+    let timeoutIntervalHighlow = 1000 * 60 * 60 * 3;
 
     let bet;
-    let uses_left;
+    let usesLeft;
 
     switch (interaction.options.getSubcommandGroup() || interaction.options.getSubcommand()) {
       case 'coinflip':
@@ -90,18 +90,18 @@ export default {
           return;
         }
 
-        if (user_cooldowns.coinflip.last_use_timestamp > (Date.now() - coinflip_timeout_interval_ms)) {
-          await abort_game_timeout(user_cooldowns.coinflip.last_use_timestamp + coinflip_timeout_interval_ms - Date.now());
+        if (userCooldowns.coinflip.last_use_timestamp > (Date.now() - timeoutIntervalCoinflip)) {
+          await abort_game_timeout(userCooldowns.coinflip.last_use_timestamp + timeoutIntervalCoinflip - Date.now());
           return;
         } else {
-          user_cooldowns.coinflip.uses_left = user_cooldowns.coinflip.uses_left - 1;
-          await user.update({ cooldowns: JSON.stringify(user_cooldowns) });
-          uses_left = user_cooldowns.coinflip.uses_left;
+          userCooldowns.coinflip.uses_left = userCooldowns.coinflip.uses_left - 1;
+          await user.update({ cooldowns: JSON.stringify(userCooldowns) });
+          usesLeft = userCooldowns.coinflip.uses_left;
 
-          if (user_cooldowns.coinflip.uses_left < 1) {
-            user_cooldowns.coinflip.uses_left = coinflip_max_uses;
-            user_cooldowns.coinflip.last_use_timestamp = Date.now();
-            await user.update({ cooldowns: JSON.stringify(user_cooldowns) });
+          if (userCooldowns.coinflip.uses_left < 1) {
+            userCooldowns.coinflip.uses_left = maxUsesCoinflip;
+            userCooldowns.coinflip.last_use_timestamp = Date.now();
+            await user.update({ cooldowns: JSON.stringify(userCooldowns) });
           }
         }
 
@@ -111,7 +111,7 @@ export default {
             .setColor(colors.default)
             .setTitle(`\u{1F389} - You won!`)
             .setDescription(`The coin landed on **${coinflip_result}**.\nYou won **${bet * 2}** ${emojis.currency}!`)
-            .setFooter({ text: `${uses_left}/${coinflip_max_uses} uses left.` });
+            .setFooter({ text: `${usesLeft}/${maxUsesCoinflip} uses left.` });
           await interaction.reply({ embeds: [emb_coinflip_result] });
 
           await user.update({ currentMoney: user.currentMoney + (bet * 2) });
@@ -120,7 +120,7 @@ export default {
             .setColor(colors.default)
             .setTitle(`\u{1FAC2} - You lost...`)
             .setDescription(`The coin landed on **${coinflip_result}**.\nYou lost **${bet}** ${emojis.currency}.`)
-            .setFooter({ text: `${uses_left}/${coinflip_max_uses} uses left.` });
+            .setFooter({ text: `${usesLeft}/${maxUsesCoinflip} uses left.` });
           await interaction.reply({ embeds: [emb_coinflip_result] });
 
           await user.update({ currentMoney: user.currentMoney - bet });
@@ -136,18 +136,18 @@ export default {
           return;
         }
 
-        if (user_cooldowns.slots.last_use_timestamp > (Date.now() - slots_timeout_interval_ms)) {
-          await abort_game_timeout(user_cooldowns.slots.last_use_timestamp + slots_timeout_interval_ms - Date.now());
+        if (userCooldowns.slots.last_use_timestamp > (Date.now() - timeoutIntervalSlots)) {
+          await abort_game_timeout(userCooldowns.slots.last_use_timestamp + timeoutIntervalSlots - Date.now());
           return;
         } else {
-          user_cooldowns.slots.uses_left = user_cooldowns.slots.uses_left - 1;
-          await user.update({ cooldowns: JSON.stringify(user_cooldowns) });
-          uses_left = user_cooldowns.slots.uses_left;
+          userCooldowns.slots.uses_left = userCooldowns.slots.uses_left - 1;
+          await user.update({ cooldowns: JSON.stringify(userCooldowns) });
+          usesLeft = userCooldowns.slots.uses_left;
 
-          if (user_cooldowns.slots.uses_left < 1) {
-            user_cooldowns.slots.uses_left = slots_max_uses;
-            user_cooldowns.slots.last_use_timestamp = Date.now();
-            await user.update({ cooldowns: JSON.stringify(user_cooldowns) });
+          if (userCooldowns.slots.uses_left < 1) {
+            userCooldowns.slots.uses_left = maxUsesSlots;
+            userCooldowns.slots.last_use_timestamp = Date.now();
+            await user.update({ cooldowns: JSON.stringify(userCooldowns) });
           }
         }
 
@@ -200,7 +200,7 @@ export default {
           .setDescription(desc + `\n\n` +
             grid.map(row => row.map(s => s.emoji).join(' ')).join('\n') +
             `\n\n`)
-          .setFooter({ text: `${uses_left}/${slots_max_uses} uses left.` })
+          .setFooter({ text: `${usesLeft}/${maxUsesSlots} uses left.` })
 
         // 5) Reply and update money
         await interaction.reply({ embeds: [slots_embed] });
@@ -216,18 +216,18 @@ export default {
           return;
         }
 
-        if (user_cooldowns.highlow.last_use_timestamp > (Date.now() - highlow_timeout_interval_ms)) {
-          await abort_game_timeout(user_cooldowns.highlow.last_use_timestamp + highlow_timeout_interval_ms - Date.now());
+        if (userCooldowns.highlow.last_use_timestamp > (Date.now() - timeoutIntervalHighlow)) {
+          await abort_game_timeout(userCooldowns.highlow.last_use_timestamp + timeoutIntervalHighlow - Date.now());
           return;
         } else {
-          user_cooldowns.highlow.uses_left = user_cooldowns.highlow.uses_left - 1;
-          await user.update({ cooldowns: JSON.stringify(user_cooldowns) });
-          uses_left = user_cooldowns.highlow.uses_left;
+          userCooldowns.highlow.uses_left = userCooldowns.highlow.uses_left - 1;
+          await user.update({ cooldowns: JSON.stringify(userCooldowns) });
+          usesLeft = userCooldowns.highlow.uses_left;
 
-          if (user_cooldowns.highlow.uses_left < 1) {
-            user_cooldowns.highlow.uses_left = highlow_max_uses;
-            user_cooldowns.highlow.last_use_timestamp = Date.now();
-            await user.update({ cooldowns: JSON.stringify(user_cooldowns) });
+          if (userCooldowns.highlow.uses_left < 1) {
+            userCooldowns.highlow.uses_left = maxUsesHighlow;
+            userCooldowns.highlow.last_use_timestamp = Date.now();
+            await user.update({ cooldowns: JSON.stringify(userCooldowns) });
           }
         }
 
@@ -256,7 +256,7 @@ export default {
             `Multiplier: ${highlow_multiplier}x -> Cash out ${bet * highlow_multiplier} ${emojis.currency}`
           )
           .setColor(colors.default)
-          .setFooter({ text: `${uses_left}/${highlow_max_uses} uses left.` });
+          .setFooter({ text: `${usesLeft}/${maxUsesHighlow} uses left.` });
 
         let highlow_start_message = await interaction.reply({ embeds: [emb_highlow_start], components: [row_highlow_start], withResponse: true });
         validateInteractionCallbackResponse(highlow_start_message);
@@ -301,7 +301,7 @@ export default {
                   `Multiplier: ${highlow_multiplier}x -> Cash out ${bet * highlow_multiplier} ${emojis.currency}`
                 )
                 .setColor(colors.default)
-                .setFooter({ text: `${uses_left}/${highlow_max_uses} uses left.` });
+                .setFooter({ text: `${usesLeft}/${maxUsesHighlow} uses left.` });
 
               let highlow_response = await highlow_confirmation.editReply({ embeds: [emb_highlow_game], components: [row_highlow] });
               // console.log(highlow_response);
@@ -326,7 +326,7 @@ export default {
                       `Numbers: **${highlow_last_numbers.join(` > `)}**\nYou had ${highlow_iteration} correct guesses.`
                     )
                     .setColor(colors.success)
-                    .setFooter({ text: `${uses_left}/${highlow_max_uses} uses left.` });
+                    .setFooter({ text: `${usesLeft}/${maxUsesHighlow} uses left.` });
 
                   await user.update({ currentMoney: user.currentMoney + (bet * highlow_multiplier) });
 
@@ -343,7 +343,7 @@ export default {
                       `Numbers: **${highlow_last_numbers.join(` > `)} > ${highlow_random_number}**\nYou had ${highlow_iteration} correct guesses.`
                     )
                     .setColor(colors.error)
-                    .setFooter({ text: `${uses_left}/${highlow_max_uses} uses left.` });
+                    .setFooter({ text: `${usesLeft}/${maxUsesHighlow} uses left.` });
 
                   await highlow_confirmation.editReply({ embeds: [emb_highlow_loss], components: [] });
 

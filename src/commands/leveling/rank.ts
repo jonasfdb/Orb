@@ -20,25 +20,25 @@ export default {
   async execute(client: Discord.Client<true>, interaction: Discord.ChatInputCommandInteraction) {
     validateCommandInteractionInGuild(interaction);
 
-    let rank_target_member = interaction.options.getMember("user") ?? interaction.member;
-    validateGuildMember(rank_target_member);
+    let rankTargetMember = interaction.options.getMember("user") ?? interaction.member;
+    validateGuildMember(rankTargetMember);
 
-    const server_user = await findGuildMember(rank_target_member.id, rank_target_member.guild.id);
+    const dbGuildMember = await findGuildMember(rankTargetMember.id, rankTargetMember.guild.id);
 
-    const all_members = await GuildMember.findAll({
+    const allMembers = await GuildMember.findAll({
       order: [['total_xp', 'DESC']],
       where: { dGuildID: interaction.guild.id },
     })
-    let all_members_ids: string[] = [];
-    all_members.forEach(member => {
-      all_members_ids.push(member.dUserID)
+    let allMembersIDArray: string[] = [];
+    allMembers.forEach(member => {
+      allMembersIDArray.push(member.dUserID)
     })
-    const member_rank = all_members_ids.indexOf(rank_target_member.id) + 1;
-    const member_avatar = rank_target_member.displayAvatarURL({ extension: 'webp' });
+    const memberRank = allMembersIDArray.indexOf(rankTargetMember.id) + 1;
+    const memberAvatar = rankTargetMember.displayAvatarURL({ extension: 'webp' });
 
     // there used to be a graphical progress bar here using canvas, but I removed that when I switched to TS and also changed the logo
     // it will be there eventually, I have to just learn canvas more to get the look I want, like the logo
-    let fraction = server_user.currentXP / server_user.requiredXPForNextLevel;
+    let fraction = dbGuildMember.currentXP / dbGuildMember.requiredXPForNextLevel;
     let progressbar = [];
     for (let i = 0; i < 24; i++) {
       if ((i / 24) < fraction) {
@@ -48,18 +48,18 @@ export default {
       }
     }
 
-    let messages_until_levelup = Math.round((server_user.requiredXPForNextLevel - server_user.currentXP) / 6.5);
+    let messagesUntilLevelup = Math.round((dbGuildMember.requiredXPForNextLevel - dbGuildMember.currentXP) / 6.5);
 
-    const rank_embed = new Discord.EmbedBuilder()
+    const embRank = new Discord.EmbedBuilder()
       .setColor(colors.default)
-      .setAuthor({ name: `${rank_target_member.nickname || rank_target_member.displayName}`, iconURL: member_avatar })
+      .setAuthor({ name: `${rankTargetMember.nickname || rankTargetMember.displayName}`, iconURL: memberAvatar })
       .addFields({
-        name: `Level **${server_user.currentLevel}** - ${server_user.currentXP.toString()} / ${server_user.requiredXPForNextLevel.toString()} XP - Rank **${member_rank}**`,
+        name: `Level **${dbGuildMember.currentLevel}** - ${dbGuildMember.currentXP.toString()} / ${dbGuildMember.requiredXPForNextLevel.toString()} XP - Rank **${memberRank}**`,
         value: `[${progressbar.join('')}]`,
         inline: false
       })
-      .setFooter({ text: `About ${messages_until_levelup} messages left to next level.` })
+      .setFooter({ text: `About ${messagesUntilLevelup} messages left to next level.` })
 
-    interaction.reply({ embeds: [rank_embed], /* files: [progressbar_image]*/ });
+    interaction.reply({ embeds: [embRank], /* files: [progressbar_image]*/ });
   }
 }
