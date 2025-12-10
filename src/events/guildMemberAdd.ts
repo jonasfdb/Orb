@@ -189,21 +189,21 @@ export default {
       return;
     }
 
-    let welcome_message_prototype = server.messagesWelcome;
-    let welcome_message = welcome_message_prototype.replace(/USER/g, joined_user.username).replace(/SERVER/g, member.guild.name)
+    let pJoinMessage = server.messagesWelcome;
+    let joinMessage = pJoinMessage.replace(/USER/g, joined_user.username).replace(/SERVER/g, member.guild.name)
 
-    const guild_member_add_embed = new Discord.EmbedBuilder()
+    const embMemberJoin = new Discord.EmbedBuilder()
       .setColor(colors.default)
       .setAuthor({ name: `${joined_user.username} joined!`, iconURL: joined_user_icon })
       .setDescription(
-        `${welcome_message}\n\nNew user ${joined_user.username}\n` +
+        `${joinMessage}\n\nNew user ${joined_user.username}\n` +
         `\u{2514} User ID: ${joined_user.id}\n` +
         `\u{2514} Account age: **${Math.floor((Date.now() - joined_user.createdAt.getTime()) / 1000 / 60 / 60 / 24)} days**`)
       .setFooter({ text: `Member count: ${member.guild.memberCount}` })
 
-    const join_message_channel = member.guild.channels.cache.get(server.channelsWelcomeID);
-    if (join_message_channel && join_message_channel.isTextBased()) {
-      await join_message_channel.send({ embeds: [guild_member_add_embed] });
+    const messageChannel = member.guild.channels.cache.get(server.channelsWelcomeID);
+    if (messageChannel && messageChannel.isTextBased()) {
+      await messageChannel.send({ embeds: [embMemberJoin] });
     } // If no join message, just do nothing
     // console.log(`Welcomed new member ${joined_user.id} on server ${member.guild.id}`);
   },

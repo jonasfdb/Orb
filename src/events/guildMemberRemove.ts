@@ -18,18 +18,18 @@ export default {
       return;
     }
 
-    let leave_message_prototype = server.messagesLeave;
-    let leave_message = leave_message_prototype.replace(/USER/g, left_user.username).replace(/SERVER/g, member.guild.name)
+    let pLeaveMessage = server.messagesLeave;
+    let leaveMessage = pLeaveMessage.replace(/USER/g, left_user.username).replace(/SERVER/g, member.guild.name)
 
-    const guild_member_leave_embed = new Discord.EmbedBuilder()
+    const embMemberLeave = new Discord.EmbedBuilder()
       .setColor(colors.default)
       .setAuthor({ name: `${left_user.username} left`, iconURL: left_user_icon })
-      .setDescription(`${leave_message}`)
+      .setDescription(`${leaveMessage}`)
       .setFooter({ text: `Member count: ${member.guild.memberCount}` })
 
-    const leave_message_channel = await member.guild.channels.cache.get(server.channelsLeaveID);
-    if (leave_message_channel && leave_message_channel.isTextBased()) {
-      await leave_message_channel.send({ embeds: [guild_member_leave_embed] });
+    const messageChannel = member.guild.channels.cache.get(server.channelsLeaveID);
+    if (messageChannel && messageChannel.isTextBased()) {
+      await messageChannel.send({ embeds: [embMemberLeave] });
     }
     // if no leave message, do nothing
     // console.log(`Member ${left_user.id} on server ${member.guild.id} left`);
