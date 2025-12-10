@@ -30,7 +30,7 @@ export default {
     let seconds = Math.floor(client.uptime / 1000) % 60;
     const uptimeString = `${days}d ${hours}h ${minutes}m ${seconds}s`;
 
-    let websocket_ping = Math.floor(client.ws.ping) < 1 ? `?` : Math.ceil(client.ws.ping);
+    let wsPing = Math.floor(client.ws.ping) < 1 ? `?` : Math.ceil(client.ws.ping);
 
     const embPing = new Discord.EmbedBuilder()
       .setColor(colors.default)
@@ -41,7 +41,7 @@ export default {
         {
           name: "Ping values",
           value: `\n\u{251C} **${received - sent.createdAt.getTime()} ms** Discord > Bot` +
-            `\n\u{251C} **${websocket_ping} ms** Bot > Discord API` +
+            `\n\u{251C} **${wsPing} ms** Bot > Discord API` +
             `\n\u{2514} **${Math.ceil(client.ws.ping) + (received - sent.createdAt.getTime()) + 1} ms total** `,
           inline: false,
         }

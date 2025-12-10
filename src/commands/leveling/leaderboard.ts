@@ -18,46 +18,46 @@ export default {
     await interaction.deferReply()
 
     let e = 0;
-    let leaderboard_string_array = [];
-    let leaderboard_embed = new Discord.EmbedBuilder()
+    let leaderboardArray = [];
+    let embLeaderboard = new Discord.EmbedBuilder()
       .setColor(colors.default)
       .setAuthor({ name: `${interaction.guild.name}'s leaderboard`, iconURL: getGuildIcon(interaction) })
       .setTimestamp(Date.now());
 
-    const raw_leaderboard_array = await GuildMember.findAll({
+    const leaderboardArrayRaw = await GuildMember.findAll({
       limit: 10,
       order: [["total_xp", "DESC"]],
       where: { dGuildID: interaction.guild.id },
     });
 
-    for (e; e < raw_leaderboard_array.length; e++) {
-      let name_string = ``;
-      const leaderboard_user = await client.users.fetch(raw_leaderboard_array[e].dUserID.toString());
+    for (e; e < leaderboardArrayRaw.length; e++) {
+      let nameString = ``;
+      const leaderboardUser = await client.users.fetch(leaderboardArrayRaw[e].dUserID.toString());
 
       switch (e) {
         // \u{1F948} is the 1st place medal, \u{1F3C6} is the trophy
         case 0:
-          name_string = `\u{1F389} \u{2500} **<@${leaderboard_user.id}>**`;   
+          nameString = `\u{1F389} \u{2500} **<@${leaderboardUser.id}>**`;   
           break;
         case 1:
-          name_string = `\u{1F948} \u{2500} **<@${leaderboard_user.id}>**`;
+          nameString = `\u{1F948} \u{2500} **<@${leaderboardUser.id}>**`;
           break;
         case 2:
-          name_string = `\u{1F949} \u{2500} **<@${leaderboard_user.id}>**`;
+          nameString = `\u{1F949} \u{2500} **<@${leaderboardUser.id}>**`;
           break;
         default:
-          name_string = `**#${e + 1}** \u{2500} **<@${leaderboard_user.id}>**`;
+          nameString = `**#${e + 1}** \u{2500} **<@${leaderboardUser.id}>**`;
           break;
       }
 
-      leaderboard_string_array.push(`${name_string}\n\u{200B}\u{2514} Level **${raw_leaderboard_array[e].currentLevel}** | XP: **${raw_leaderboard_array[e].totalXP}**`);
+      leaderboardArray.push(`${nameString}\n\u{200B}\u{2514} Level **${leaderboardArrayRaw[e].currentLevel}** | XP: **${leaderboardArrayRaw[e].totalXP}**`);
     }
 
-    leaderboard_embed.addFields({
+    embLeaderboard.addFields({
       name: `Most active members:`,
-      value: `${leaderboard_string_array.join("\n")}`,
+      value: `${leaderboardArray.join("\n")}`,
     });
 
-    interaction.editReply({ embeds: [leaderboard_embed] });
+    interaction.editReply({ embeds: [embLeaderboard] });
   }
 }

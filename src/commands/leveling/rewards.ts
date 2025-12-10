@@ -19,21 +19,21 @@ export default {
     const server = await findGuild(interaction.guild.id);
     let rewardsArray;
     try {
-      rewardsArray = server.role_rewards_level_string ? JSON.parse(server.role_rewards_level_string) : [];
+      rewardsArray = server.roleRewardsString ? JSON.parse(server.roleRewardsString) : [];
     } catch {
       rewardsArray = [];
     }
 
     // Build embed
-    const guild_icon = interaction.guild.iconURL({ extension: "png" }) || client.user.avatarURL({ extension: "png" });
-    const reward_list_embed = new Discord.EmbedBuilder()
+    const guildIcon = interaction.guild.iconURL({ extension: "png" }) || client.user.avatarURL({ extension: "png" });
+    const embRewardList = new Discord.EmbedBuilder()
       .setColor(colors.default)
-      .setAuthor({ name: `Rewards on ${interaction.guild.name}`, iconURL: guild_icon as string })
+      .setAuthor({ name: `Rewards on ${interaction.guild.name}`, iconURL: guildIcon as string })
       .setTimestamp();
 
     if (rewardsArray.length === 0) {
-      reward_list_embed.setDescription(`There are no rewards on this server.`);
-      await interaction.editReply({ embeds: [reward_list_embed] });
+      embRewardList.setDescription(`There are no rewards on this server.`);
+      await interaction.editReply({ embeds: [embRewardList] });
       return;
     }
 
@@ -43,7 +43,7 @@ export default {
       return `**#${i + 1}** — <@&${reward.role_id}>\n\u{2514} Token: **${reward.token}** | Levels **${reward.min_level} - ${maxLevelStr}**`;
     });
 
-    reward_list_embed.setDescription(lines.join("\n"));
-    await interaction.editReply({ embeds: [reward_list_embed] });
+    embRewardList.setDescription(lines.join("\n"));
+    await interaction.editReply({ embeds: [embRewardList] });
   },
 };

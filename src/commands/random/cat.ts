@@ -14,7 +14,7 @@ export default {
   async execute(client: Discord.Client<true>, interaction: Discord.ChatInputCommandInteraction) {
     validateCommandInteractionInGuild(interaction);
 
-    let random_cat; 
+    let elGato; 
 
     try {
       let response = await fetch('https://api.some-random-api.com/animal/cat');
@@ -22,16 +22,16 @@ export default {
         throw new Error(`Unable to perform fetch request.`)
       }
 
-      random_cat = await response.json();
+      elGato = await response.json();
     } catch (error) {
       throw error;
     }
 
-    const cat_embed = new Discord.EmbedBuilder()
+    const embCat = new Discord.EmbedBuilder()
       .setColor(colors.default)
       .setTitle("Here is a random cat for you!")
-      .setImage(random_cat.image)
+      .setImage(elGato.image)
 
-    interaction.reply({ embeds: [cat_embed] });
+    interaction.reply({ embeds: [embCat] });
   }
 }

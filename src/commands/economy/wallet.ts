@@ -20,17 +20,17 @@ export default {
   async execute(client: Discord.Client<true>, interaction: Discord.ChatInputCommandInteraction) {
     validateCommandInteractionInGuild(interaction);
 
-    let wallet_target_member = interaction.options.getMember("user") ?? interaction.member;
-    validateGuildMember(wallet_target_member);
+    let walletTargetMember = interaction.options.getMember("user") ?? interaction.member;
+    validateGuildMember(walletTargetMember);
 
-    const server_user = await findGuildMember(wallet_target_member.id, wallet_target_member.guild.id);
-    const member_avatar = wallet_target_member.displayAvatarURL({ extension: 'webp' });
+    const dbGuildMember = await findGuildMember(walletTargetMember.id, walletTargetMember.guild.id);
+    const memberAvatar = walletTargetMember.displayAvatarURL({ extension: 'webp' });
 
-    const wallet_embed = new Discord.EmbedBuilder()
+    const embWallet = new Discord.EmbedBuilder()
       .setColor(colors.default)
-      .setAuthor({ name: `${wallet_target_member.nickname || wallet_target_member.displayName}`, iconURL: member_avatar })
-      .setDescription(`Current money: ${server_user.currentMoney} ${emojis.currency}`)
+      .setAuthor({ name: `${walletTargetMember.nickname || walletTargetMember.displayName}`, iconURL: memberAvatar })
+      .setDescription(`Current money: ${dbGuildMember.currentMoney} ${emojis.currency}`)
 
-    interaction.reply({ embeds: [wallet_embed] });
+    interaction.reply({ embeds: [embWallet] });
   }
 }

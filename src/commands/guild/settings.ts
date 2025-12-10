@@ -398,7 +398,7 @@ export default {
               rewardsArray = [];
             }
 
-            if (rewardsArray.some((r: RoleReward) => r.role_id === reward_role.id)) {
+            if (rewardsArray.some((r: RoleReward) => r.roleID === reward_role.id)) {
               const role_reward_duplicate_embed = new Discord.EmbedBuilder()
                 .setColor(colors.error)
                 .setTitle(`${emojis.cross} - Role reward already exists!`)
@@ -418,7 +418,7 @@ export default {
               token: reward_token,
               role_id: reward_role.id
             });
-            rewardsArray.sort((a: RoleReward, b: RoleReward) => a.min_level - b.min_level);
+            rewardsArray.sort((a: RoleReward, b: RoleReward) => a.minLevel - b.minLevel);
 
             server.set({ role_rewards_level_string: JSON.stringify(rewardsArray) });
             await server.save();
@@ -457,7 +457,7 @@ export default {
 
             let indexToRemove = -1;
             if (providedRole && !providedToken) {
-              indexToRemove = rewardsArray.findIndex((r: RoleReward) => r.role_id === providedRole.id);
+              indexToRemove = rewardsArray.findIndex((r: RoleReward) => r.roleID === providedRole.id);
             } else if (providedToken) {
               indexToRemove = rewardsArray.findIndex((r: RoleReward) => r.token === providedToken);
             }
