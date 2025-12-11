@@ -23,8 +23,8 @@ export default {
   async execute(client: Discord.Client<true>, interaction: Discord.ChatInputCommandInteraction) {
     validateCommandInteractionInGuild(interaction);
 
-    let user = await findGuildMember(interaction.user.id, interaction.guild.id);
-    let userCooldowns: UserCooldowns = JSON.parse(user.cooldowns);
+    let dbGuildMember = await findGuildMember(interaction.user.id, interaction.guild.id);
+    let userCooldowns: UserCooldowns = JSON.parse(dbGuildMember.cooldowns);
 
     let dailyMaxUses = 1;
     let dailyTimeoutInterval = 1000 * 60 * 60 * 12;
@@ -35,13 +35,13 @@ export default {
       return;
     } else {
       userCooldowns.daily.uses_left = userCooldowns.daily.uses_left - 1;
-      await user.update({ cooldowns: JSON.stringify(userCooldowns) });
+      await dbGuildMember.update({ cooldowns: JSON.stringify(userCooldowns) });
       usesLeft = userCooldowns.daily.uses_left;
 
       if (userCooldowns.daily.uses_left < 1) {
         userCooldowns.daily.uses_left = dailyMaxUses;
         userCooldowns.daily.last_use_timestamp = Date.now();
-        await user.update({ cooldowns: JSON.stringify(userCooldowns) });
+        await dbGuildMember.update({ cooldowns: JSON.stringify(userCooldowns) });
       }
     }
 
@@ -53,7 +53,7 @@ export default {
       .setDescription(`You got **${dailyReward}** ${emojis.currency}. Spend them wisely!`)
     await interaction.reply({ embeds: [embDaily] });
 
-    await user.update({ currentMoney: user.currentMoney - dailyReward });
+    await dbGuildMember.update({ currentMoney: dbGuildMember.currentMoney - dailyReward });
 
     async function abort_daily(timeRemaining: number) {
       let hours = Math.floor(timeRemaining / 3600000) % 24;

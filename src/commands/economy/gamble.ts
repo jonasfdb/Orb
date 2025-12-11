@@ -65,8 +65,8 @@ export default {
   async execute(client: Discord.Client<true>, interaction: Discord.ChatInputCommandInteraction) {
     validateCommandInteractionInGuild(interaction);
 
-    let user = await findGuildMember(interaction.user.id, interaction.guild.id);
-    let userCooldowns: UserCooldowns = JSON.parse(user.cooldowns);
+    let dbGuildMember = await findGuildMember(interaction.user.id, interaction.guild.id);
+    let userCooldowns: UserCooldowns = JSON.parse(dbGuildMember.cooldowns);
 
     let maxUsesCoinflip = 10;
     let timeoutIntervalCoinflip = 1000 * 60 * 10; // in ms
@@ -85,45 +85,45 @@ export default {
         bet = interaction.options.getInteger('bet');
         validateNumber(bet);
 
-        if (bet > user.currentMoney) {
-          await abort_game_no_funds('Coinflip');
+        if (bet > dbGuildMember.currentMoney) {
+          await abortGameNoFunds('Coinflip');
           return;
         }
 
         if (userCooldowns.coinflip.last_use_timestamp > (Date.now() - timeoutIntervalCoinflip)) {
-          await abort_game_timeout(userCooldowns.coinflip.last_use_timestamp + timeoutIntervalCoinflip - Date.now());
+          await abortGameTimeout(userCooldowns.coinflip.last_use_timestamp + timeoutIntervalCoinflip - Date.now());
           return;
         } else {
           userCooldowns.coinflip.uses_left = userCooldowns.coinflip.uses_left - 1;
-          await user.update({ cooldowns: JSON.stringify(userCooldowns) });
+          await dbGuildMember.update({ cooldowns: JSON.stringify(userCooldowns) });
           usesLeft = userCooldowns.coinflip.uses_left;
 
           if (userCooldowns.coinflip.uses_left < 1) {
             userCooldowns.coinflip.uses_left = maxUsesCoinflip;
             userCooldowns.coinflip.last_use_timestamp = Date.now();
-            await user.update({ cooldowns: JSON.stringify(userCooldowns) });
+            await dbGuildMember.update({ cooldowns: JSON.stringify(userCooldowns) });
           }
         }
 
-        let coinflip_result = (Math.floor(Math.random() * 2)) ? 'heads' : 'tails';
-        if (coinflip_result === interaction.options.getString('coin')) {
-          const emb_coinflip_result = new Discord.EmbedBuilder()
+        let coinflipResult = (Math.floor(Math.random() * 2)) ? 'heads' : 'tails';
+        if (coinflipResult === interaction.options.getString('coin')) {
+          const embCoinflip = new Discord.EmbedBuilder()
             .setColor(colors.default)
             .setTitle(`\u{1F389} - You won!`)
-            .setDescription(`The coin landed on **${coinflip_result}**.\nYou won **${bet * 2}** ${emojis.currency}!`)
+            .setDescription(`The coin landed on **${coinflipResult}**.\nYou won **${bet * 2}** ${emojis.currency}!`)
             .setFooter({ text: `${usesLeft}/${maxUsesCoinflip} uses left.` });
-          await interaction.reply({ embeds: [emb_coinflip_result] });
+          await interaction.reply({ embeds: [embCoinflip] });
 
-          await user.update({ currentMoney: user.currentMoney + (bet * 2) });
+          await dbGuildMember.update({ currentMoney: dbGuildMember.currentMoney + (bet * 2) });
         } else {
-          const emb_coinflip_result = new Discord.EmbedBuilder()
+          const embCoinflip = new Discord.EmbedBuilder()
             .setColor(colors.default)
             .setTitle(`\u{1FAC2} - You lost...`)
-            .setDescription(`The coin landed on **${coinflip_result}**.\nYou lost **${bet}** ${emojis.currency}.`)
+            .setDescription(`The coin landed on **${coinflipResult}**.\nYou lost **${bet}** ${emojis.currency}.`)
             .setFooter({ text: `${usesLeft}/${maxUsesCoinflip} uses left.` });
-          await interaction.reply({ embeds: [emb_coinflip_result] });
+          await interaction.reply({ embeds: [embCoinflip] });
 
-          await user.update({ currentMoney: user.currentMoney - bet });
+          await dbGuildMember.update({ currentMoney: dbGuildMember.currentMoney - bet });
         }
         break;
 
@@ -131,23 +131,23 @@ export default {
         bet = interaction.options.getInteger('bet');
         validateNumber(bet);
 
-        if (bet > user.currentMoney) {
-          await abort_game_no_funds('Slots');
+        if (bet > dbGuildMember.currentMoney) {
+          await abortGameNoFunds('Slots');
           return;
         }
 
         if (userCooldowns.slots.last_use_timestamp > (Date.now() - timeoutIntervalSlots)) {
-          await abort_game_timeout(userCooldowns.slots.last_use_timestamp + timeoutIntervalSlots - Date.now());
+          await abortGameTimeout(userCooldowns.slots.last_use_timestamp + timeoutIntervalSlots - Date.now());
           return;
         } else {
           userCooldowns.slots.uses_left = userCooldowns.slots.uses_left - 1;
-          await user.update({ cooldowns: JSON.stringify(userCooldowns) });
+          await dbGuildMember.update({ cooldowns: JSON.stringify(userCooldowns) });
           usesLeft = userCooldowns.slots.uses_left;
 
           if (userCooldowns.slots.uses_left < 1) {
             userCooldowns.slots.uses_left = maxUsesSlots;
             userCooldowns.slots.last_use_timestamp = Date.now();
-            await user.update({ cooldowns: JSON.stringify(userCooldowns) });
+            await dbGuildMember.update({ cooldowns: JSON.stringify(userCooldowns) });
           }
         }
 
@@ -159,7 +159,7 @@ export default {
           { emoji: emojis.gemDarkBlue, weight: 55, multiplier: 5000 }
         ];
 
-        function pick_symbol_unweighted(): { emoji: string, weight: number, multiplier: number } {
+        function pickSymbolUnweighted(): { emoji: string, weight: number, multiplier: number } {
           let r = Math.floor(Math.random() * 1000);
           let symbol: { emoji: string, weight: number, multiplier: number };
 
@@ -172,194 +172,194 @@ export default {
           return symbol;
         }
 
-        const grid = Array.from({ length: 3 }, () => Array.from({ length: 3 }, () => pick_symbol_unweighted()));
+        const grid = Array.from({ length: 3 }, () => Array.from({ length: 3 }, () => pickSymbolUnweighted()));
         const midRow = grid[1];
         const allSame = midRow.every(s => s.emoji === midRow[0].emoji);
 
         let payout = 0;
-        let title: string, desc: string;
+        let title: string, embedText: string;
         if (allSame) {
-          const sym = midRow[0];
-          payout = bet * sym.multiplier;
-          if (sym.multiplier >= 1000) {  // jackpot
+          const symbol = midRow[0];
+          payout = bet * symbol.multiplier;
+          if (symbol.multiplier >= 1000) {  // jackpot
             title = '🎉 JACKPOT! 🎉';
-            desc = `All three 🔷! You win **${payout}** ${emojis.currency}!`;
+            embedText = `You win **${payout}** ${emojis.currency}!`;
           } else {
             title = '🎉 You hit a match! 🎉';
-            desc = `Three ${sym.emoji} = **${sym.multiplier}×** → you win **${payout}** ${emojis.currency}!`;
+            embedText = `Three ${symbol.emoji} = **${symbol.multiplier}×** → you win **${payout}** ${emojis.currency}!`;
           }
         } else {
-          title = 'No match...';
-          desc = `Better luck next time. You lost **${bet}** ${emojis.currency}.`;
+          title = 'None match...';
+          embedText = `Better luck next time. You lost **${bet}** ${emojis.currency}.`;
           payout = -bet;
         }
 
-        let slots_embed = new Discord.EmbedBuilder()
+        let embSlots = new Discord.EmbedBuilder()
           .setColor(colors.default)
           .setTitle(title)
-          .setDescription(desc + `\n\n` +
+          .setDescription(embedText + `\n\n` +
             grid.map(row => row.map(s => s.emoji).join(' ')).join('\n') +
             `\n\n`)
           .setFooter({ text: `${usesLeft}/${maxUsesSlots} uses left.` })
 
         // 5) Reply and update money
-        await interaction.reply({ embeds: [slots_embed] });
-        await user.update({ currentMoney: user.currentMoney + payout });
+        await interaction.reply({ embeds: [embSlots] });
+        await dbGuildMember.update({ currentMoney: dbGuildMember.currentMoney + payout });
         break;
 
       case 'high-low':
         bet = interaction.options.getInteger('bet');
         validateNumber(bet);
 
-        if (bet > user.currentMoney) {
-          await abort_game_no_funds('High-low');
+        if (bet > dbGuildMember.currentMoney) {
+          await abortGameNoFunds('High-low');
           return;
         }
 
         if (userCooldowns.highlow.last_use_timestamp > (Date.now() - timeoutIntervalHighlow)) {
-          await abort_game_timeout(userCooldowns.highlow.last_use_timestamp + timeoutIntervalHighlow - Date.now());
+          await abortGameTimeout(userCooldowns.highlow.last_use_timestamp + timeoutIntervalHighlow - Date.now());
           return;
         } else {
           userCooldowns.highlow.uses_left = userCooldowns.highlow.uses_left - 1;
-          await user.update({ cooldowns: JSON.stringify(userCooldowns) });
+          await dbGuildMember.update({ cooldowns: JSON.stringify(userCooldowns) });
           usesLeft = userCooldowns.highlow.uses_left;
 
           if (userCooldowns.highlow.uses_left < 1) {
             userCooldowns.highlow.uses_left = maxUsesHighlow;
             userCooldowns.highlow.last_use_timestamp = Date.now();
-            await user.update({ cooldowns: JSON.stringify(userCooldowns) });
+            await dbGuildMember.update({ cooldowns: JSON.stringify(userCooldowns) });
           }
         }
 
-        let highlow_multiplier = 1;
-        let highlow_iteration = 0;
-        let highlow_last_numbers = [];
-        let highlow_continue = true;
+        let highlowMultiplier = 1;
+        let highlowIteration = 0;
+        let highlowPreviousNumbers = [];
+        let highlowAllowedToContinue = true;
 
-        let highlow_random_number = Math.floor(Math.random() * 100);
-        highlow_last_numbers.push(highlow_random_number);
+        let highlowNextNumber = Math.floor(Math.random() * 100);
+        highlowPreviousNumbers.push(highlowNextNumber);
 
-        const btn_highlow_start = new Discord.ButtonBuilder()
+        const btnHighlowBegin = new Discord.ButtonBuilder()
           .setCustomId('begin')
           .setLabel('Begin!')
           .setStyle(Discord.ButtonStyle.Primary);
 
-        const row_highlow_start = new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(btn_highlow_start);
+        const highlowBeginRow = new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(btnHighlowBegin);
 
-        const emb_highlow_start = new Discord.EmbedBuilder()
+        const embHighlowBegin = new Discord.EmbedBuilder()
           .setTitle(`Higher or Lower?`)
           .setDescription(
             `Guess if the number I am thinking of is higher or lower than the previous one!\n\n` +
             `Your bet **doubles** each time you guess right, and you can chicken out at any time. ` +
             `If you guess right, you can win big! But if you guess wrong, **you lose the entire bet!**\n\n` +
-            `The number we start with is... **${highlow_random_number}**!\n\n` +
-            `Multiplier: ${highlow_multiplier}x -> Cash out ${bet * highlow_multiplier} ${emojis.currency}`
+            `The number we start with is... **${highlowNextNumber}**!\n\n` +
+            `Multiplier: ${highlowMultiplier}x -> Cash out ${bet * highlowMultiplier} ${emojis.currency}`
           )
           .setColor(colors.default)
           .setFooter({ text: `${usesLeft}/${maxUsesHighlow} uses left.` });
 
-        let highlow_start_message = await interaction.reply({ embeds: [emb_highlow_start], components: [row_highlow_start], withResponse: true });
-        validateInteractionCallbackResponse(highlow_start_message);
+        let highlowStartMessage = await interaction.reply({ embeds: [embHighlowBegin], components: [highlowBeginRow], withResponse: true });
+        validateInteractionCallbackResponse(highlowStartMessage);
 
         try {
           const collectorFilter = (i: Discord.MessageComponentInteraction) => i.user.id === interaction.user.id;
-          const highlow_confirmation = await highlow_start_message.resource.message.awaitMessageComponent({ filter: collectorFilter, time: 1000 * 60 });
+          const highlowConfirm = await highlowStartMessage.resource.message.awaitMessageComponent({ filter: collectorFilter, time: 1000 * 60 });
 
           await interaction.deleteReply();
 
-          if (highlow_confirmation.customId === 'begin') {
-            await highlow_confirmation.deferReply();
-            while (highlow_continue) {
-              highlow_random_number = Math.floor(Math.random() * 100);
-              while (highlow_random_number === highlow_last_numbers[highlow_iteration]) {
-                highlow_random_number = Math.floor(Math.random() * 100);
+          if (highlowConfirm.customId === 'begin') {
+            await highlowConfirm.deferReply();
+            while (highlowAllowedToContinue) {
+              highlowNextNumber = Math.floor(Math.random() * 100);
+              while (highlowNextNumber === highlowPreviousNumbers[highlowIteration]) {
+                highlowNextNumber = Math.floor(Math.random() * 100);
               }
 
-              const btn_higher = new Discord.ButtonBuilder()
+              const btnHighlowHigher = new Discord.ButtonBuilder()
                 .setCustomId('higher')
                 .setLabel('Higher')
                 .setStyle(Discord.ButtonStyle.Success);
 
-              const btn_lower = new Discord.ButtonBuilder()
+              const btnHighlowLower = new Discord.ButtonBuilder()
                 .setCustomId('lower')
                 .setLabel('Lower')
                 .setStyle(Discord.ButtonStyle.Danger);
 
 
-              const btn_cashout = new Discord.ButtonBuilder()
+              const btnChicken = new Discord.ButtonBuilder()
                 .setCustomId('cashout')
                 .setLabel('Chicken Out')
                 .setStyle(Discord.ButtonStyle.Secondary);
 
-              const row_highlow = new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(btn_higher, btn_lower, btn_cashout);
+              const highlowGameRow = new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(btnHighlowHigher, btnHighlowLower, btnChicken);
 
-              const emb_highlow_game = new Discord.EmbedBuilder()
+              const embHighlowGame = new Discord.EmbedBuilder()
                 .setTitle(`Higher or Lower?`)
                 .setDescription(
-                  `I am thinking of a number. Is it **lower** or **higher** than ${highlow_last_numbers[highlow_iteration]}?\n\n` +
-                  `Previous: **${highlow_last_numbers.join(` > `)} > ...**\nYou guessed right ${highlow_iteration} times.\n\n` +
-                  `Multiplier: ${highlow_multiplier}x -> Cash out ${bet * highlow_multiplier} ${emojis.currency}`
+                  `I am thinking of a number. Is it **lower** or **higher** than ${highlowPreviousNumbers[highlowIteration]}?\n\n` +
+                  `Previous: **${highlowPreviousNumbers.join(` > `)} > ...**\nYou guessed right ${highlowIteration} times.\n\n` +
+                  `Multiplier: ${highlowMultiplier}x -> Cash out ${bet * highlowMultiplier} ${emojis.currency}`
                 )
                 .setColor(colors.default)
                 .setFooter({ text: `${usesLeft}/${maxUsesHighlow} uses left.` });
 
-              let highlow_response = await highlow_confirmation.editReply({ embeds: [emb_highlow_game], components: [row_highlow] });
+              let highlowResponse = await highlowConfirm.editReply({ embeds: [embHighlowGame], components: [highlowGameRow] });
               // console.log(highlow_response);
 
               try {
                 const collectorFilter = (i: Discord.MessageComponentInteraction) => i.user.id === interaction.user.id;
-                const highlow_user_guess = await highlow_response.awaitMessageComponent({ filter: collectorFilter, time: 1000 * 60 });
-                highlow_user_guess.deferUpdate();
+                const highlowUserGuess = await highlowResponse.awaitMessageComponent({ filter: collectorFilter, time: 1000 * 60 });
+                highlowUserGuess.deferUpdate();
 
-                if ((highlow_user_guess.customId === 'higher' && (highlow_random_number > highlow_last_numbers[highlow_iteration])) ||
-                  (highlow_user_guess.customId === 'lower' && (highlow_random_number < highlow_last_numbers[highlow_iteration]))
+                if ((highlowUserGuess.customId === 'higher' && (highlowNextNumber > highlowPreviousNumbers[highlowIteration])) ||
+                  (highlowUserGuess.customId === 'lower' && (highlowNextNumber < highlowPreviousNumbers[highlowIteration]))
                 ) {
                   // the user guesses right here, nothing happens, just restart the loop
-                } else if (highlow_user_guess.customId === 'cashout') {
+                } else if (highlowUserGuess.customId === 'cashout') {
                   console.log("cashout");
-                  highlow_continue = false;
+                  highlowAllowedToContinue = false;
 
-                  const emb_highlow_cashout = new Discord.EmbedBuilder()
+                  const embHighlowChicken = new Discord.EmbedBuilder()
                     .setTitle(`You chickened out!`)
                     .setDescription(
-                      `You multiplier was **${highlow_multiplier}x**, so you win **${bet * highlow_multiplier}** ${emojis.currency}!\n\n` +
-                      `Numbers: **${highlow_last_numbers.join(` > `)}**\nYou had ${highlow_iteration} correct guesses.`
+                      `You multiplier was **${highlowMultiplier}x**, so you win **${bet * highlowMultiplier}** ${emojis.currency}!\n\n` +
+                      `Numbers: **${highlowPreviousNumbers.join(` > `)}**\nYou had ${highlowIteration} correct guesses.`
                     )
                     .setColor(colors.success)
                     .setFooter({ text: `${usesLeft}/${maxUsesHighlow} uses left.` });
 
-                  await user.update({ currentMoney: user.currentMoney + (bet * highlow_multiplier) });
+                  await dbGuildMember.update({ currentMoney: dbGuildMember.currentMoney + (bet * highlowMultiplier) });
 
-                  await highlow_confirmation.editReply({ embeds: [emb_highlow_cashout], components: [] });
+                  await highlowConfirm.editReply({ embeds: [embHighlowChicken], components: [] });
                 } else {
                   console.log("LOSER")
-                  highlow_continue = false;
+                  highlowAllowedToContinue = false;
 
-                  const emb_highlow_loss = new Discord.EmbedBuilder()
+                  const embHighlowLoss = new Discord.EmbedBuilder()
                     .setTitle(`You lost!`)
                     .setDescription(
-                      `Oh no! You guessed wrong! My number was **${highlow_random_number}**.\n\n` +
-                      `You multiplier was **${highlow_multiplier}x**, so you lose **${bet * highlow_multiplier}** ${emojis.currency}...\n\n` +
-                      `Numbers: **${highlow_last_numbers.join(` > `)} > ${highlow_random_number}**\nYou had ${highlow_iteration} correct guesses.`
+                      `Oh no! You guessed wrong! My number was **${highlowNextNumber}**.\n\n` +
+                      `You multiplier was **${highlowMultiplier}x**, so you lose **${bet * highlowMultiplier}** ${emojis.currency}...\n\n` +
+                      `Numbers: **${highlowPreviousNumbers.join(` > `)} > ${highlowNextNumber}**\nYou had ${highlowIteration} correct guesses.`
                     )
                     .setColor(colors.error)
                     .setFooter({ text: `${usesLeft}/${maxUsesHighlow} uses left.` });
 
-                  await highlow_confirmation.editReply({ embeds: [emb_highlow_loss], components: [] });
+                  await highlowConfirm.editReply({ embeds: [embHighlowLoss], components: [] });
 
-                  if (user.currentMoney < (bet * highlow_multiplier)) {
-                    await user.update({ currentMoney: 0 });
+                  if (dbGuildMember.currentMoney < (bet * highlowMultiplier)) {
+                    await dbGuildMember.update({ currentMoney: 0 });
                   } else {
-                    await user.update({ currentMoney: user.currentMoney - (bet * highlow_multiplier) });
+                    await dbGuildMember.update({ currentMoney: dbGuildMember.currentMoney - (bet * highlowMultiplier) });
                   }
                 }
               } catch (error) {
                 console.error(error);
               }
 
-              highlow_last_numbers.push(highlow_random_number);
-              highlow_multiplier = highlow_multiplier + highlow_multiplier;
-              highlow_iteration++;
+              highlowPreviousNumbers.push(highlowNextNumber);
+              highlowMultiplier = highlowMultiplier + highlowMultiplier;
+              highlowIteration++;
             }
           }
         } catch (error) {
@@ -368,28 +368,28 @@ export default {
         break;
     }
 
-    async function abort_game_no_funds(game: string) {
-      const emb_game_abort = new Discord.EmbedBuilder()
+    async function abortGameNoFunds(game: string) {
+      const embGameAbort = new Discord.EmbedBuilder()
         .setColor(colors.error)
         .setTitle(`${emojis.cross} - No funds!`)
         .setDescription(`You can't bet more gems than you actually have!`)
 
-      await interaction.reply({ embeds: [emb_game_abort] });
+      await interaction.reply({ embeds: [embGameAbort] });
     }
 
-    async function abort_game_timeout(remaining_time: number) {
+    async function abortGameTimeout(remaining_time: number) {
       let hours = Math.floor(remaining_time / 3600000) % 24;
       let minutes = Math.floor(remaining_time / 60000) % 60;
       let seconds = Math.floor(remaining_time / 1000) % 60;
 
       const timestring = `${hours}h ${minutes}m ${seconds}s`;
 
-      const emb_game_abort = new Discord.EmbedBuilder()
+      const embGameAbort = new Discord.EmbedBuilder()
         .setColor(colors.error)
         .setTitle(`${emojis.cross} - Gambled too much!`)
         .setDescription(`Please wait **${timestring}** until you can play this game again.`)
 
-      await interaction.reply({ embeds: [emb_game_abort] });
+      await interaction.reply({ embeds: [embGameAbort] });
     }
   }
 }

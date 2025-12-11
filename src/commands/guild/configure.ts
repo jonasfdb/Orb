@@ -14,7 +14,7 @@ export default {
     validateCommandInteractionInGuild(interaction);
     await interaction.deferReply();
 
-    guildSettings = await findGuildSettings(interaction.guild.id);
+    dbGuildSettings = await findGuildSettings(interaction.guild.id);
     // pathArray = [];
     showSettingsMenu(interaction);
   }
@@ -22,7 +22,8 @@ export default {
 
 // let pathArray: any[] = [];
 // let changedSettingsArray: string[] = ['bingus', 'bongus', 'bingulus'];
-let guildSettings: GuildSettings;
+// TODO: expand this into a full navigation mechanism
+let dbGuildSettings: GuildSettings;
 
 const backButton = new Discord.ButtonBuilder()
   .setCustomId('backButton')
@@ -68,7 +69,7 @@ async function navigateSettings(interaction: Discord.ChatInputCommandInteraction
         case 'againButton':
           showSettingsMenu(interaction);
           break;
-        // TODO: A save and exit button could be a great idea too
+        // TODO: A save and exit button could be a great idea too?
       }
     });
 
@@ -101,7 +102,7 @@ async function showSettingsMenu(interaction: Discord.ChatInputCommandInteraction
             '### General\n' +
             'Server locale, bot permissions, privacy, ...'
           ),
-      )
+        )
       .setButtonAccessory((button) => button
         .setCustomId('sGeneral')
         .setLabel('Change...')
@@ -111,10 +112,10 @@ async function showSettingsMenu(interaction: Discord.ChatInputCommandInteraction
     .addSeparatorComponents((separator) => separator)
     .addSectionComponents((section) => section
       .addTextDisplayComponents((textDisplay) => textDisplay
-          .setContent(
-            '### Welcoming\n' +
-            'Welcome/leave messages and channels, captcha, verification, ...'
-          ),
+        .setContent(
+          '### Welcoming\n' +
+          'Welcome/leave messages and channels, captcha, verification, ...'
+        ),
       )
       .setButtonAccessory((button) => button
         .setCustomId('sWelcoming')
@@ -126,9 +127,9 @@ async function showSettingsMenu(interaction: Discord.ChatInputCommandInteraction
     .addSectionComponents((section) => section
       .addTextDisplayComponents((textDisplay) => textDisplay
         .setContent(
-            '### Logging\n' +
-            'Log channels, what to log, ...'
-          ),
+          '### Logging\n' +
+          'Log channels, what to log, ...'
+        ),
       )
       .setButtonAccessory((button) => button
         .setCustomId('sLogging')
@@ -202,11 +203,11 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
       .setContent(
         `### Current welcoming settings\n\n` +
         `**Toggles**\n` +
-        `\u{251C}${guildSettings.welcomeMessagesEnabled ? 
+        `\u{251C}${ dbGuildSettings.welcomeMessagesEnabled ? 
           '<:orb_toggle_b_enabled_flat:1222635342457339914>' : 
           '<:orb_disabled:1222634792777023688>'
         } Welcome messages\n` +
-        `\u{2514}${guildSettings.leaveMessagesEnabled ?
+        `\u{2514}${ dbGuildSettings.leaveMessagesEnabled ?
           '<:orb_toggle_b_enabled_flat:1222635342457339914>' :
           '<:orb_disabled:1222634792777023688>'
         } Leave messages`
@@ -272,9 +273,9 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
       switch (selection.customId) {
         case 'toggleWelcomingMessages':
           let selectionArray = selection.values[0].split('');
-          guildSettings.welcomeMessagesEnabled = parseInt(selectionArray[0], 10) > 0;
-          guildSettings.leaveMessagesEnabled = parseInt(selectionArray[1], 10) > 0;
-          await guildSettings.save();
+          dbGuildSettings.welcomeMessagesEnabled = parseInt(selectionArray[0], 10) > 0;
+          dbGuildSettings.leaveMessagesEnabled = parseInt(selectionArray[1], 10) > 0;
+          await dbGuildSettings.save();
 
           let boolWelcomeMessagesEnabled = parseInt(selectionArray[0]) > 0 ? 'enabled' : 'disabled';
           let boolLeaveMessagesEnabled = parseInt(selectionArray[1]) > 0 ? 'enabled' : 'disabled';
@@ -309,8 +310,8 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
           validateGuildChannel(wChannel);
 
           if (wChannel.permissionsFor(interaction.client.user)?.has(Discord.PermissionFlagsBits.SendMessages)) {
-            guildSettings.channelsWelcomeID = wChannel.id;
-            await guildSettings.save();
+            dbGuildSettings.channelsWelcomeID = wChannel.id;
+            await dbGuildSettings.save();
 
             const saveContainer = new Discord.ContainerBuilder()
               .setAccentColor(colors.success)
@@ -359,8 +360,8 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
                 case 'pChangeConfirm':
                   try {
                     wChannel.permissionOverwrites.create(interaction.client.user, { SendMessages: true });
-                    guildSettings.channelsWelcomeID = wChannel.id;
-                    await guildSettings.save();
+                    dbGuildSettings.channelsWelcomeID = wChannel.id;
+                    await dbGuildSettings.save();
 
                     const saveContainer = new Discord.ContainerBuilder()
                       .setAccentColor(colors.success)
@@ -401,8 +402,8 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
           validateGuildChannel(lChannel);
 
           if (lChannel.permissionsFor(interaction.client.user)?.has(Discord.PermissionFlagsBits.SendMessages)) {
-            guildSettings.channelsLeaveID = lChannel.id;
-            await guildSettings.save();
+            dbGuildSettings.channelsLeaveID = lChannel.id;
+            await dbGuildSettings.save();
 
             const saveContainer = new Discord.ContainerBuilder()
               .setAccentColor(colors.success)
@@ -451,8 +452,8 @@ async function showWelcomingSettingsPage(interaction: Discord.ChatInputCommandIn
                 case 'pChangeConfirm':
                   try {
                     lChannel.permissionOverwrites.create(interaction.client.user, { SendMessages: true });
-                    guildSettings.channelsLeaveID = lChannel.id;
-                    await guildSettings.save();
+                    dbGuildSettings.channelsLeaveID = lChannel.id;
+                    await dbGuildSettings.save();
 
                     const saveContainer = new Discord.ContainerBuilder()
                       .setAccentColor(colors.success)

@@ -12,79 +12,83 @@ import { ulid } from "ulid";
 export default {
   name: Events.GuildMemberAdd,
   async execute(member: GuildMember) {
-    let server = await findGuildSettings(member.guild.id);
-    let joined_user = member.user;
-    let joined_user_icon = joined_user.displayAvatarURL({ extension: 'webp' }).toString();
+    let dbGuild = await findGuildSettings(member.guild.id);
+    let userJoined = member.user;
+    let userJoinedIcon = userJoined.displayAvatarURL({ extension: 'webp' }).toString();
 
-    if (server.captchaRequired) {
-      await member.roles.add(server.unverifiedRoleID as RoleResolvable);
-      let captcha_has_failed_before = false;
-      let captcha_embed: Discord.EmbedBuilder;
+    if (dbGuild.captchaRequired) {
+      await member.roles.add(dbGuild.unverifiedRoleID as RoleResolvable);
+      let hasCaptchaFailedBefore = false;
+      let embCaptcha: Discord.EmbedBuilder;
 
       async function captchaPrompter() {
-        const captcha_ready: Discord.ButtonBuilder = new Discord.ButtonBuilder()
+        const btnReadyToSolve: Discord.ButtonBuilder = new Discord.ButtonBuilder()
           .setCustomId('captcha_ready')
           .setLabel('Solve captcha')
           .setStyle(ButtonStyle.Success)
-        const captcha_regenerate: Discord.ButtonBuilder = new Discord.ButtonBuilder()
+        const btnRegenerateCaptcha: Discord.ButtonBuilder = new Discord.ButtonBuilder()
           .setCustomId('captcha_regen')
           .setLabel('Get new captcha')
           .setStyle(ButtonStyle.Secondary)
 
         const captcha = await generateCaptcha();
-        const captcha_attachment = captcha.file;
-        const captcha_attachment_filename = captcha.attachment;
-        const captcha_text = captcha.solution;
+        const captchaAttachment = captcha.file;
+        const captchaAttachmentFilename = captcha.attachment;
+        const captchaText = captcha.solution;
 
-        if (!captcha_has_failed_before) {
-          captcha_embed = new Discord.EmbedBuilder()
+        if (!hasCaptchaFailedBefore) {
+          embCaptcha = new Discord.EmbedBuilder()
             .setColor(colors.default)
             .setTitle('\u{1FAAA} - Verification required!')
             .setDescription('This server requires you to verify that you are a human by solving the following captcha.')
-            .setImage(captcha_attachment_filename)
-            .addFields(
-              { name: 'Instructions', value: '1. Press the "Solve Captcha" button when you are ready.\n2. Enter the six characters connected by the green line.', inline: false },
-            )
+            .setImage(captchaAttachmentFilename)
+            .addFields({
+              name: 'Instructions',
+              value:  '1. Press the "Solve Captcha" button when you are ready.\n' +
+                      '2. Enter the six characters connected by the green line.', inline: false
+            })
             .setFooter({ text: 'You can submit custom backgrounds for captchas by supporting Orb on Patreon! Orb will pick one at random.\nThis captcha will time out in 10 minutes.' })
         } else {
-          captcha_embed = new Discord.EmbedBuilder()
+          embCaptcha = new Discord.EmbedBuilder()
             .setColor(colors.error)
             .setTitle('\u{1FAAA} - Verification required')
             .setDescription('You have failed the captcha. Please try verifying yourself again.')
-            .setImage(captcha_attachment_filename)
-            .addFields(
-              { name: 'Instructions', value: '1. Press the "Solve Captcha" button when you are ready.\n2. Enter the six characters connected by the green line.', inline: false },
-            )
+            .setImage(captchaAttachmentFilename)
+            .addFields({
+              name: 'Instructions',
+              value:  '1. Press the "Solve Captcha" button when you are ready.\n' +
+                      '2. Enter the six characters connected by the green line.', inline: false
+            })
             .setFooter({ text: 'You can submit custom backgrounds for captchas by supporting Orb on Patreon! Orb will pick one at random.' })
         }
 
-        const captcha_button_row = new Discord.ActionRowBuilder<ButtonBuilder>().addComponents(captcha_ready, captcha_regenerate)
-        const captcha_embed_message: Discord.Message = await member.user.send({ embeds: [captcha_embed], components: [captcha_button_row], files: [captcha_attachment] });
+        const captchaBtnRow = new Discord.ActionRowBuilder<ButtonBuilder>().addComponents(btnReadyToSolve, btnRegenerateCaptcha)
+        const captchaMessage: Discord.Message = await member.user.send({ embeds: [embCaptcha], components: [captchaBtnRow], files: [captchaAttachment] });
 
-        const captcha_button_collector = captcha_embed_message.createMessageComponentCollector({
+        const captchaBtnCollector = captchaMessage.createMessageComponentCollector({
           filter: (selection: Discord.ButtonInteraction) => selection.user.id === member.user.id,
           componentType: Discord.ComponentType.Button,
           time: (1000 * 60 * 10)
         });
 
-        captcha_button_collector.on('end', async (collected, reason) => {
+        captchaBtnCollector.on('end', async (collected, reason) => {
           if (reason === "time") {
-            const captcha_timeout_embed = new Discord.EmbedBuilder()
+            const embTimeout = new Discord.EmbedBuilder()
               .setColor(colors.error)
               .setTitle(`${emojis.cross} - Captcha timeout`)
               .setDescription('This captcha timed out. You can leave and rejoin the server to get a new captcha to solve.');
 
-            captcha_embed_message.edit({ embeds: [captcha_timeout_embed], components: [], files: [] });
+            captchaMessage.edit({ embeds: [embTimeout], components: [], files: [] });
           }
         });
-        captcha_button_collector.on('collect', async (captcha_modal_interaction) => {
+        captchaBtnCollector.on('collect', async (captcha_modal_interaction) => {
           switch (captcha_modal_interaction.customId) {
             case 'captcha_ready':
-              const captcha_uuid = ulid();
-              const captcha_input_modal = new Discord.ModalBuilder()
-                .setCustomId(captcha_uuid)
+              const cULID = ulid();
+              const modalCaptchaInput = new Discord.ModalBuilder()
+                .setCustomId(cULID)
                 .setTitle('Enter captcha...')
-              const captcha_input_field = new Discord.TextInputBuilder()
+              const modalCaptchaInputField = new Discord.TextInputBuilder()
                 .setCustomId('captcha_input_field')
                 .setLabel('Enter the captcha. (Not case sensitive)')
                 .setStyle(TextInputStyle.Short)
@@ -93,74 +97,74 @@ export default {
                 .setPlaceholder('ABCDEF')
                 .setRequired(true)
 
-              const captcha_input_row = new Discord.ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(captcha_input_field)
-              captcha_input_modal.addComponents(captcha_input_row);
-              await captcha_modal_interaction.showModal(captcha_input_modal);
+              const modalCaptchaInputRow = new Discord.ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(modalCaptchaInputField)
+              modalCaptchaInput.addComponents(modalCaptchaInputRow);
+              await captcha_modal_interaction.showModal(modalCaptchaInput);
 
               try {
-                const modal_filter = (modal: Discord.ModalSubmitInteraction) => modal.customId === captcha_uuid;
-                const captcha_input_response = await captcha_modal_interaction.awaitModalSubmit({ filter: modal_filter, time: (1000 * 60 * 2) });
+                const modal_filter = (modal: Discord.ModalSubmitInteraction) => modal.customId === cULID;
+                const captchaInputResponse = await captcha_modal_interaction.awaitModalSubmit({ filter: modal_filter, time: (1000 * 60 * 2) });
 
-                if (captcha_input_response.customId === captcha_uuid) {
-                  const user_response = captcha_input_response.fields.getTextInputValue('captcha_input_field');
-                  const verifying_captcha_embed = new Discord.EmbedBuilder()
+                if (captchaInputResponse.customId === cULID) {
+                  const captchaUserResponse = captchaInputResponse.fields.getTextInputValue('captcha_input_field');
+                  const embVerifying = new Discord.EmbedBuilder()
                     .setColor(colors.default)
                     .setTitle(`${emojis.animatedLoading} Verifying captcha...`)
 
                   // await captcha_input_response.deferUpdate();
                   // await interaction.editReply({ embeds: [verifying_captcha_embed], components: [], files: [] });
 
-                  await captcha_input_response.reply({ embeds: [verifying_captcha_embed], components: [], files: [] });
+                  await captchaInputResponse.reply({ embeds: [embVerifying], components: [], files: [] });
 
-                  if (user_response.toUpperCase() === captcha_text) {
-                    const captcha_passed_embed = new Discord.EmbedBuilder()
+                  if (captchaUserResponse.toUpperCase() === captchaText) {
+                    const embCaptchaPassed = new Discord.EmbedBuilder()
                       .setColor(colors.success)
                       .setTitle(`${emojis.checkmark} - Verified!`)
                       .setDescription('Thank you for making sure you are a human! You should now be able to access the server.\n\nIf you are unable to access the server in more than five minutes, contact the moderation team.')
 
                     // give someone the role here and shit
 
-                    await member.roles.remove(server.unverifiedRoleID as RoleResolvable);
-                    await captcha_input_response.deleteReply();
-                    await captcha_embed_message.edit({ embeds: [captcha_passed_embed], components: [], files: [] });
-                    captcha_button_collector.empty();
-                    captcha_button_collector.stop();
+                    await member.roles.remove(dbGuild.unverifiedRoleID as RoleResolvable);
+                    await captchaInputResponse.deleteReply();
+                    await captchaMessage.edit({ embeds: [embCaptchaPassed], components: [], files: [] });
+                    captchaBtnCollector.empty();
+                    captchaBtnCollector.stop();
                     return;
                   } else {
-                    captcha_has_failed_before = true;
-                    const captcha_retry = new Discord.ButtonBuilder()
+                    hasCaptchaFailedBefore = true;
+                    const btnRetryCaptcha = new Discord.ButtonBuilder()
                       .setCustomId('captcha_retry')
                       .setLabel('Get new captcha')
                       .setStyle(ButtonStyle.Secondary)
-                    const captcha_retry_button_row = new Discord.ActionRowBuilder<ButtonBuilder>().addComponents(captcha_retry)
-                    const captcha_failed_embed = new Discord.EmbedBuilder()
+                    const captchaRetryBtnRow = new Discord.ActionRowBuilder<ButtonBuilder>().addComponents(btnRetryCaptcha)
+                    const embFailedCaptcha = new Discord.EmbedBuilder()
                       .setColor(colors.error)
                       .setTitle(`${emojis.cross} - Failed to verify`)
                       .setDescription('You entered the wrong captcha. Please try again.\n\nIf this problem persists, contact the moderation team of the server.')
 
-                    await captcha_input_response.deleteReply();
-                    const captcha_failed_embed_message = await captcha_embed_message.edit({ embeds: [captcha_failed_embed], components: [captcha_retry_button_row], files: [] });
+                    await captchaInputResponse.deleteReply();
+                    const embFailedCaptchaMessage = await captchaMessage.edit({ embeds: [embFailedCaptcha], components: [captchaRetryBtnRow], files: [] });
 
                     try {
-                      const captcha_failed_embed_interaction = await captcha_failed_embed_message.awaitMessageComponent({
+                      const captchaFailedInteraction = await embFailedCaptchaMessage.awaitMessageComponent({
                         filter: (selection: Discord.Interaction) => selection.user.id === member.user.id,
                         time: (1000 * 60 * 5)
                       });
 
-                      switch (captcha_failed_embed_interaction.customId) {
+                      switch (captchaFailedInteraction.customId) {
                         case 'captcha_retry':
-                          const grabbing_new_captcha_embed = new Discord.EmbedBuilder()
+                          const embNewCaptcha = new Discord.EmbedBuilder()
                             .setColor(colors.error)
                             .setTitle(`${emojis.animatedLoading} Grabbing new captcha...`)
 
-                          await captcha_failed_embed_interaction.reply({ embeds: [grabbing_new_captcha_embed] });
+                          await captchaFailedInteraction.reply({ embeds: [embNewCaptcha] });
 
                           captchaPrompter();
 
-                          await captcha_failed_embed_interaction.deleteReply();
-                          captcha_embed_message.delete();
-                          captcha_button_collector.empty();
-                          captcha_button_collector.stop();
+                          await captchaFailedInteraction.deleteReply();
+                          captchaMessage.delete();
+                          captchaBtnCollector.empty();
+                          captchaBtnCollector.stop();
                           break;
                       }
                     } catch (error) {
@@ -175,7 +179,7 @@ export default {
               break;
             case `captcha_regen`:
               captcha_modal_interaction.deferUpdate();
-              captcha_embed_message.delete();
+              captchaMessage.delete();
               captchaPrompter();
               break;
           }
@@ -184,24 +188,24 @@ export default {
       captchaPrompter();
     }
 
-    if (!server.channelsWelcomeID || !server.welcomeMessagesEnabled) {
-      console.log(server.channelsWelcomeID, server.welcomeMessagesEnabled)
+    if (!dbGuild.channelsWelcomeID || !dbGuild.welcomeMessagesEnabled) {
+      console.log(dbGuild.channelsWelcomeID, dbGuild.welcomeMessagesEnabled)
       return;
     }
 
-    let pJoinMessage = server.messagesWelcome;
-    let joinMessage = pJoinMessage.replace(/USER/g, joined_user.username).replace(/SERVER/g, member.guild.name)
+    let pJoinMessage = dbGuild.messagesWelcome;
+    let joinMessage = pJoinMessage.replace(/USER/g, userJoined.username).replace(/SERVER/g, member.guild.name)
 
     const embMemberJoin = new Discord.EmbedBuilder()
       .setColor(colors.default)
-      .setAuthor({ name: `${joined_user.username} joined!`, iconURL: joined_user_icon })
+      .setAuthor({ name: `${userJoined.username} joined!`, iconURL: userJoinedIcon })
       .setDescription(
-        `${joinMessage}\n\nNew user ${joined_user.username}\n` +
-        `\u{2514} User ID: ${joined_user.id}\n` +
-        `\u{2514} Account age: **${Math.floor((Date.now() - joined_user.createdAt.getTime()) / 1000 / 60 / 60 / 24)} days**`)
+        `${joinMessage}\n\nNew user ${userJoined.username}\n` +
+        `\u{2514} User ID: ${userJoined.id}\n` +
+        `\u{2514} Account age: **${Math.floor((Date.now() - userJoined.createdAt.getTime()) / 1000 / 60 / 60 / 24)} days**`)
       .setFooter({ text: `Member count: ${member.guild.memberCount}` })
 
-    const messageChannel = member.guild.channels.cache.get(server.channelsWelcomeID);
+    const messageChannel = member.guild.channels.cache.get(dbGuild.channelsWelcomeID);
     if (messageChannel && messageChannel.isTextBased()) {
       await messageChannel.send({ embeds: [embMemberJoin] });
     } // If no join message, just do nothing

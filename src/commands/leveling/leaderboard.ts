@@ -26,7 +26,7 @@ export default {
 
     const leaderboardArrayRaw = await GuildMember.findAll({
       limit: 10,
-      order: [["total_xp", "DESC"]],
+      order: [["totalXP", "DESC"]],
       where: { dGuildID: interaction.guild.id },
     });
 
@@ -49,7 +49,6 @@ export default {
           nameString = `**#${e + 1}** \u{2500} **<@${leaderboardUser.id}>**`;
           break;
       }
-
       leaderboardArray.push(`${nameString}\n\u{200B}\u{2514} Level **${leaderboardArrayRaw[e].currentLevel}** | XP: **${leaderboardArrayRaw[e].totalXP}**`);
     }
 

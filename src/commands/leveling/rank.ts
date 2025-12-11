@@ -25,7 +25,7 @@ export default {
 
     const dbGuildMember = await findGuildMember(rankTargetMember.id, rankTargetMember.guild.id);
 
-    const all_members = await GuildMember.findAll({
+    const allMembers = await GuildMember.findAll({
       order: [['totalXP', 'DESC']],
       where: { dGuildID: interaction.guild.id },
     })

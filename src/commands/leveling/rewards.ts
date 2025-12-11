@@ -16,10 +16,10 @@ export default {
     validateCommandInteractionInGuild(interaction);
     await interaction.deferReply();
 
-    const server = await findGuild(interaction.guild.id);
+    const dbGuild = await findGuild(interaction.guild.id);
     let rewardsArray;
     try {
-      rewardsArray = server.roleRewardsString ? JSON.parse(server.roleRewardsString) : [];
+      rewardsArray = dbGuild.roleRewardsString ? JSON.parse(dbGuild.roleRewardsString) : [];
     } catch {
       rewardsArray = [];
     }
