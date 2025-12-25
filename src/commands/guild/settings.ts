@@ -393,7 +393,7 @@ export default {
             const server = await findGuild(interaction.guild.id);
             let rewardsArray;
             try {
-              rewardsArray = server.role_rewards_level_string ? JSON.parse(server.role_rewards_level_string) : [];
+              rewardsArray = server.roleRewardsString ? JSON.parse(server.roleRewardsString) : [];
             } catch {
               rewardsArray = [];
             }
@@ -420,7 +420,7 @@ export default {
             });
             rewardsArray.sort((a: RoleReward, b: RoleReward) => a.minLevel - b.minLevel);
 
-            server.set({ role_rewards_level_string: JSON.stringify(rewardsArray) });
+            server.set({ roleRewardsString: JSON.stringify(rewardsArray) });
             await server.save();
 
             const new_role_reward_success_embed = new Discord.EmbedBuilder()
@@ -450,7 +450,7 @@ export default {
             const server = await findGuild(interaction.guild.id);
             let rewardsArray;
             try {
-              rewardsArray = server.role_rewards_level_string ? JSON.parse(server.role_rewards_level_string) : [];
+              rewardsArray = server.roleRewardsString ? JSON.parse(server.roleRewardsString) : [];
             } catch {
               rewardsArray = [];
             }
@@ -468,7 +468,7 @@ export default {
             }
 
             const [removedReward] = rewardsArray.splice(indexToRemove, 1);
-            server.set({ role_rewards_level_string: JSON.stringify(rewardsArray) });
+            server.set({ roleRewardsString: JSON.stringify(rewardsArray) });
             await server.save();
 
             const reward_deletion_success_embed = new Discord.EmbedBuilder()
