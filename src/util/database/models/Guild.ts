@@ -23,7 +23,7 @@ export function initGuildModel(sequelize: Sequelize) {
         allowNull: false,
         primaryKey: true
       },
-      roleRewardsString: {  // holy shit this needs to be changed
+      roleRewardsString: {  // holy shit this needs to be changed // TODO
         type: DataTypes.TEXT,
         allowNull: false,
         defaultValue: ''

@@ -1,5 +1,5 @@
 import Discord from "discord.js";
-import { validateCommandInteractionInGuild, validateGuildChannel, validateGuildTextChannel, validateMessageInGuild } from "../../util/validate";
+import { validateCommandInteractionInGuild, validateGuildChannel, validateMessageInGuild } from "../../util/validate";
 import { emojis } from "../../../util/json/emojis";
 import { findGuildSettings } from "../../util/database/dbutils";
 import { GuildSettings } from "../../util/database/models/GuildSettings";
@@ -21,7 +21,7 @@ export default {
 }
 
 // let pathArray: any[] = [];
-// let changedSettingsArray: string[] = ['bingus', 'bongus', 'bingulus'];
+// let changedSettingsArray: string[] = ['bingus', 'bongus', 'bingulus', 'I don't even know my path names testing'];
 // TODO: expand this into a full navigation mechanism
 let dbGuildSettings: GuildSettings;
 

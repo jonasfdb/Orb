@@ -153,10 +153,10 @@ export default {
 
         const symbols = [
           { emoji: emojis.gemRed, weight: 1000, multiplier: 2 },
-          { emoji: emojis.gemBlue, weight: 475, multiplier: 10 },
-          { emoji: emojis.gemGreen, weight: 255, multiplier: 20 },
-          { emoji: emojis.gemPink, weight: 130, multiplier: 50 },
-          { emoji: emojis.gemDarkBlue, weight: 55, multiplier: 5000 }
+          { emoji: emojis.gemBlue, weight: 470, multiplier: 10 },
+          { emoji: emojis.gemGreen, weight: 250, multiplier: 20 },
+          { emoji: emojis.gemPink, weight: 115, multiplier: 75 },
+          { emoji: emojis.gemDarkBlue, weight: 52, multiplier: 5000 }
         ];
 
         function pickSymbolUnweighted(): { emoji: string, weight: number, multiplier: number } {
@@ -186,10 +186,11 @@ export default {
             embedText = `You win **${payout}** ${emojis.currency}!`;
           } else {
             title = '🎉 You hit a match! 🎉';
-            embedText = `Three ${symbol.emoji} = **${symbol.multiplier}×** → you win **${payout}** ${emojis.currency}!`;
+            embedText = `Three ${symbol.emoji} = Bet x **${symbol.multiplier}**\n` + 
+                        `**You win ${payout}** ${emojis.currency}!`;
           }
         } else {
-          title = 'None match...';
+          title = 'No matching symbols...';
           embedText = `Better luck next time. You lost **${bet}** ${emojis.currency}.`;
           payout = -bet;
         }
