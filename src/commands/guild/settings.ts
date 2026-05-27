@@ -184,7 +184,7 @@ export default {
 
   async execute(client: Discord.Client<true>, interaction: Discord.ChatInputCommandInteraction) {
     validateCommandInteractionInGuild(interaction);
-    await findGuildSettings(interaction.guild.id);
+    // await findGuildSettings(interaction.guild.id);
 
     switch (interaction.options.getSubcommandGroup() || interaction.options.getSubcommand()) {
       case `current`:

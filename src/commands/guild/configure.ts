@@ -37,8 +37,12 @@ const againButton = new Discord.ButtonBuilder()
   .setCustomId('againButton')
   .setLabel('Change more settings')
   .setStyle(Discord.ButtonStyle.Success)
+const finishButton = new Discord.ButtonBuilder()
+  .setCustomId('finishButton')
+  .setLabel('Finish')
+  .setStyle(Discord.ButtonStyle.Primary)
 const navButtonRow = new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(backButton, abortButton);
-const againButtonRow = new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(againButton);
+const againButtonRow = new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(againButton, finishButton);
 
 async function navigateSettings(interaction: Discord.ChatInputCommandInteraction, message: Discord.Message<true>) {
   try {
@@ -68,6 +72,21 @@ async function navigateSettings(interaction: Discord.ChatInputCommandInteraction
           break;
         case 'againButton':
           showSettingsMenu(interaction);
+          break;
+        case 'finishButton':
+          const finishContainer = new Discord.ContainerBuilder()
+            .setAccentColor(colors.success)
+            .addTextDisplayComponents((textDisplay) => textDisplay
+              .setContent(
+                `### ${emojis.checkmark} - Finished!\n` +
+                'All done with the settings. Thus, the wizard departs.'
+              ),
+            )
+
+          await interaction.editReply({
+            components: [finishContainer],
+            flags: Discord.MessageFlags.IsComponentsV2,
+          });
           break;
         // TODO: A save and exit button could be a great idea too?
       }
